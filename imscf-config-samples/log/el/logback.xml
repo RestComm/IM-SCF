@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+  <contextName>${jboss.server.name}</contextName>
+  <jmxConfigurator/>
+
+  <appender name="APPLOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${jboss.server.log.dir}/imscf.log</file>
+
+    <rollingPolicy class="org.restcomm.imscf.common.util.logging.StartupAndFixedWindowRollingPolicy">
+      <fileNamePattern>${jboss.server.log.dir}/archive/imscf.log.%i</fileNamePattern>
+      <minIndex>1</minIndex>
+      <maxIndex>99</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>5MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p v${manifest.Main.Specification-Version:-NA}/${manifest.Main.Implementation-Version:-NA} [%-40.40c{40}] - %m%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+
+  <logger name="org.restcomm.imscf.common.lwcomm" level="INFO" />
+
+  <root level="DEBUG">
+    <appender-ref ref="APPLOG"/>
+  </root>
+
+</configuration>
+
