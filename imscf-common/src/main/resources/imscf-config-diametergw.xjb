@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    schemaLocation="imscf-config-diametergw.xsd"
+    node="/xs:schema"
+    version="1.0">
+
+    <jaxb:bindings node="//xs:complexType[@name='DiameterGatewayModuleType']//xs:element[@name='sctpAssociationRemoteSideProfile']">
+        <jaxb:property>
+            <jaxb:baseType name="org.restcomm.imscf.common.config.SctpAssociationRemoteSideProfileType"/>
+        </jaxb:property>
+    </jaxb:bindings>
+    
+</jaxb:bindings>

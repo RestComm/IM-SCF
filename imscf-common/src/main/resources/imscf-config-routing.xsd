@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config"
+    targetNamespace="http://common.imscf.restcomm.org/config"
+    elementFormDefault="qualified">
+    
+    <xs:include schemaLocation="imscf-config-common.xsd"/>
+
+    <xs:complexType name="SipAsRoutingConfigType">
+        <xs:sequence>
+            <xs:element name="routingCriterias">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:annotation>
+                            <xs:documentation>
+                                The rule will match if any of the criterias below match.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:element name="routingCriteria" type="RoutingCriteriaType" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="sipApplicationServerGroups">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="sipApplicationServerGroupWrapper" type="SipApplicationServerGroupWrapperType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="SipApplicationServerGroupWrapperType">
+        <xs:annotation>
+            <xs:documentation>
+                Wrapper type as a workaround for xew + IDREF list bug.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="sipApplicationServerGroup" type="xs:IDREF"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="ModuleRoutingConfigType">
+        <xs:sequence>
+            <xs:element name="routingCriterias">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:annotation>
+                            <xs:documentation>
+                                The rule will match if any of the criterias below match.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:element name="routingCriteria" type="RoutingCriteriaType" maxOccurs="unbounded" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:choice>
+                <xs:element name="capModule" type="xs:IDREF"/>
+                <xs:element name="mapModule" type="xs:IDREF"/>                
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="RoutingCriteriaType">
+        <xs:annotation>
+            <xs:documentation>
+                The criteria will match if all the elements specified below match. It is possible to have a criteria with neither
+                applicationContext, nor serviceKeyRangeList defined, in this case this criteria will match, acting as a default rule.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="applicationContext" type="ApplicationContextType" minOccurs="0"/>
+            <xs:element name="serviceKeyRangeList" type="NumberRangeListType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="ApplicationContextType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="cap2"/>
+            <xs:enumeration value="cap3"/>
+            <xs:enumeration value="cap3sms"/>
+            <xs:enumeration value="cap4"/>
+            <xs:enumeration value="cap4sms"/>
+            <xs:enumeration value="map"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="DiameterRoutingConfigType">
+        <xs:sequence>
+            <xs:element name="serviceContextIds" type="StringListType"/>
+            <xs:element name="httpApplicationServerGroup" type="xs:IDREF"/>
+            <xs:element name="diameterGatewayModule" type="xs:IDREF"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
