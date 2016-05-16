@@ -1,70 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <name>imscf-sl</name>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.restcomm.imscf</groupId>
-    <artifactId>imscf-sl</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
 
-    <modules>
-        <module>imscf-sl-ejb</module>
-        <module>imscf-sl-web</module>
-        <module>imscf-sl-ear</module>
-    </modules>
+   <groupId>org.restcomm.imscf</groupId>
+   <version>1.0-SNAPSHOT</version>
+   <artifactId>imscf-sl</artifactId>
+   <packaging>war</packaging>
 
-    <properties>
+   <name>imscf-sl: WAR Module</name>
+
+   <properties>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-     
-        <version.wildfly.maven.plugin>1.0.2.Final</version.wildfly.maven.plugin>
-
+ 
         <version.compiler.plugin>3.1</version.compiler.plugin>
-        <version.ear.plugin>2.10</version.ear.plugin>
-        <version.ejb.plugin>2.3</version.ejb.plugin>
         <version.surefire.plugin>2.16</version.surefire.plugin>
         <version.war.plugin>2.5</version.war.plugin>
 
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-    </properties>
+   </properties>
 
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>org.restcomm.imscf</groupId>
-                <artifactId>imscf-sl-ejb</artifactId>
-                <version>${project.version}</version>
-                <type>ejb</type>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.restcomm.imscf</groupId>
-                <artifactId>imscf-sl-web</artifactId>
-                <version>${project.version}</version>
-                <type>war</type>
-                <scope>compile</scope>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>${version.wildfly.maven.plugin}</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+   <dependencies>
+        <dependency>
+            <groupId>org.restcomm.imscf.common</groupId>
+            <artifactId>imscf-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+            <version>2.13.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-spec</artifactId>
+            <version>3.0.564</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-core-api</artifactId>
+            <version>3.0.564</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>2.7.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.ss7.mtp</groupId>
+            <artifactId>mtp-api</artifactId>
+            <version>2.1.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.ss7.mtp</groupId>
+            <artifactId>mtp</artifactId>
+            <version>2.1.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.sctp</groupId>
+            <artifactId>sctp-api</artifactId>
+            <version>1.7.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.sctp</groupId>
+            <artifactId>sctp-impl</artifactId>
+            <version>1.7.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+            <artifactId>m3ua-api</artifactId>
+            <version>2.1.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+            <artifactId>m3ua-impl</artifactId>
+            <version>2.1.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.diameter</groupId>
+            <artifactId>jdiameter-api</artifactId>
+            <version>1.7.0-appngin-1-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.diameter</groupId>
+            <artifactId>jdiameter-impl</artifactId>
+            <version>1.7.0-appngin-1-FINAL</version>
+            <exclusions>
+                <exclusion>  
+                     <groupId>org.slf4j</groupId>
+                     <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>  
+                     <groupId>org.mobicents.protocols.sctp</groupId>
+                     <artifactId>sctp-api</artifactId>
+                </exclusion>
+                <exclusion>  
+                     <groupId>org.mobicents.protocols.sctp</groupId>
+                     <artifactId>sctp-impl</artifactId>
+                </exclusion>
+            </exclusions> 
+       </dependency>
+   </dependencies>
+   <build>
+      <finalName>${project.artifactId}</finalName>
+      <plugins>
+         <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>${version.war.plugin}</version>
+            <configuration>
+               <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 
 </project>
