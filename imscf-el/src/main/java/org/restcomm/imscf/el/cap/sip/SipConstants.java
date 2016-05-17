@@ -38,9 +38,9 @@ public final class SipConstants {
     public static final ContentType CONTENTTYPE_MULTIPART_MIXED;
 
     public static final String HEADER_MAP_METHOD = "Subject";
-    public static final String HEADER_ICA_ROUTE = "x-imscf-route";
-    public static final String HEADER_IMSCF_SERVICE_IDENTIFIER = "x-imscf-service-identifier";
-    public static final String HEADER_AUTOMATIC_CALL_PROCESSING_SUSPENSION = "x-imscf-cps";
+    public static final String HEADER_ICA_ROUTE = "x-asc-route";
+    public static final String HEADER_IMSCF_SERVICE_IDENTIFIER = "x-asc-service-identifier";
+    public static final String HEADER_AUTOMATIC_CALL_PROCESSING_SUSPENSION = "x-asc-cps";
     public static final String HVALUE_CPS_START = "start";
     public static final String HVALUE_CPS_STOP = "stop";
 

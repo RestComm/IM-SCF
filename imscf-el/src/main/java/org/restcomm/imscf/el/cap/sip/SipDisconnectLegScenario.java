@@ -67,7 +67,7 @@ public final class SipDisconnectLegScenario extends Scenario {
             throw new IllegalArgumentException("Invalid SIP session state: " + session.getState());
         }
         if (imscfReason != null) {
-            msgToSend.addHeader("x-imscf-reason", imscfReason);
+            msgToSend.addHeader("x-asc-reason", imscfReason);
         }
         if (reason != null) {
             reason.insertAsHeader(msgToSend);
