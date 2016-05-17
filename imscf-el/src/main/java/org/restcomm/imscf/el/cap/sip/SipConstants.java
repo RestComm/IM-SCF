@@ -44,7 +44,7 @@ public final class SipConstants {
     public static final String HVALUE_CPS_START = "start";
     public static final String HVALUE_CPS_STOP = "stop";
 
-    public static final String DOMAIN_IMSCF = "imscf.appngin.alerant.hu";
+    public static final String DOMAIN_IMSCF = "imscf.restcomm.org";
     public static final String WARNING_HEADER_VALUE_START = "399 " + DOMAIN_IMSCF + " ";
     public static final String CAP_MODULE_NAME_PARAM = "capmodule";
 

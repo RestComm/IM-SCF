@@ -37,7 +37,6 @@ import javax.servlet.sip.SipServletMessage;
 
 /**
  * Singleton bean implementing {@link CallStore}.
- * @author appngin
  *
  */
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)

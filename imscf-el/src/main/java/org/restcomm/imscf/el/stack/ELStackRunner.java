@@ -272,7 +272,7 @@ public class ELStackRunner implements ConfigurationChangeListener {
         // Remove stuck in objects from threadlocals
         String javolutionClassPattern = "javolution\\..*";
         String gsonClassPattern = "com\\.google\\.gson\\.Gson";
-        String callContextClassPattern = "hu\\.alerant\\.appngin\\.imscf\\.el\\.stack\\.CallContext";
+        String callContextClassPattern = "org\\.restcomm\\.imscf\\.el\\.stack\\.CallContext";
         ThreadLocalCleaner.cleanThreadLocals(javolutionClassPattern, gsonClassPattern, callContextClassPattern);
 
         logger.info("EL stopped.");

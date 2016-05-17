@@ -350,7 +350,7 @@ public final class SipUtil {
      *  <p>For example,
      * <pre>createWarningHeader("hello \"world\"!");</pre>
      * returns<br/>
-     * <pre>399 imscf.appngin.alerant.hu "hello \"world\"!"</pre>
+     * <pre>399 imscf.restcomm.org "hello \"world\"!"</pre>
      * .*/
     public static String createWarningHeader(String message) {
         // Warning header has a strict format: 3 digit code, space, host:port or pseudonym token, space, quoted-string

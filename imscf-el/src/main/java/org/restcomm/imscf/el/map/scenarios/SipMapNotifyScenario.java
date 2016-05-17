@@ -121,7 +121,7 @@ public final class SipMapNotifyScenario extends Scenario {
     private static String subscriberInfoToPidfXml(AtiRequest atiRequest, SubscriberState subscriberState) {
         StringBuilder ret = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
         ret.append("<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"pres:")
-                .append(atiRequest.getTargetNumber()).append("@imscf.appngin.alerant.hu\">\n");
+                .append(atiRequest.getTargetNumber()).append("@imscf.restcomm.org\">\n");
         ret.append("  <tuple id=\"1\">\n");
         ret.append("    <status>\n");
         String basic = "open";
