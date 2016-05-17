@@ -49,7 +49,7 @@ public final class DiameterGWUtil {
     private static Logger logger = LoggerFactory.getLogger(DiameterGWUtil.class);
 
     public static final int SDP_SERVICE_PARAMETER_INFO = 999;
-    public static final Long ALERANT_VENDOR_ID = 42215L;
+    public static final Long RESTCOMM_VENDOR_ID = 42215L;
 
     private DiameterGWUtil() {
     }
@@ -239,7 +239,7 @@ public final class DiameterGWUtil {
                     if (diameterGWCreditControlResponse.getResponseCaller() != null
                             && !diameterGWCreditControlResponse.getResponseCaller().equals("")) {
                         // set to 0 for the END_USER_MSISDN
-                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, ALERANT_VENDOR_ID,
+                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, RESTCOMM_VENDOR_ID,
                                 true, false);
                         grouped.addAvp(Avp.SERVICE_PARAMETER_TYPE, 0L, false, false, true);
 
@@ -250,7 +250,7 @@ public final class DiameterGWUtil {
                     if (diameterGWCreditControlResponse.getResponseCallee() != null
                             && !diameterGWCreditControlResponse.getResponseCallee().equals("")) {
                         // set to 102 for the recipients address
-                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, ALERANT_VENDOR_ID,
+                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, RESTCOMM_VENDOR_ID,
                                 true, false);
                         grouped.addAvp(Avp.SERVICE_PARAMETER_TYPE, 102L, false, false, true);
 
@@ -261,7 +261,7 @@ public final class DiameterGWUtil {
                     if (diameterGWCreditControlResponse.getResponseSmscAddress() != null
                             && !diameterGWCreditControlResponse.getResponseSmscAddress().equals("")) {
                         // set to 101 for the SMSC address
-                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, ALERANT_VENDOR_ID,
+                        AvpSet grouped = message.getAvps().addGroupedAvp(SDP_SERVICE_PARAMETER_INFO, RESTCOMM_VENDOR_ID,
                                 true, false);
                         grouped.addAvp(Avp.SERVICE_PARAMETER_TYPE, 101L, false, false, true);
 
