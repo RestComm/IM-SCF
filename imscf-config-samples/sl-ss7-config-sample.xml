@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<imscfConfig xmlns="http://common.imscf.restcomm.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
+	<sctpAssociationRemoteSides>
+		<sctpAssociationRemoteSide name="HLRAA">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.1.206.210</remoteIp1>
+			<remoteIp2>250.9.230.149</remoteIp2>
+			<remotePort>30000</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="HLRAB">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.4.148.69</remoteIp1>
+			<remoteIp2>253.6.156.21</remoteIp2>
+			<remotePort>61008</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="HLRBA">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.1.206.210</remoteIp1>
+			<remoteIp2>250.9.230.149</remoteIp2>
+			<remotePort>30000</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="HLRBB">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.4.148.69</remoteIp1>
+			<remoteIp2>253.6.156.21</remoteIp2>
+			<remotePort>61008</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="MSS0A">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.1.206.210</remoteIp1>
+			<remoteIp2>250.9.230.149</remoteIp2>
+			<remotePort>30000</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="MSS0B">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.4.148.69</remoteIp1>
+			<remoteIp2>253.6.156.21</remoteIp2>
+			<remotePort>61008</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="MSS1A">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.1.206.210</remoteIp1>
+			<remoteIp2>250.9.230.149</remoteIp2>
+			<remotePort>30000</remotePort>
+		</sctpAssociationRemoteSide>
+		<sctpAssociationRemoteSide name="MSS1B">
+			<remoteSystemType>SG</remoteSystemType>
+			<associationType>m3ua</associationType>
+			<remoteIp1>253.4.148.69</remoteIp1>
+			<remoteIp2>253.6.156.21</remoteIp2>
+			<remotePort>61008</remotePort>
+		</sctpAssociationRemoteSide>
+	</sctpAssociationRemoteSides>
+	<sctpAssociationRemoteSideProfiles>
+		<sctpAssociationRemoteSideProfile name="SCTP_REMOTE_PROFILE_1">
+		<sctpAssociationRemoteSideWrapper>
+			<sctpAssociationRemoteSide>MSS0A</sctpAssociationRemoteSide>
+		</sctpAssociationRemoteSideWrapper>
+		</sctpAssociationRemoteSideProfile>
+	</sctpAssociationRemoteSideProfiles>
+	<m3uaProfiles>
+		<m3uaProfile name="m3uaProfile1">
+			<routingContext>5</routingContext>
+			<ss7SignalingMode>itu14</ss7SignalingMode>
+			<m3uaRoutes>
+				<m3uaRoute name="MSS0-Route">
+					<pointCode>280</pointCode>
+					<primaryAssociation>MSS0A</primaryAssociation>
+					<secondaryAssociation>MSS0B</secondaryAssociation>
+				</m3uaRoute>
+				<m3uaRoute name="MSS1-Route">
+					<pointCode>281</pointCode>
+					<primaryAssociation>MSS1A</primaryAssociation>
+					<secondaryAssociation>MSS1B</secondaryAssociation>
+				</m3uaRoute>
+			</m3uaRoutes>
+		</m3uaProfile>
+		<m3uaProfile name="m3uaProfile2">
+			<routingContext>5</routingContext>
+			<ss7SignalingMode>itu14</ss7SignalingMode>
+			<m3uaRoutes>
+				<m3uaRoute name="HLRA-Route">
+					<pointCode>201</pointCode>
+					<primaryAssociation>HLRAA</primaryAssociation>
+					<secondaryAssociation>HLRAB</secondaryAssociation>
+				</m3uaRoute>
+				<m3uaRoute name="HLRB-Route">
+					<pointCode>212</pointCode>
+					<primaryAssociation>HLRBA</primaryAssociation>
+					<secondaryAssociation>HLRBB</secondaryAssociation>
+				</m3uaRoute>
+			</m3uaRoutes>
+		</m3uaProfile>
+	</m3uaProfiles>
+	<sccp>
+		<sccpLocalProfile>
+			<localNetworkIndicator>international</localNetworkIndicator>
+			<removePcWhenRouteOnGt>false</removePcWhenRouteOnGt>
+			<localSubSystems>
+				<localSubSystem alias="localCamelSsn">
+					<subSystemNumber>146</subSystemNumber>
+				</localSubSystem>
+				<localSubSystem alias="localOtherSsn">
+					<subSystemNumber>222</subSystemNumber>
+				</localSubSystem>
+			</localSubSystems>
+			<localGtAddresses>
+				<localGtAddress alias="pilotGt">
+					<globalTitle>36309879051</globalTitle>
+					<subSystemNumber>146</subSystemNumber>
+					<gtIndicator>4</gtIndicator>
+					<gtNoa>4</gtNoa>
+					<gtNumberingPlan>1</gtNumberingPlan>
+					<gtTranslationType>0</gtTranslationType>
+				</localGtAddress>
+				<localGtAddress alias="otherPilotgt">
+					<globalTitle>36309879052</globalTitle>
+					<subSystemNumber>146</subSystemNumber>
+					<gtIndicator>4</gtIndicator>
+					<gtNoa>4</gtNoa>
+					<gtNumberingPlan>1</gtNumberingPlan>
+					<gtTranslationType>0</gtTranslationType>
+				</localGtAddress>
+			</localGtAddresses>
+		</sccpLocalProfile>
+		<sccpRemoteProfile>
+			<remoteSubSystemPointCodeAddresses>
+				<remoteSubSystemPointCode alias="MSS0">
+					<subSystemNumber>280</subSystemNumber>
+					<pointCode>146</pointCode>
+					<networkIndicator>nationalExtension</networkIndicator>
+				</remoteSubSystemPointCode>
+				<remoteSubSystemPointCode alias="MSS1">
+					<subSystemNumber>146</subSystemNumber>
+					<pointCode>281</pointCode>
+					<networkIndicator>international</networkIndicator>
+				</remoteSubSystemPointCode>
+				<remoteSubSystemPointCode alias="HLRA">
+					<subSystemNumber>280</subSystemNumber>
+					<pointCode>146</pointCode>
+					<networkIndicator>nationalExtension</networkIndicator>
+				</remoteSubSystemPointCode>
+				<remoteSubSystemPointCode alias="HLRB">
+					<subSystemNumber>146</subSystemNumber>
+					<pointCode>281</pointCode>
+					<networkIndicator>international</networkIndicator>
+				</remoteSubSystemPointCode>
+			</remoteSubSystemPointCodeAddresses>
+			<remoteGtAddresses>
+				<remoteGtAddress alias="MSS0GT">
+					<globalTitle>36309879061</globalTitle>
+					<subSystemNumber>146</subSystemNumber>
+					<gtIndicator>4</gtIndicator>
+					<gtNoa>4</gtNoa>
+					<gtNumberingPlan>1</gtNumberingPlan>
+					<gtTranslationType>0</gtTranslationType>
+					<networkIndicator>international</networkIndicator>
+					<pointCode>280</pointCode>
+				</remoteGtAddress>
+				<remoteGtAddress alias="MSS1GT">
+					<globalTitle>36309879065</globalTitle>
+					<subSystemNumber>146</subSystemNumber>
+					<gtIndicator>4</gtIndicator>
+					<gtNoa>4</gtNoa>
+					<gtNumberingPlan>1</gtNumberingPlan>
+					<gtTranslationType>0</gtTranslationType>
+					<networkIndicator>national</networkIndicator>
+					<pointCode>281</pointCode>
+				</remoteGtAddress>
+			</remoteGtAddresses>
+			<gtRouting>
+				<primaryGttPointCode>281</primaryGttPointCode>
+				<secondaryGttPointCode>282</secondaryGttPointCode>
+				<distribution>loadbalance</distribution>
+			</gtRouting>
+		</sccpRemoteProfile>
+	</sccp>
+	<mediaResources>
+		<mediaResource name="MRF">
+			<alias>mrf@imscf.restcomm.org</alias>
+			<addressDigits>03</addressDigits>
+			<natureOfAddress>international</natureOfAddress>
+			<numberingPlan>data</numberingPlan>
+			<bothwayThroughConnectionInd>bothwayPathRequired</bothwayThroughConnectionInd>
+		</mediaResource>
+		<mediaResource name="MRF_FREE">
+			<alias>mrf_free@imscf.restcomm.org</alias>
+			<addressDigits>03</addressDigits>
+			<natureOfAddress>networkSpecific</natureOfAddress>
+			<numberingPlan>telex</numberingPlan>
+			<bothwayThroughConnectionInd>bothwayPathNotRequired</bothwayThroughConnectionInd>
+		</mediaResource>
+	</mediaResources>
+	<capModules>
+		<capModule name="capModule">
+			<localGt>pilotGt</localGt>
+			<inTriggering>
+				<oBcsm>
+					<eventTrigger event="tBusy" triggerType="NOTIFY_AND_CONTINUE"/>
+					<eventTrigger event="tAbandon" triggerType="INTERRUPTED"/>
+				</oBcsm>
+				<tBcsm>
+					<eventTrigger event="oDisconnect" triggerType="INTERRUPTED"/>
+				</tBcsm>
+				<ica>
+					<eventTrigger event="oNoAnswer" triggerType="NOTIFY_AND_CONTINUE" noAnswerTimeoutSec="9"/>
+					<eventTrigger event="tBusy" triggerType="INTERRUPTED"/>
+				</ica>
+				<oSms>
+					<eventTrigger event="tNoAnswer" triggerType="INTERRUPTED"/>
+				</oSms>
+				<tSms>
+					<eventTrigger event="tMidCall" triggerType="INTERRUPTED"/>
+					<eventTrigger event="callAccepted" triggerType="INTERRUPTED"/>
+				</tSms>
+			</inTriggering>
+			<generalProperties>
+				<resetTimerSec>0</resetTimerSec>
+				<resetTimerUiSec>7</resetTimerUiSec>
+				<activityTestIntervalSec>180</activityTestIntervalSec>
+				<asReactionTimeoutSec>9</asReactionTimeoutSec>
+				<maxCallLengthMinutes>7200</maxCallLengthMinutes>
+			</generalProperties>
+			<gsmScfAddress>
+				<numberingPlan>ISDN</numberingPlan>
+				<noa>international</noa>
+				<address>36309879049</address>
+			</gsmScfAddress>
+			<sipProperties/>
+			<mediaResources>
+				<mediaResourceWrapper>
+					<mediaResource>MRF</mediaResource>
+				</mediaResourceWrapper>
+				<mediaResourceWrapper>
+					<mediaResource>MRF_FREE</mediaResource>
+				</mediaResourceWrapper>
+			</mediaResources>
+			<inviteErrorHandlers>
+				<inviteErrorHandler>
+					<inviteErrorRange>408</inviteErrorRange>
+					<inviteErrorAction action="continue"/>
+					<serviceKeys>55</serviceKeys>
+				</inviteErrorHandler>
+				<inviteErrorHandler>
+					<inviteErrorRange>500</inviteErrorRange>
+					<inviteErrorAction action="release" releaseCause="NORMAL_OR_UNSPECIFIED"/>
+					<serviceKeys>66</serviceKeys>
+				</inviteErrorHandler>
+			</inviteErrorHandlers>
+		</capModule>
+	</capModules>
+	<mapModules>
+		<mapModule name="mapModule1">
+			<localSsn>localCamelSsn</localSsn>
+			<mapGsmScfAddress>
+				<numberingPlan>ISDN</numberingPlan>
+				<noa>international</noa>
+				<address>36309879049</address>
+			</mapGsmScfAddress>
+			<mapTimeoutSec>8</mapTimeoutSec>
+		</mapModule>
+	</mapModules>
+	<sipApplicationServers>
+		<heartbeatConfiguration>
+			<timeoutSec>5</timeoutSec>
+			<activeIntervalSec>10</activeIntervalSec>
+			<inactiveIntervalSec>30</inactiveIntervalSec>
+		</heartbeatConfiguration>
+		<sipApplicationServerGroups>
+			<sipApplicationServerGroup name="domino-as">
+				<distribution>loadbalance</distribution>
+				<sipApplicationServer name="domino-as-1">
+					<host>192.168.1.141</host>
+					<port>20470</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+				<sipApplicationServer name="domino-as-2">
+					<host>192.168.1.142</host>
+					<port>20470</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+				<sipApplicationServer name="domino-as-3">
+					<host>192.168.1.141</host>
+					<port>20471</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+				<sipApplicationServer name="domino-as-4">
+					<host>192.168.1.142</host>
+					<port>20471</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+			</sipApplicationServerGroup>
+			<sipApplicationServerGroup name="fundial-as">
+				<distribution>failover</distribution>
+				<sipApplicationServer name="fundial-as-1">
+					<host>192.168.1.151</host>
+					<port>44098</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+				<sipApplicationServer name="fundial-as-2">
+					<host>192.168.1.151</host>
+					<port>44098</port>
+					<heartbeatEnabled>true</heartbeatEnabled>
+				</sipApplicationServer>
+			</sipApplicationServerGroup>
+		</sipApplicationServerGroups>
+	</sipApplicationServers>
+	<httpApplicationServers>
+		<httpApplicationServerGroup name="roamingSms">
+			<connectTimeoutMs>500</connectTimeoutMs>
+			<readTimeoutMs>5500</readTimeoutMs>
+			<reenableTimeMs>15000</reenableTimeMs>
+			<url>http://192.168.1.111:8080</url>
+			<url>http://192.168.1.112:8080</url>
+		</httpApplicationServerGroup>
+	</httpApplicationServers>
+	<sipAsRouting>
+		<sipAsRoutingEntry>
+			<routingCriterias>
+				<routingCriteria>
+					<serviceKeyRangeList>12,13-20,24</serviceKeyRangeList>
+				</routingCriteria>
+				<routingCriteria>
+					<applicationContext>cap4</applicationContext>
+				</routingCriteria>
+			</routingCriterias>
+			<sipApplicationServerGroups>
+				<sipApplicationServerGroupWrapper>
+					<sipApplicationServerGroup>domino-as</sipApplicationServerGroup>
+				</sipApplicationServerGroupWrapper>
+			</sipApplicationServerGroups>
+		</sipAsRoutingEntry>
+		<sipAsRoutingEntry>
+			<routingCriterias>
+				<routingCriteria>
+					<applicationContext>cap4sms</applicationContext>
+				</routingCriteria>
+				<routingCriteria>
+					<serviceKeyRangeList>30,95</serviceKeyRangeList>
+				</routingCriteria>
+			</routingCriterias>
+			<sipApplicationServerGroups>
+				<sipApplicationServerGroupWrapper>
+					<sipApplicationServerGroup>fundial-as</sipApplicationServerGroup>
+				</sipApplicationServerGroupWrapper>
+			</sipApplicationServerGroups>
+		</sipAsRoutingEntry>
+	</sipAsRouting>
+	<moduleRouting>
+		<moduleRoutingEntry>
+			<routingCriterias>
+				<routingCriteria>
+					<applicationContext>map</applicationContext>
+				</routingCriteria>
+			</routingCriterias>
+			<mapModule>mapModule1</mapModule>
+		</moduleRoutingEntry>
+		<moduleRoutingEntry>
+			<routingCriterias>
+				<!-- Default rule -->
+			</routingCriterias>
+			<capModule>capModule</capModule>
+		</moduleRoutingEntry>
+	</moduleRouting>
+	<diameterGatewayModules>
+		<diameterGatewayModule name="roamingSmsDiameterGwModule">
+			<acceptUndefinedPeer>true</acceptUndefinedPeer>
+			<duplicationProtection>true</duplicationProtection>
+			<duplicateTimer>240000</duplicateTimer>
+			<duplicateSize>5000</duplicateSize>
+			<queueSize>10000</queueSize>
+			<messageTimeoutMs>2000</messageTimeoutMs>
+			<stopTimeoutMs>10000</stopTimeoutMs>
+			<ceaTimeoutMs>2000</ceaTimeoutMs>
+			<iacTimeoutMs>120000</iacTimeoutMs>
+			<dwaTimeoutMs>2000</dwaTimeoutMs>
+			<dpaTimeoutMs>5000</dpaTimeoutMs>
+			<recTimeoutMs>10000</recTimeoutMs>
+			<sessionTimeoutSec>60</sessionTimeoutSec>
+			<threadPools>
+				<threadGroupSize>64</threadGroupSize>
+				<processingMessageTimerSize>1</processingMessageTimerSize>
+				<dplicationMessageTimerSize>1</dplicationMessageTimerSize>
+				<redirectMessageTimerSize>1</redirectMessageTimerSize>
+				<peerOverloadTimerSize>1</peerOverloadTimerSize>
+				<connectionTimerSize>1</connectionTimerSize>
+				<statisticTimerSize>1</statisticTimerSize>
+				<applicationSessionSize>10</applicationSessionSize>
+			</threadPools>
+			<productName>diametergw</productName>
+			<originRealm>orealm</originRealm>
+			<originApplicationId>
+				<vendorId>42215</vendorId>
+				<authApplId>4</authApplId>
+				<acctApplId>4</acctApplId>
+			</originApplicationId>
+			<destinationRealm>drealm</destinationRealm>
+			<destinationApplicationId>
+				<vendorId>0</vendorId>
+				<authApplId>4</authApplId>
+				<acctApplId>0</acctApplId>
+			</destinationApplicationId>
+			<sctpAssociationRemoteSideProfile>SCTP_REMOTE_PROFILE_1</sctpAssociationRemoteSideProfile>
+		</diameterGatewayModule>
+	</diameterGatewayModules>
+	<diameterRouting>
+		<diameterRoutingEntry>
+			<serviceContextIds>ROAMINGSMS</serviceContextIds>
+			<httpApplicationServerGroup>roamingSms</httpApplicationServerGroup>
+			<diameterGatewayModule>roamingSmsDiameterGwModule</diameterGatewayModule>
+		</diameterRoutingEntry>
+	</diameterRouting>
+	<statistics>
+		<statisticsTimeWindowSec>900</statisticsTimeWindowSec>
+	</statistics>
+	<lwCommParameters>
+		<heartbeatIntervalMs>2000</heartbeatIntervalMs>
+		<heartbeatTimeoutMs>6500</heartbeatTimeoutMs>
+		<poolConfigurations>
+			<poolConfiguration name="slPoolConfig">
+				<receiveTransportPoolSize>1</receiveTransportPoolSize>
+				<receiveWorkerPoolSize>5</receiveWorkerPoolSize>
+				<sendPoolSize>5</sendPoolSize>				
+			</poolConfiguration>
+			<poolConfiguration name="elPoolConfig">
+				<receiveTransportPoolSize>1</receiveTransportPoolSize>
+				<receiveWorkerPoolSize>5</receiveWorkerPoolSize>
+				<sendPoolSize>5</sendPoolSize>				
+			</poolConfiguration>
+		</poolConfigurations>
+		<retransmitPattern>
+			<retransmitIntervalMs>100</retransmitIntervalMs>
+			<retransmitIntervalMs>200</retransmitIntervalMs>
+			<retransmitIntervalMs>400</retransmitIntervalMs>
+		</retransmitPattern>
+	</lwCommParameters>
+	<notificationConfiguration>
+		<serviceKeyCounterThresholdNotifications>
+			<serviceKeyCounterThresholdNotification>
+				<thresholdLow>1</thresholdLow>
+				<thresholdHigh>3</thresholdHigh>
+				<notificationWhenLowFromBelow>false</notificationWhenLowFromBelow>
+				<notificationWhenLowFromAbove>true</notificationWhenLowFromAbove>
+				<notificationWhenHighFromBelow>true</notificationWhenHighFromBelow>
+				<notificationWhenHighFromAbove>false</notificationWhenHighFromAbove>
+				<notificationText>On server ${serverName} counter ${counterName} crossed the ${lowHigh} threshold (${thresholdValue}) from ${aboveBelow}.</notificationText>
+				<counterName>initialDpCount</counterName>
+			</serviceKeyCounterThresholdNotification>
+		</serviceKeyCounterThresholdNotifications>
+		<mapCounterThresholdNotifications/>
+		<diameterCounterThresholdNotifications/>
+	</notificationConfiguration>
+	<overloadProtection>
+		<enabled>true</enabled>
+		<cpuOverloadThresholdPercent>80</cpuOverloadThresholdPercent>
+		<cpuMeasurementWindow>10</cpuMeasurementWindow>
+		<dataCollectionPeriodSec>3</dataCollectionPeriodSec>
+		<heapOverloadThresholdPercent>90</heapOverloadThresholdPercent>
+		<nonHeapOverloadThresholdPercent>90</nonHeapOverloadThresholdPercent>
+	</overloadProtection>
+	<servers>
+		<signalingLayerServers>
+			<signalingLayerServer name="sl01a">
+				<poolConfig>slPoolConfig</poolConfig>
+				<connectivity>
+					<internalCommunicationAddress>
+						<host>192.168.2.31</host>
+						<port>5000</port>
+					</internalCommunicationAddress>
+					<administrationAddress>
+						<host>192.168.2.31</host>
+						<port>9999</port>
+					</administrationAddress>
+				</connectivity>
+				<sctpAssociationLocalSides>
+					<sctpAssociationLocalSide>
+						<sigtranIp1>10.133.45.21</sigtranIp1>
+						<sigtranIp2>10.133.45.22</sigtranIp2>
+						<port>2905</port>
+						<side>client</side>
+						<m3uaProfile>m3uaProfile2</m3uaProfile>
+					</sctpAssociationLocalSide>
+				</sctpAssociationLocalSides>
+				<pointCode>361</pointCode>
+				<sctpWorkerThreadCount>1</sctpWorkerThreadCount>
+			</signalingLayerServer>
+			<signalingLayerServer name="sl02a">
+				<poolConfig>slPoolConfig</poolConfig>
+				<connectivity>
+					<internalCommunicationAddress>
+						<host>192.168.2.32</host>
+						<port>5000</port>
+					</internalCommunicationAddress>
+					<administrationAddress>
+						<host>192.168.2.32</host>
+						<port>9999</port>
+					</administrationAddress>
+				</connectivity>
+				<sctpAssociationLocalSides>
+					<sctpAssociationLocalSide>
+						<sigtranIp1>10.133.45.11</sigtranIp1>
+						<sigtranIp2>10.133.45.12</sigtranIp2>
+						<port>2905</port>
+						<side>client</side>
+						<m3uaProfile>m3uaProfile2</m3uaProfile>
+					</sctpAssociationLocalSide>
+				</sctpAssociationLocalSides>
+				<pointCode>362</pointCode>
+				<sctpWorkerThreadCount>1</sctpWorkerThreadCount>
+			</signalingLayerServer>
+		</signalingLayerServers>
+		<executionLayerServers>
+      
+    </executionLayerServers>
+	</servers>
+</imscfConfig>

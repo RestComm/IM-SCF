@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config" targetNamespace="http://common.imscf.restcomm.org/config" elementFormDefault="qualified">
+	<xs:include schemaLocation="imscf-config-common.xsd"/>
+	<xs:include schemaLocation="imscf-config-sctp.xsd"/>
+	<xs:include schemaLocation="imscf-config-sccp.xsd"/>
+	<xs:include schemaLocation="imscf-config-as.xsd"/>
+	<xs:include schemaLocation="imscf-config-cap.xsd"/>
+	<xs:include schemaLocation="imscf-config-routing.xsd"/>
+	<xs:include schemaLocation="imscf-config-diametergw.xsd"/>
+	<xs:element name="imscfConfig" type="ImscfConfigType">
+		<xs:key name="m3uaProfileKey">
+			<xs:selector xpath="m3uaProfiles/m3uaProfile"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="m3uaProfileKeyRef" refer="m3uaProfileKey">
+			<xs:selector xpath="servers/signalingLayerServers/signalingLayerServer/sctpAssociationLocalSides/sctpAssociationLocalSide"/>
+			<xs:field xpath="m3uaProfile"/>
+		</xs:keyref>
+		<xs:key name="sctpAssociationRemoteSideProfileKey">
+			<xs:selector xpath="sctpAssociationRemoteSideProfiles/sctpAssociationRemoteSideProfile"></xs:selector>
+			<xs:field xpath="@name"></xs:field>
+		</xs:key>
+		<xs:keyref refer="sctpAssociationRemoteSideProfileKey" name="sctpAssociationRemoteSideProfileKeyRef">
+			<xs:selector xpath="servers/signalingLayerServers/signalingLayerServer/sctpAssociationLocalSides/sctpAssociationLocalSide"></xs:selector>
+			<xs:field xpath="sctpAssociationRemoteSideProfile"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="sctpAssociationRemoteSideProfileKey" name="sctpAssociationRemoteSideProfileKeyDiameterGatewayModuleRef">
+			<xs:selector xpath="diameterGatewayModules/diameterGatewayModule"></xs:selector>
+			<xs:field xpath="sctpAssociationRemoteSideProfile"></xs:field>
+		</xs:keyref>
+		
+		<xs:key name="sctpAssociationRemoteSideKey">
+			<xs:selector xpath="sctpAssociationRemoteSides/sctpAssociationRemoteSide"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="sctpAssociationRemoteSideKeyPrimaryRef" refer="sctpAssociationRemoteSideKey">
+			<xs:selector xpath="m3uaProfiles/m3uaProfile/m3uaRoutes/m3uaRoute"/>
+			<xs:field xpath="primaryAssociation"/>
+		</xs:keyref>
+		<xs:keyref name="sctpAssociationRemoteSideKeySecondaryRef" refer="sctpAssociationRemoteSideKey">
+			<xs:selector xpath="m3uaProfiles/m3uaProfile/m3uaRoutes/m3uaRoute"/>
+			<xs:field xpath="secondaryAssociation"/>
+		</xs:keyref>
+		<xs:keyref refer="sctpAssociationRemoteSideKey" name="sctpAssociationRemoteSideKeyProfileRef">
+			<xs:selector xpath="sctpAssociationRemoteSideProfiles/sctpAssociationRemoteSideProfile/sctpAssociationRemoteSideWrapper"></xs:selector>
+			<xs:field xpath="sctpAssociationRemoteSide"></xs:field>
+		</xs:keyref>
+		
+		<xs:keyref name="sctpAssociationRemoteSideKeyAdditionalRef" refer="sctpAssociationRemoteSideKey">
+			<xs:selector xpath="servers/signalingLayerServers/signalingLayerServer/sctpAssociationLocalSides/sctpAssociationLocalSide/additionalRemoteSides"/>
+			<xs:field xpath="sctpAssociationRemoteSide"/>
+		</xs:keyref>
+		
+		<xs:key name="localGtAddressKey">
+			<xs:selector xpath="sccp/sccpLocalProfile/localGtAddresses/localGtAddress"/>
+			<xs:field xpath="@alias"/>
+		</xs:key>
+		<xs:keyref refer="localGtAddressKey" name="localGtAddressKeyCapModuleRef">
+			<xs:selector xpath="capModules/capModule"></xs:selector>
+			<xs:field xpath="localGt"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="localGtAddressKey" name="localGtAddressKeyMapModuleRef">
+			<xs:selector xpath="mapModules/mapModule"></xs:selector>
+			<xs:field xpath="localGt"></xs:field>
+		</xs:keyref>
+		
+		<xs:key name="localSubSystemKey">
+			<xs:selector xpath="sccp/sccpLocalProfile/localSubSystems/localSubSystem"/>
+			<xs:field xpath="@alias"/>
+		</xs:key>
+		<xs:keyref refer="localSubSystemKey" name="localSubSystemKeyCapModuleRef">
+			<xs:selector xpath="capModules/capModule"></xs:selector>
+			<xs:field xpath="localSsn"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="localSubSystemKey" name="localSubSystemKeyMapModuleRef">
+			<xs:selector xpath="mapModules/mapModule"></xs:selector>
+			<xs:field xpath="localSsn"></xs:field>
+		</xs:keyref>
+		
+		<xs:key name="mediaResourceKey">
+			<xs:selector xpath="mediaResources/mediaResource"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="capModuleMediaResourceKeyRef" refer="mediaResourceKey">
+			<xs:selector xpath="capModules/capModule/mediaResources/mediaResourceWrapper"/>
+			<xs:field xpath="mediaResource"/>
+		</xs:keyref>
+		<xs:key name="sipApplicationServerGroupKey">
+			<xs:selector xpath="sipApplicationServers/sipApplicationServerGroups/sipApplicationServerGroup"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="sipRouteApplicationServerGroupKeyRef" refer="sipApplicationServerGroupKey">
+			<xs:selector xpath="sipRouting/sipAsRoutingConfigs/sipAsRoutingConfig/sipApplicationServerGroups/sipApplicationServerGroupWrapper"/>
+			<xs:field xpath="sipApplicationServerGroup"/>
+		</xs:keyref>
+		<xs:key name="capModuleKey">
+			<xs:selector xpath="capModules/capModule"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="capModuleKeyRoutingRef" refer="capModuleKey">
+			<xs:selector xpath="moduleRouting/moduleRoutingEntry"/>
+			<xs:field xpath="capModule"/>
+		</xs:keyref>
+		<xs:key name="mapModuleKey">
+			<xs:selector xpath="mapModules/mapModule"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="mapModuleKeyRoutingRef" refer="mapModuleKey">
+			<xs:selector xpath="moduleRouting/moduleRoutingEntry"/>
+			<xs:field xpath="mapModule"/>
+		</xs:keyref>
+		<xs:key name="diameterGatewayModuleKey">
+			<xs:selector xpath="diameterGatewayModules/diameterGatewayModule"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="diameterGatewayModuleDiameterRoutingKeyRef" refer="diameterGatewayModuleKey">
+			<xs:selector xpath="diameterRouting/diameterRoutingEntry"/>
+			<xs:field xpath="diameterGatewayModule"/>
+		</xs:keyref>
+		<xs:key name="httpApplicationServerGroupKey">
+			<xs:selector xpath="httpApplicationServers/httpApplicationServerGroup"/>
+			<xs:field xpath="@name"/>
+		</xs:key>
+		<xs:keyref name="httpApplicationServerGroupDiameterRoutingKeyRef" refer="httpApplicationServerGroupKey">
+			<xs:selector xpath="diameterRouting/diameterRoute"/>
+			<xs:field xpath="httpApplicationServerGroup"/>
+		</xs:keyref>
+		<xs:key name="poolConfigKey">
+			<xs:selector xpath="lwCommParameters/poolConfigurations/poolConfiguration"></xs:selector>
+			<xs:field xpath="@name"></xs:field>
+		</xs:key>
+		<xs:keyref refer="poolConfigKey" name="poolConfigKeySlRef">
+			<xs:selector xpath="servers/signalingLayerServers/signalingLayerServer"></xs:selector>
+			<xs:field xpath="poolConfig"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="poolConfigKey" name="poolConfigKeyElRef">
+			<xs:selector xpath="servers/executionLayerServers/executionLayerServer"></xs:selector>
+			<xs:field xpath="poolConfig"></xs:field>
+		</xs:keyref>
+
+	</xs:element>
+	<xs:complexType name="ImscfConfigType">
+		<xs:sequence>
+			<xs:element name="sctpAssociationRemoteSides">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="sctpAssociationRemoteSide" type="SctpAssociationRemoteSideType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="sctpAssociationRemoteSideProfiles">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="sctpAssociationRemoteSideProfile" type="SctpAssociationRemoteSideProfileType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="m3uaProfiles">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="m3uaProfile" type="M3UaProfileType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="sccp" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="sccpLocalProfile" type="SccpLocalProfileType"/>
+						<xs:element name="sccpRemoteProfile" type="SccpRemoteProfileType"/>						
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="mediaResources">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="mediaResource" type="MediaResourceType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="capModules">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="capModule" type="CapModuleType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="mapModules">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="mapModule" type="MapModuleType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="sipApplicationServers" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="heartbeatConfiguration" type="HeartbeatConfigType"/>
+						<xs:element name="sipApplicationServerGroups">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="sipApplicationServerGroup" type="SipApplicationServerGroupType" minOccurs="0" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="httpApplicationServers">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="httpApplicationServerGroup" type="HttpApplicationServerGroupType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="sipAsRouting">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="sipAsRoutingEntry" type="SipAsRoutingConfigType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="moduleRouting">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="moduleRoutingEntry" type="ModuleRoutingConfigType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="diameterGatewayModules">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="diameterGatewayModule" type="DiameterGatewayModuleType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="diameterRouting">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="diameterRoutingEntry" type="DiameterRoutingConfigType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="statistics" type="StatisticsConfigType"/>
+			<xs:element name="lwCommParameters" type="LwCommParametersType"/>
+			<xs:element name="notificationConfiguration" type="NotificationConfigurationType"/>
+			<xs:element name="overloadProtection" type="OverloadProtectionType"/>
+			<xs:element name="servers" type="ServersType"/>
+		</xs:sequence>
+		<xs:attribute name="version" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:annotation>
+						<xs:documentation>The list of configuration versions acceptable by this schema</xs:documentation>
+					</xs:annotation>
+					<xs:enumeration value="1.0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	
+	<xs:complexType name="StatisticsConfigType">
+		<xs:sequence>
+			<xs:element name="statisticsTimeWindowSec" type="xs:int"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="OverloadProtectionType">
+		<xs:sequence>
+			<xs:element name="enabled" type="xs:boolean"/>
+			<xs:element name="cpuOverloadThresholdPercent" type="xs:int">
+				<xs:annotation>
+					<xs:documentation>
+						If the average CPU usage (measured every dataCollectionPeriodSec and cpuMeasurementWindow samples are averaged) exceeds this value the system is overloaded.
+						Valid values are between 0 and 100.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="cpuMeasurementWindow" type="xs:int"/>
+			<xs:element name="dataCollectionPeriodSec" type="xs:int"/>
+			<xs:element name="heapOverloadThresholdPercent" type="xs:int">
+				<xs:annotation>
+					<xs:documentation>
+						If the heap usage (in case of generational GC, Old Gen is monitored after old collection) exceeds this percentage, the system is overloaded.
+						Valid values are between 0 and 100.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="nonHeapOverloadThresholdPercent" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>
+							If the non-heap usage (in case of Java8 Metaspace) exceeds this percentage, the system is overloaded.
+							This setting does not work when there is no upper limit for the non-heap memory (which is the default in Java8 for Metaspace).
+							In case when you want to limit the amount of used non-heap memory, use the nonHeapOverloadThresholdAmount property.
+							Valid values are between 0 and 100.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="nonHeapOverloadThresholdAmount" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>
+							If the non-heap usage in megabytes (in case of Java8 Metaspace) exceeds this value, the system is overloaded.
+							This setting is suitable when there is no upper limit for the non-heap memory (which is the default in Java8 for Metaspace).
+							In case when you want to limit the used percentage of non-heap memory, use the nonHeapOverloadThresholdPercentage property.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="MapModuleType">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="localGt" type="xs:IDREF"/>
+				<xs:element name="localSsn" type="xs:IDREF"/>
+			</xs:choice>
+			<xs:element name="mapGsmScfAddress" type="Ss7AddressType"/>
+			<xs:element name="mapTimeoutSec" type="xs:int"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:ID" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="ServersType">
+		<xs:sequence>
+			<xs:element name="signalingLayerServers">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="signalingLayerServer" type="SignalingLayerServerType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="executionLayerServers">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="executionLayerServer" type="ExecutionLayerServerType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="AbstractServerType" abstract="true">
+		<xs:sequence>
+			<xs:element name="poolConfig" type="xs:IDREF"/>			
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:ID" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="SignalingLayerServerType">
+		<xs:complexContent>
+			<xs:extension base="AbstractServerType">
+				<xs:sequence>
+					<xs:element name="connectivity" type="ServerConnectivityType"/>
+					<xs:element name="sctpAssociationLocalSides">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="sctpAssociationLocalSide" type="SctpAssociationLocalSideType" minOccurs="0" maxOccurs="unbounded"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="pointCode" type="xs:int" minOccurs="0"/>
+					<xs:element name="diameterGwOriginHost" type="xs:string" minOccurs="0"/>
+					<xs:element name="mtpDeliveryTransferMessageThreadCount" type="xs:int" minOccurs="0"/>
+					<xs:element name="sctpWorkerThreadCount" type="xs:int"/>
+				</xs:sequence>				
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="ExecutionLayerServerType">
+		<xs:complexContent>
+			<xs:extension base="AbstractServerType">
+				<xs:sequence>
+					<xs:element name="connectivity" type="ExecutionLayerServerConnectivityType"/>
+					<xs:element name="tcapTransactionIdRange" type="TcapTransactionIdRangeType" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="TcapTransactionIdRangeType">
+		<xs:sequence>
+			<xs:element name="minInclusive" type="xs:unsignedInt"/>
+			<xs:element name="maxInclusive" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ServerConnectivityType">
+		<xs:sequence>
+			<xs:element name="internalCommunicationAddress" type="ListenAddressType"/>
+			<xs:element name="administrationAddress" type="ListenAddressType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ExecutionLayerServerConnectivityType">
+		<xs:complexContent>
+			<xs:extension base="ServerConnectivityType">
+				<xs:sequence>
+					<xs:element name="sipListenAddress" type="ListenAddressType" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="LwCommParametersType">
+		<xs:sequence>
+			<xs:element name="heartbeatIntervalMs" type="xs:int"/>
+			<xs:element name="heartbeatTimeoutMs" type="xs:int"/>
+			<xs:element name="poolConfigurations">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="poolConfiguration" type="PoolConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="retransmitPattern">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="retransmitIntervalMs" type="xs:int" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PoolConfigurationType">
+		<xs:sequence>
+			<xs:element name="receiveTransportPoolSize" type="xs:int"/>
+			<xs:element name="receiveWorkerPoolSize" type="xs:int"/>
+			<xs:element name="sendPoolSize" type="xs:int"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:ID" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="NotificationConfigurationType">
+		<xs:sequence>
+			<xs:element name="serviceKeyCounterThresholdNotifications">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="serviceKeyCounterThresholdNotification" type="ServiceKeyCounterThresholdNotificationType" minOccurs="0" maxOccurs="unbounded"/>							
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="mapCounterThresholdNotifications">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="mapCounterThresholdNotification" type="MapCounterThresholdNotificationType" minOccurs="0" maxOccurs="unbounded"/>							
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="diameterCounterThresholdNotifications">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="diameterCounterThresholdNotification" type="DiameterCounterThresholdNotificationType" minOccurs="0" maxOccurs="unbounded"/>							
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="CounterThresholdNotificationType" abstract="true">
+		<xs:annotation>
+			<xs:documentation>
+				The notificationText message can contain the following variables:
+				&lt;li&gt;${serverName} - The name of the server emitted the notification&lt;/li&gt;
+				&lt;li&gt;${counterName} - The name of the counter&lt;/li&gt;				
+				&lt;li&gt;${counterValue} - The current value of the counter&lt;/li&gt;
+				&lt;li&gt;${thresholdValue} - The threshold value which is just crossed&lt;/li&gt;
+				&lt;li&gt;${aboveBelow} - Either the string "above" or "below" depending on that the threshold has been crossed from above or from below&lt;/li&gt;
+				&lt;li&gt;${highLow} - Either the string "high" or "below" depending on that the high or low threshold has been crossed&lt;/li&gt;
+				&lt;li&gt;${serviceIdentifier} - CAP serviceKey, MAP remote system alias or diameter serviceContextId&lt;/li&gt;
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="thresholdLow" type="xs:long"/>
+			<xs:element name="thresholdHigh" type="xs:long"/>
+			<xs:element name="notificationWhenLowFromBelow" type="xs:boolean"/>
+			<xs:element name="notificationWhenLowFromAbove" type="xs:boolean"/>
+			<xs:element name="notificationWhenHighFromBelow" type="xs:boolean"/>
+			<xs:element name="notificationWhenHighFromAbove" type="xs:boolean"/>
+			<xs:element name="notificationText" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ServiceKeyCounterThresholdNotificationType">
+		<xs:complexContent>
+			<xs:extension base="CounterThresholdNotificationType">
+				<xs:sequence>
+					<xs:element name="counterName" type="ServiceKeyCounterNameType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="MapCounterThresholdNotificationType">
+		<xs:complexContent>
+			<xs:extension base="CounterThresholdNotificationType">
+				<xs:sequence>
+					<xs:element name="counterName" type="MapCounterNameType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="DiameterCounterThresholdNotificationType">
+		<xs:complexContent>
+			<xs:extension base="CounterThresholdNotificationType">
+				<xs:sequence>
+					<xs:element name="counterName" type="DiameterCounterNameType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:simpleType name="ServiceKeyCounterNameType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="activityTestRequestCount"/>
+			<xs:enumeration value="activityTestResponseCount"/>
+			<xs:enumeration value="applyChargingCount"/>
+			<xs:enumeration value="applyChargingReportCount"/>
+			<xs:enumeration value="callInformationReportRequestCount"/>
+			<xs:enumeration value="callInformationReportResponseCount"/>
+			<xs:enumeration value="cancelCount"/>
+			<xs:enumeration value="connectCount"/>
+			<xs:enumeration value="connectToResourceCount"/>
+			<xs:enumeration value="continueCount"/>
+			<xs:enumeration value="continueWithArgumentCount"/>
+			<xs:enumeration value="disconnectForwardConnectionCount"/>
+			<xs:enumeration value="disconnectForwardConnectionWithArgumentCount"/>
+			<xs:enumeration value="disconnectLegCount"/>
+			<xs:enumeration value="eventReportBcsmCount"/>
+			<xs:enumeration value="furnishChargingInformationCount"/>
+			<xs:enumeration value="initialDpCount"/>
+			<xs:enumeration value="initiateCallAttemptRequestCount"/>
+			<xs:enumeration value="moveLegRequestCount"/>
+			<xs:enumeration value="moveLegResponseCount"/>
+			<xs:enumeration value="playAnnouncementCount"/>
+			<xs:enumeration value="promptAndCollectUserInformationCount"/>
+			<xs:enumeration value="promptAndCollectUserInformationResultCount"/>
+			<xs:enumeration value="releaseCallCount"/>
+			<xs:enumeration value="requestReportBcsmEventCount"/>
+			<xs:enumeration value="resetTimerCount"/>
+			<xs:enumeration value="returnResultLastCount"/>
+			<xs:enumeration value="specializedResourceReportCount"/>
+			<xs:enumeration value="splitLegCount"/>
+			<xs:enumeration value="tcapReceivedCount"/>
+			<xs:enumeration value="tcapBeginReceivedCount"/>
+			<xs:enumeration value="tcapContinueReceivedCount"/>
+			<xs:enumeration value="tcapEndReceivedCount"/>
+			<xs:enumeration value="tcapAbortReceivedCount"/>
+			<xs:enumeration value="tcapSentCount"/>
+			<xs:enumeration value="tcapBeginSentCount"/>
+			<xs:enumeration value="tcapContinueSentCount"/>
+			<xs:enumeration value="tcapEndSentCount"/>
+			<xs:enumeration value="tcapAbortSentCount"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="MapCounterNameType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="anyTimeInterrogationCount"/>
+			<xs:enumeration value="anyTimeInterrogationResultCount"/>
+			<xs:enumeration value="tcapReceivedCount"/>
+			<xs:enumeration value="tcapBeginReceivedCount"/>
+			<xs:enumeration value="tcapContinueReceivedCount"/>
+			<xs:enumeration value="tcapEndReceivedCount"/>
+			<xs:enumeration value="tcapAbortReceivedCount"/>
+			<xs:enumeration value="tcapSentCount"/>
+			<xs:enumeration value="tcapBeginSentCount"/>
+			<xs:enumeration value="tcapContinueSentCount"/>
+			<xs:enumeration value="tcapEndSentCount"/>
+			<xs:enumeration value="tcapAbortSentCount"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="DiameterCounterNameType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="balanceQueryReceivedCount"/>
+			<xs:enumeration value="balanceQueryAnsweredCount"/>
+			<xs:enumeration value="debitQueryReceivedCount"/>
+			<xs:enumeration value="debitQueryAnsweredCount"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

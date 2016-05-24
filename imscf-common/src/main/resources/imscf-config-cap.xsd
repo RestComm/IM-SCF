@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config"
+    targetNamespace="http://common.imscf.restcomm.org/config"
+    elementFormDefault="qualified">
+    
+    <xs:include schemaLocation="imscf-config-common.xsd"/>
+    
+    <xs:complexType name="CapModuleType">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="localGt" type="xs:IDREF"/>
+                <xs:element name="localSsn" type="xs:IDREF"/>
+            </xs:choice>
+            <xs:element name="inTriggering" type="InTriggeringType"/>
+            <xs:element name="generalProperties">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="resetTimerSec" type="xs:int"/>
+                        <xs:element name="resetTimerUiSec" type="xs:int"/>
+                        <xs:element name="activityTestIntervalSec" type="xs:int"/>
+                        <xs:element name="asReactionTimeoutSec" type="xs:int"/>
+                        <xs:element name="maxCallLengthMinutes" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gsmScfAddress" type="Ss7AddressType" minOccurs="0"/>
+            <xs:element name="sipProperties" type="SipPropertiesType" minOccurs="0"/>
+            <xs:element name="mediaResources">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="mediaResourceWrapper" type="MediaResourceWrapperType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="inviteErrorHandlers">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="inviteErrorHandler" type="InviteErrorHandlerType" minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:ID" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="SipPropertiesType">
+    </xs:complexType>
+    
+    <xs:complexType name="InviteErrorHandlerType">
+        <xs:sequence>
+            <xs:element name="inviteErrorRange" type="NumberRangeListType">
+                <xs:annotation>
+                    <xs:documentation>
+                        Comma-separated list of SIP responses or SIP response ranges. The list may be empty,
+                        in which case all error responses (400-699) will match.&lt;br/>
+                        E.g.: "400-403,410,500-600"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inviteErrorAction" type="InviteErrorActionType"/>
+            <xs:element name="serviceKeys" type="NumberRangeListType">
+                <xs:annotation>
+                    <xs:documentation>
+                        List of service keys or service key ranges to apply the rule to. The list may be empty,
+                        in which case all service keys will match.&lt;br/>
+                        E.g.: "11,19-23,27"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="InviteErrorActionType">
+        <xs:attribute name="action" type="CallActionType" use="required"/>
+        <xs:attribute name="releaseCause" type="ReleaseCauseType" default="NORMAL_OR_UNSPECIFIED"/>
+    </xs:complexType>
+    
+    <xs:simpleType name="CallActionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="continue"/>
+            <xs:enumeration value="release"/>
+            <xs:enumeration value="failover"/>
+        </xs:restriction>        
+    </xs:simpleType>
+    
+    <xs:complexType name="MediaResourceWrapperType">
+        <xs:annotation>
+            <xs:documentation>Wrapper type as a workaround for xew + IDREF list bug.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="mediaResource" type="xs:IDREF"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="MediaResourceType">
+        <xs:sequence>
+            <xs:element name="alias" type="xs:string"/>
+            <xs:element name="addressDigits" type="OctetStringType"/>
+            <xs:element name="natureOfAddress" type="NatureOfAddressType"/>
+            <xs:element name="numberingPlan" type="NumberingPlanType"/>
+            <!--
+                TODO
+                "Numbering Qualifier", "Number Screening" and "Presentation Restriction" elements might be needed here.
+                "Operation type" is omitted because it's not supported
+            -->
+            <xs:element name="bothwayThroughConnectionInd" type="BothwayThroughConnectionIndType" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:ID" use="required"/>
+    </xs:complexType>
+    
+    <xs:simpleType name="ReleaseCauseType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="UN_ALLOCATED_NUMBER"/>
+            <xs:enumeration value="NO_ROUTE_TO_SPECIFIED_TRANSIT_NETWORK"/>
+            <xs:enumeration value="NO_ROUTE_TO_DESTINATION"/>
+            <xs:enumeration value="SEND_SPECIAL_INFORMATION_TONE"/>
+            <xs:enumeration value="MISDIALLED_TRUNK_PREFIX"/>
+            <xs:enumeration value="CHANNEL_UNACCEPTABLE"/>
+            <xs:enumeration value="CALL_AWARDED_AND_BEING_DELIVERED_IN_AN_ESTABLISHED_CHANNEL"/>
+            <xs:enumeration value="PREEMPTION"/>
+            <xs:enumeration value="PREEMPTION_CIRCUIT_RESERVED_FOR_REUSE"/>
+            <xs:enumeration value="NORMAL_CALL_CLEARING"/>
+            <xs:enumeration value="USER_BUSY"/>
+            <xs:enumeration value="NO_USER_RESPONDING"/>
+            <xs:enumeration value="NO_ANSWER_FROM_USER"/>
+            <xs:enumeration value="SUBSCRIBER_ABSENT"/>
+            <xs:enumeration value="CALLED_REJECTED"/>
+            <xs:enumeration value="NUMBER_CHANGED"/>
+            <xs:enumeration value="REDIRECTION_TO_NEW_DESTINATION"/>
+            <xs:enumeration value="EXCHANGE_ROUTING_ERROR"/>
+            <xs:enumeration value="NON_SELECTED_USER_CLEARING"/>
+            <xs:enumeration value="DESTINATION_OUT_OF_ORDER"/>
+            <xs:enumeration value="INVALID_NUMBER_FORMAT_ADDRESS_INCOMPLETE"/>
+            <xs:enumeration value="FACILITY_REJECTED"/>
+            <xs:enumeration value="RESPONSE_TO_STATUS_ENQUIRY"/>
+            <xs:enumeration value="NORMAL_OR_UNSPECIFIED"/>
+            <xs:enumeration value="NO_CIRCUIT_CHANNEL_AVAILABLE"/>
+            <xs:enumeration value="NETWORK_OUT_OF_ORDER"/>
+            <xs:enumeration value="PERMANENT_FRAME_MODE_CONNECTION_OUT_OF_SERVICE"/>
+            <xs:enumeration value="PERMANENT_FRAME_MODE_CONNECTION_OPERATIONAL"/>
+            <xs:enumeration value="TEMPORARY_FAILURE"/>
+            <xs:enumeration value="SWITCHING_EQUIPMENT_CONGESTION"/>
+            <xs:enumeration value="ACCESS_INFORMATION_DISCARDED"/>
+            <xs:enumeration value="REQUESTED_CIRCUIT_CHANNEL_NOT_AVAILABLE"/>
+            <xs:enumeration value="PRECEDENCE_CALL_BLOCKED"/>
+            <xs:enumeration value="RESOURCE_UN_AVAILABLE"/>
+            <xs:enumeration value="QUAILITY_OF_SERVICE_NOT_AVAILABLE"/>
+            <xs:enumeration value="REQUESTED_FACILITY_NOT_SUBSCRIBED"/>
+            <xs:enumeration value="CALL_TYPE_INCOMPATIBLE_WITH_SERVICE_REQUEST"/>
+            <xs:enumeration value="OUT_GOING_CALLS_BARRED_WITH_CUG"/>
+            <xs:enumeration value="ANSI_CALL_BLOCKED_DUE_TO_GROUP_RESTRICTIONS"/>
+            <xs:enumeration value="INCOMING_CALLS_BARRED_WITH_CUG"/>
+            <xs:enumeration value="BEARER_CAPABILITY_NOT_AUTHORIZED"/>
+            <xs:enumeration value="BEARER_CAPABILITY_NOT_PRESENTLY_AVAILABLE"/>
+            <xs:enumeration value="INCONSISTENCY_IN_DESIGNATED_OUT_GOING"/>
+            <xs:enumeration value="SERVICE_OR_OPTION_NOT_AVAILABLE"/>
+            <xs:enumeration value="BEARER_CAPABILITY_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="CHANNEL_TYPE_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="REQUESTED_FACILITY_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="ONLY_RESTRICTED_DIGITAL_INFORMATION_BEARER_CAPABILITY_IS_AVAILABLE"/>
+            <xs:enumeration value="SERVICE_OR_OPTION_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="INVALID_CALL_REFERENCE_VALUE"/>
+            <xs:enumeration value="IDENTIFIED_CHANNEL_DOES_NOT_EXIST"/>
+            <xs:enumeration value="A_SUSPENDED_CALL_EXISTS_BUT_THIS_CALL_IDENTITY_DOES_NOT"/>
+            <xs:enumeration value="CALL_IDENTITY_IN_USE"/>
+            <xs:enumeration value="NO_CALL_SUSPENDED"/>
+            <xs:enumeration value="CALL_HAVING_REQUESTED_CALL_IDENTITY_HAS_BEEN_CLEARED"/>
+            <xs:enumeration value="USER_NOT_MEMBER_OF_CUG"/>
+            <xs:enumeration value="INCOMPATIBLE_DESTINATION"/>
+            <xs:enumeration value="NON_EXISTENT_CUG"/>
+            <xs:enumeration value="INVALID_TRANSIT_NETWORK_SELECTION"/>
+            <xs:enumeration value="INVALID_MESSAGE"/>
+            <xs:enumeration value="MANDATORY_INFORMATION_ELEMENT_IS_MISSING"/>
+            <xs:enumeration value="MESSAGE_TYPE_NON_EXISTENT_OR_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="MESSAGE_NOT_COMPATIBLE_WITH_CALL_STATE_OR_"/>
+            <xs:enumeration value="INFORMATION_ELEMENT_PARAMETER_NON_EXISTENT_OR_NOT_IMPLEMENTED"/>
+            <xs:enumeration value="INVALID_INFORMATION_ELEMENT_CONTENTS"/>
+            <xs:enumeration value="MESSAGE_NOT_COMPATIBLE_WITH_CALL_STATE"/>
+            <xs:enumeration value="RECOVERY_ON_TIMER_EXPIRY"/>
+            <xs:enumeration value="PARAMETER_NON_EXISTENT_OR_NOT_IMPLEMENTED_PASSED_ON"/>
+            <xs:enumeration value="MESSAGE_WITH_UNRECOGNIZED_PARAMETER_DISCARDED"/>
+            <xs:enumeration value="PROTOCOL_ERROR"/>
+            <xs:enumeration value="INTERWORKING"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="BothwayThroughConnectionIndType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="bothwayPathRequired"/>
+            <xs:enumeration value="bothwayPathNotRequired"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="InTriggeringType">
+        <xs:sequence>
+            <xs:element name="oBcsm" type="TriggerListType"/>
+            <xs:element name="tBcsm" type="TriggerListType"/>
+            <xs:element name="ica" type="TriggerListType"/>
+            <xs:element name="oSms" type="TriggerListType"/>
+            <xs:element name="tSms" type="TriggerListType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="TriggerListType">
+        <xs:sequence>
+            <xs:element name="eventTrigger" type="TriggerType" minOccurs="0" maxOccurs="unbounded">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="TriggerType">
+        <xs:attribute name="event" type="EventType" use="required"/>
+        <xs:attribute name="triggerType" type="NotificationType" use="required"/>
+        <xs:attribute name="noAnswerTimeoutSec" type="xs:int" use="optional"/>
+    </xs:complexType>
+    
+    <xs:simpleType name="NotificationType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INTERRUPTED"/>
+            <xs:enumeration value="NOTIFY_AND_CONTINUE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="EventType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="routeSelectFailure"/>
+            <xs:enumeration value="oCalledPartyBusy"/>
+            <xs:enumeration value="oNoAnswer"/>
+            <xs:enumeration value="oAnswer"/>
+            <xs:enumeration value="oMidCall"/>
+            <xs:enumeration value="oDisconnect"/>
+            <xs:enumeration value="oDisconnectLeg1"/>
+            <xs:enumeration value="oDisconnectLeg2"/>
+            <xs:enumeration value="oAbandon"/>
+            <xs:enumeration value="tBusy"/>
+            <xs:enumeration value="tNoAnswer"/>
+            <xs:enumeration value="tAnswer"/>
+            <xs:enumeration value="tMidCall"/>
+            <xs:enumeration value="tDisconnect"/>
+            <xs:enumeration value="tDisconnectLeg1"/>
+            <xs:enumeration value="tDisconnectLeg2"/>
+            <xs:enumeration value="tAbandon"/>
+            <xs:enumeration value="oTermSeized"/>
+            <xs:enumeration value="callAccepted"/>
+            <xs:enumeration value="oSmsFailure"/>
+            <xs:enumeration value="oSmsSubmission"/>
+            <xs:enumeration value="tSmsFailure"/>
+            <xs:enumeration value="tSmsSubmission"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

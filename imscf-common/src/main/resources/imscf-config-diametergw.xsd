@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config"
+    targetNamespace="http://common.imscf.restcomm.org/config"
+    elementFormDefault="qualified">
+    
+    <xs:complexType name="DiameterGatewayModuleType">
+        <xs:sequence>
+            <xs:element name="acceptUndefinedPeer" type="xs:boolean"/>
+            <xs:element name="duplicationProtection" type="xs:boolean"/>
+            <xs:element name="duplicateTimer" type="xs:int"/>
+            <xs:element name="duplicateSize" type="xs:int"/>
+            <xs:element name="queueSize" type="xs:int"/>
+            <xs:element name="messageTimeoutMs" type="xs:int"/>
+            <xs:element name="stopTimeoutMs" type="xs:int"/>
+            <xs:element name="ceaTimeoutMs" type="xs:int"/>
+            <xs:element name="iacTimeoutMs" type="xs:int"/>
+            <xs:element name="dwaTimeoutMs" type="xs:int"/>
+            <xs:element name="dpaTimeoutMs" type="xs:int"/>
+            <xs:element name="recTimeoutMs" type="xs:int"/>
+            <xs:element name="sessionTimeoutSec" type="xs:int"/>
+            <xs:element name="threadPools">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="threadGroupSize" type="xs:int"/>
+                        <xs:element name="processingMessageTimerSize" type="xs:int"/>
+                        <xs:element name="dplicationMessageTimerSize" type="xs:int"/>
+                        <xs:element name="redirectMessageTimerSize" type="xs:int"/>
+                        <xs:element name="peerOverloadTimerSize" type="xs:int"/>
+                        <xs:element name="connectionTimerSize" type="xs:int"/>
+                        <xs:element name="statisticTimerSize" type="xs:int"/>
+                        <xs:element name="applicationSessionSize" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="productName" type="xs:string"/>
+            <xs:element name="originRealm" type="xs:string"/>
+            <xs:element name="originApplicationId" type="DiameterApplicationIdType"/>
+            <xs:element name="destinationRealm" type="xs:string"/>
+            <xs:element name="destinationApplicationId" type="DiameterApplicationIdType"/>
+            <xs:element name="sctpAssociationRemoteSideProfile" type="xs:IDREF"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:ID" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="DiameterApplicationIdType">
+        <xs:sequence>
+            <xs:element name="vendorId" type="xs:int"/>
+            <xs:element name="authApplId" type="xs:int" minOccurs="0"/>
+            <xs:element name="acctApplId" type="xs:int" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
