@@ -1,0 +1,305 @@
+[[_counters-and-measurements]]
+= Counters and measurements
+
+This section describes the JMX counters defined in IM-SCF Java
+processes.
+
+[[_low-level-counters-both-sl-and-el]]
+== Low-level counters (both SL and EL)
+
+The counters below are LWComm module’s internal counters and can be used
+to intercept the low-level communication between Execution and Signaling
+layer servers.
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Counter name|Description
+|StartupTimestamp |Gets the time when the statistics started (startup or
+last call to resetStatistics)
+
+|FirstOutgoingMessageCount |Count of messages sent for the first time.
+Equals to the count of the calls to send()
+
+|TimeoutMessageCount |Count of messages for which no ACK has been
+received at all
+
+|CancelMessageCount |Count of messages for which cancel has been called
+by the user
+
+|RetransmitMessageCount |Count of retransmit messages sent to the
+original destination
+
+|FailoverMessageCount |Count of first failover messages sent. That is,
+the first message sent to the failover destination
+
+|FailoverRetransmitMessageCount |Count of retransmit messages sent to
+failover destination.
+
+|ProcessedIncomingMessageCount |Count of messages received, the messages
+with same id counted as one.
+
+|QueuedIncomingMessageCount |Count of incoming messages successfully put
+on target queue.
+
+|ProcessedAckCount |Count of ACK messages received, the ACKs with the
+same id counted as one.
+
+|ReceivedHeartbeatCount |Count of HB messages received.
+
+|SentHeartbeatCount |Count of HB messages sent.
+
+|MessageSenderStoreSize |The number of elements in the message sender
+store. That is, the number of concurrent outgoing messages.
+
+|ProcessedIncomingMessageStoreSize |The number of messages which have
+been processed in the near past.
+
+|ReceivedAckStoreSize |The number of elements in the received ACK store.
+That is, the ACK identifiers received in the "near past" to track
+multiple ACKs.
+
+|InvalidMessageCount |The number of unparseable messages received.
+
+|OutOfOrderMessageCount |The number of messages, which have
+retransmitted to this node. (But shouldn't have since this node has
+already processed the first message and sent ACK.)
+
+|OutOfOrderAckCount |The number of received ACK messages which indicate
+that the message has been processed by more than one node.
+
+|AverageHandlerTimeUs |Gets the average time spent in channelRead0 - the
+main entry point of incoming messages.
+
+|MaxHandlerTimeUs |Gets the maximum time spent in channelRead0 - the
+main entry point of incoming messages.
+
+|AverageAckTurnaroundTimeUs |Gets the average time in microseconds to
+wait for an outgoing message's ACK.
+
+|MaxAckTurnaroundTimeUs |Gets the maximum time in microseconds to wait
+for an outgoing message's ACK.
+
+|AverageSendChannelWaitTimeUs |Gets the average time spent waiting for a
+free client channel to send a message.
+
+|MaxSendChannelWaitTimeUs |Gets the maximum time spent waiting for a
+free client channel to send a message.
+
+|AverageWorkerTimeUs |Gets the average time in microseconds for a
+message to be processed by the user's message receiver. Note that if a
+message is grouped, then this time includes the waiting time of group id
+lock as well.
+
+|MaxWorkerTimeUs |Gets the maximum time in microseconds for a message to
+be processed by the user's message receiver. Note that if a message is
+grouped, then this time includes the waiting time of group id lock as
+well.
+|=======================================================================
+
+[[_signaling-layer-server-counters-and-attributes]]
+== Signaling Layer server counters and attributes
+
+Signaling Layer servers have attributes rather than counters. There is
+an MBean defined for each remote point code, this MBean has the
+information if the remote system is alive or not and how many messages
+have been sent and received from the system. For example for point code
+280 (alias MSS0) there is an MBean named SignalingLayerServerRuntimeMSS0
+defined with the following attributes:
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Attribute |Description
+|PointCode |The pointcode for the alias (e.g. 280 in this case)
+
+|Reachable |Boolean value tells if there is active connection between
+IM-SCF and the remote system
+
+|MessagesSent |The count of SCCP messages sent to this remote system
+
+|MessagesReceived |The count of SCCP messages received from this remote
+system
+|=======================================================================
+
+[[_execution-layer-server-counters-and-attributes]]
+== Execution Layer server counters and attributes
+
+The ExecutionLayer servers have multiple MBeans registered.
+
+The MBeans with type __“SipAs”__ represent a SIP application server group
+member and shows if the SIP endpoint is reachable or not. The attributes
+of the MBean are the following:
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Attribute |Description
+|GroupName |The name of the SIP application server group this endpoint
+belongs to.
+
+|Ip |The IP address of the endpoint
+
+|Name |The name of the endpoint
+
+|Port |The SIP port of the endpoint
+
+|Reachable |A Boolean value showing if the endpoint is reachable
+|=======================================================================
+
+MBeans with type __“ServiceKeyStatistics”__ show important message counters
+per service key. For each service key the IM-SCF instance has dealt
+with, an MBean is defined with the following attributes:
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Counter name |Description
+|ActivityTestRequestCount |ActivityTest message count sent by IM-SCF
+
+|ActivityTestResponseCount |ActivityTest responses received by IM-SCF
+
+|ApplyChargingCount |ApplyCharging message count sent by IM-SCF
+
+|ApplyChargingReportCount |ApplyChargingReport message count received by
+IM-SCF
+
+|CancelCount |Cancel message count received by IM-SCF
+
+|ConnectCount |Connect message count sent by IM-SCF
+
+|ConnectToResourceCount |ConnectToResource message count sent by IM-SCF
+
+|ContinueCount |Continue message count sent by IM-SCF
+
+|ContinueWithArgumentCount |ContinueWithArgument message count sent by
+IM-SCF
+
+|DisconnectForwardConnectionCount |DisconnectForwardConnection message
+count sent by IM-SCF
+
+|DisconnectForwardConnectionWithArgumentCount
+|DisconnectForwardConnectionWithArgument message count sent by IM-SCF
+
+|DisconnectLegCount |DisconnectLeg message count sent by IM-SCF
+
+|EventReportBCSMCount |EventReportBCSM message count received by IM-SCF
+
+|FurnishChargingInformationCount |FurnishChargingInformation message
+count send by IM-SCF
+
+|InitialDPCount |InitialDP message count received by IM-SCF
+
+|InitiateCallAttemptCount |InitiateCallAttempt message count sent by
+IM-SCF
+
+|InitiateCallAttemptResponseCount |ICA response message count received
+by IM-SCF
+
+|MoveLegCount |MoveLeg message count sent by IM-SCF
+
+|MovelLegResponseCount |Responses for MoveLeg message count received by
+IM-SCF
+
+|PlayAnnouncementCount |PlayAnnouncement message count sent by IM-SCF
+
+|PromptAndCollectUserInformationCount |PromptAndCollectUserInformation
+message count sent by IM-SCF
+
+|PromptAndCollectUserInformationResultCount
+|PromptAndCollectUserInformationResult message count received by IM-SCF
+
+|ReleaseCallCount |ReleaseCall message count sent by IM-SCF
+
+|RequestReportBCSMEventCount |RequestReportBCSMEvent message count send
+by IM-SCF
+
+|ResetTimerCount |ResetTimer message count sent by IM-SCF
+
+|SpecializedResourceReportCount |SpecializedResourceReport message count
+received by IM-SCF
+
+|SplitLegCount |SplitLeg message count sent by IM-SCF
+
+|SplitLegResponseCount |Response for SplitLeg message count received by
+IM-SCF
+
+|TcapReceivedCount |All TCAP messages received by IM-SCF
+
+|TcapBeginReceivedCount |TCAP begin messages received by IM-SCF
+
+|TcapContinueReceivedCount |TCAP continue messages received by IM-SCF
+
+|TcapEndReceivedCount |TCAP end messages received by IM-SCF
+
+|TcapAbortReceivedCount |TCAP abort messages received by IM-SCF
+
+|TcapSentCount |All TCAP messages sent by IM-SCF
+
+|TcapBeginSentCount |TCAP begin messages sent by IM-SCF
+
+|TcapContinueSentCount |TCAP continue messages sent by IM-SCF
+
+|TcapEndSentCount |TCAP end messages sent by IM-SCF
+
+|TcapAbortSentCount |TCAP abort messages sent by IM-SCF
+|=======================================================================
+
+The counters all show the number of messages in the last X seconds, a
+sliding window is used. The size of the window in seconds can be defined
+in the configuration.
+
+MBeans with type __“MapStatistics”__ show messages sent to and received from
+HLRs. For each alias a new MBean is registered with the alias. This way,
+ATI and FNR queries will have separate statistics, since the counters
+for ATI queries towards HLRFE1 will appear under alias “HLRFE1” and FNR
+queries towards the same HLR will appear under alias “HLRFE1FNR”. The
+MBeans have the following attributes defined:
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Counter name |Description
+|AnyTimeInterrogationCount |AnyTimeInterrogation message count sent by
+IM-SCF
+
+|AnyTimeInterrogationResultCount |AnyTimeInterrogationResult message
+count received by IM-SCF
+
+|TcapReceivedCount |All TCAP messages received by IM-SCF
+
+|TcapBeginReceivedCount |TCAP begin messages received by IM-SCF
+
+|TcapContinueReceivedCount |TCAP continue messages received by IM-SCF
+
+|TcapEndReceivedCount |TCAP end messages received by IM-SCF
+
+|TcapAbortReceivedCount |TCAP abort messages received by IM-SCF
+
+|TcapSentCount |All TCAP messages sent by IM-SCF
+
+|TcapBeginSentCount |TCAP begin messages sent by IM-SCF
+
+|TcapContinueSentCount |TCAP continue messages sent by IM-SCF
+
+|TcapEndSentCount |TCAP end messages sent by IM-SCF
+
+|TcapAbortSentCount |TCAP abort messages sent by IM-SCF
+|=======================================================================
+
+The counters all show the number of messages in the last X seconds, a
+sliding window is used. The size of the window in seconds can be defined
+in the configuration.
+
+MBeans with type __“DiameterStatistics”__ have message counters for each
+service context ID the diameter modules have dealt with. A new MBean is
+defined for each service context id with the following attributes:
+
+[cols=",",frame="all",options="header",]
+|===================================================================
+|Attribute |Description
+|moduleName |The diameter module name which services this context ID
+|balanceQueryReceivedCount |The number of incoming balance queries
+|balanceQueryAnsweredCount |The number of answered balance queries
+|debitQueryReceivedCount |The number of incoming debit queries
+|debitQueryAnsweredCount |The number of answered debit queries
+|===================================================================
+
+The counters all show the number of messages in the last X seconds, a
+sliding window is used. The size of the window in seconds can be defined
+in the configuration.

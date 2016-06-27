@@ -1,0 +1,640 @@
+[[_management]]
+= Management
+
+Management and configuration is done by shell scripts shipped with
+IM-SCF. These scripts reside on all machines, but their master version
+as to be on a dedicated operation & managemnt machine that is referred
+as “oam01” machine in this documentation. If scripts change, they are
+modified on the oam01 machine and distributed to all other machines by
+invoking [class]`syncScripts.sh`. The [class]`syncScripts.sh` does not have any parameter.
+
+[[_starting-and-stopping-processes]]
+== Starting and stopping processes
+
+[[_starting-and-stopping-instances]]
+=== Starting and stopping instances
+
+To start an IM-SCF instance on a machine use the
+[class]`startIMSCFServerInstance.sh` script:
+----
+$ startIMSCFServerInstance.sh <domain with type> <instance>
+----
+where
+
+* <domain with type> is the name of domain together with the instance
+type (“SL” or “EL”)
+* <instance> is the leg index (“01” or “02”) and the instance index
+(“a”, “b” or in case of sful domain, “c”)
+
+If you run the script without arguments, it will write out the instances
+deployed on the current machine:
+----
+$ startIMSCFServerInstance.sh
+Setting IM-SCF Environment
+This is a LIVE node on site1-mobile05
+*SL server: slessSL 01a
+EL servers: slessEL 01a 01b*
+
+ERROR: Too few parameters.
+Usage:
+/home/imscfadmin/startup/startstop/startIMSCFServerInstance.sh
+[-h|--help] domainWithType server
+
+Starts an IM-SCF server instance of a domain.
+Where domainWithType is e.g. gyorSL/slessEL/sfulSL etc, server is the
+target instance e.g. 01a,01b,02a,02b.
+----
+For stopping an IM-SCF instance, use the [class]`stopIMSCFServcerInstance.sh`
+script:
+----
+$ stopIMSCFServerInstance [-k] <domain with type> <instance>
+----
+The parameters <domain with type> and <instance> mean the same as above.
+If the –k switch is specified on the command line the script will issue
+a “kill” command with the PID of the process, so the shutdown is rapid.
+Use the –k switch when shutting down all the instances in a domain.
+
+[[_starting-and-stopping-multiple-servers]]
+=== Starting and stopping multiple servers
+
+*Complete system startup*
+----
+$ startAll.sh
+----
+Use this command when you want all servers up and running on the current
+machine. The script first checks for all instances deployed on the
+current machine prior to trying to start them so tries to start only the
+instances which are not running yet.
+
+*Complete system shutdown*
+----
+$ stopAll.sh [-k]
+----
+This command stops all IM-SCF instances running on the machine it is
+issued on. If the –k switch is specified on the command line the script
+will issue a “kill” command with the PID of the process, so the shutdown
+is rapid.
+
+*Start specific servers of a domain*
+----
+$ startIMSCFServers.sh <domain with type> <instance1> [<instance2>…]
+----
+For example:
+----
+$ startIMSCFServers.sh sfulEL 02a 02b
+----
+Using this command you can start instances of a domain sequentially.
+Specify the domain in the <domain with type> parameter and add one or
+more servers as the <instance> parameter to the command line. The
+construction of the parameters is exactly like above.
+----
+$ stopIMSCFServers.sh [-k] <domain with type> <instance1> [<instance2>…]
+----
+For example the command:
+----
+$ stopIMSCFServers.sh sfulEL 01a 01b 01c
+----
+Sequentially stops all the EL servers in the sful domain on the current
+machine. The parameters <domain with type> and <instance> should be
+given exactly as above. If the –k switch is specified on the command
+line the script will issue a “kill” command with the PID of the process,
+so the shutdown is rapid.
+
+[[_resetting-all-servers]]
+=== Resetting all servers
+
+There is a script which re-sets all instances on the current machine:
+----
+$ resetAll.sh
+----
+It does not have arguments, since the discovery of the instances
+deployed on the current machine is automatic. The script does the
+following:
+
+* Terminates all running IM-SCF instances
+* Resets the IM-SCF instances from WildFly AS point of view: they will
+be now just “bare” WildFly instances
+* Starts the IM-SCF instances, now they start but have IM-SCF undeployed
+* Deploys IM-SCF binaries to the instances
+
+This script is advised to use after a new IM-SCF version is shipped or a
+transient error occurred which left at least one of the servers in an
+unstable state (e.g. disk full).
+
+[[_checking-im-scf-components]]
+== Checking IM-SCF components
+
+[[_checking-im-scf-processes-and-sccp-connections]]
+=== Checking IM-SCF processes and SCCP connections
+
+You can use the [class]`checkAll.sh` script to check which IM-SCF processes are
+running on the current machine. The script is accessible from anywhere
+when logged in as _imscfadmin_ user.
+
+The script [class]`pointCodeChecker.sh` is used to check one SL instance.
+
+The output of the [class]`checkAll.sh` script is like the following:
+----
+$ checkAll.sh
+
+Setting IM-SCF Environment
+
+This is a PILOT node on pilot-mobile03
+
+--------------------------------------[EL Servers and Deployment
+Statuses]--------------------------------------
+
+Checking the servers and deployments on domain slessEL with servers: 01a
+01b
+
+Checking server 01a on domain slessEL
+
+slessEL01a status is: running
+
+[OK]
+
+Status of deployments:
+
+NAME RUNTIME-NAME PERSISTENT ENABLED STATUS
+
+imscf-el.war imscf-el.war true true OK
+
+[OK]
+
+Checking server 01b on domain slessEL
+
+slessEL01b status is: running
+
+[OK]
+
+Status of deployments:
+
+NAME RUNTIME-NAME PERSISTENT ENABLED STATUS
+
+imscf-el.war imscf-el.war true true OK
+
+[OK]
+
+----------------------------------------------------------------------------------------------------------------
+
+--------------------------------------[SL Servers and Deployment
+Statuses]--------------------------------------
+
+Checking the servers and deployments on domain slessSL with servers: 01a
+
+Checking server 01a on domain slessSL
+
+slessSL01a status is: running
+
+[OK]
+
+Status of deployments:
+
+NAME RUNTIME-NAME PERSISTENT ENABLED STATUS
+
+imscf-sl.war imscf-sl.war true true OK
+
+[OK]
+
+----------------------------------------------------------------------------------------------------------------
+
+--------------------------------------[ PointCode Statuses
+]--------------------------------------
+
+Checking the configured pointcodes on slessSL01a...
+
+Connecting to 192.168.2.21:11111
+
+PointCodes and Statuses:
+
+Name=HLRFE0, PointCode=216, Status=ACTIVE
+
+Name=HLRFE1, PointCode=202, Status=ACTIVE
+
+Name=HLRFE2, PointCode=203, Status=ACTIVE
+
+Name=MSB2, PointCode=272, Status=ACTIVE
+
+Name=MSS0, PointCode=280, Status=ACTIVE
+
+Name=MSS1, PointCode=281, Status=ACTIVE
+
+Name=MSS2, PointCode=282, Status=ACTIVE
+
+Name=MSS3, PointCode=283, Status=ACTIVE
+
+Name=MSS4, PointCode=284, Status=ACTIVE
+
+Name=MSS5, PointCode=285, Status=ACTIVE
+
+Name=MSS6, PointCode=286, Status=ACTIVE
+
+Closing JMX connection...
+
+Done.
+
+----------------------------------------------------------------------------------------------------------------
+
+--------------------------------------[ SCTP associations
+]--------------------------------------
+
+Connecting to 192.168.2.21:11111
+
+SCTP associations:
+
+RS-CDF1 - [STARTED][UP]
+
+RS-CDF2 - [STARTED][UP]
+
+RS-HLRFE0 - [STARTED][UP]
+
+RS-HLRFE1 - [STARTED][UP]
+
+RS-HLRFE2 - [STARTED][UP]
+
+RS-MSB2A - [STARTED][UP]
+
+RS-MSB2B - [STARTED][UP]
+
+RS-MSS0A - [STARTED][UP]
+
+RS-MSS0B - [STARTED][UP]
+
+RS-MSS1A - [STARTED][UP]
+
+RS-MSS1B - [STARTED][UP]
+
+RS-MSS2A - [STARTED][UP]
+
+RS-MSS2B - [STARTED][UP]
+
+RS-MSS3A - [STARTED][UP]
+
+RS-MSS3B - [STARTED][UP]
+
+RS-MSS4A - [STARTED][UP]
+
+RS-MSS4B - [STARTED][UP]
+
+RS-MSS5A - [STARTED][UP]
+
+RS-MSS5B - [STARTED][UP]
+
+RS-MSS6A - [STARTED][UP]
+
+RS-MSS6B - [STARTED][UP]
+
+Closing JMX connection...
+
+Done.
+
+----------------------------------------------------------------------------------------------------------------
+
+--------------------------------------[ SIP Access Points
+]--------------------------------------
+
+Checking the configured SIP AS Access points on slessEL...
+
+Sip Application Server Access Points and Statuses
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| imscf5a_calltester_all instances | IP | Port | Heartbeat Enabled |
+slessEL01a | slessEL01b |
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| calltester_all-1 | 192.168.1.111 | 8115 | true | UNREACHABLE |
+REACHABLE |
+
+| calltester_all-2 | 192.168.1.112 | 8115 | true | UNREACHABLE |
+REACHABLE |
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| imscf5a_calltester_camel instances | IP | Port | Heartbeat Enabled |
+slessEL01a | slessEL01b |
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| calltester_camel-1 | 192.168.1.121 | 8125 | true | REACHABLE |
+REACHABLE |
+
+| calltester_camel-2 | 192.168.1.121 | 8125 | true | REACHABLE |
+REACHABLE |
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| imscf5c_odomino_camel instances | IP | Port | Heartbeat Enabled |
+slessEL01a | slessEL01b |
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+| odomino_camel-1 | 192.168.1.121 | 8314 | true | REACHABLE | REACHABLE
+|
+
++-----------------------------------+---------------+------+-------------------+-------------+-------------+
+
+Closing JMX connection...
+
+Done.
+
+Closing JMX connection...
+
+Done.
+
+----------------------------------------------------------------------------------------------------------------
+
+--------------------------------------[ CHECKALL SUMMARY
+]--------------------------------------
+
+Statuses of the EL servers and the deployments...
+
+[OK]
+
+Statuses of the SL servers and the deployments...
+
+[OK]
+
+Statuses of the PointCodes...
+
+[OK]
+
+SCTP associations and statuses...
+
+[OK]
+
+Statuses of the SIP AS access points...
+
+[OK]
+
+----------------------------------------------------------------------------------------------------------------
+----
+The pointCodeChecker.sh is located in directory
+[class]`/home/imscfadmin/startup/tools` and is not on the path so must be run
+either from there or the relative path specified. Its parameters is the
+domain with server type (e.g. slessSL since it can be called for
+Signaling Layer servers) and the instance name (e.g. 01a). The output
+can be like:
+----
+imscfadmin@site1-mobile03:~/startup/tools$ ./pointCodeChecker.sh slessSL
+01a
+
+Setting IM-SCF Environment
+
+This is a LIVE node on site1-mobile03
+
+SL server: slessSL 01a
+
+EL servers: slessEL 01a 01b
+
+Checking the configured pointcodes on perfSL01a...
+
+Connecting to 192.168.2.21:11111
+
+PointCodes and Statuses:
+
+Name=MSS0, PointCode=280, Status=ACTIVE
+
+Name=MSS1, PointCode=281, Status=ACTIVE
+
+Name=MSS2, PointCode=282, Status=ACTIVE
+
+Name=MSS3, PointCode=283, Status=ACTIVE
+
+Name=MSS4, PointCode=284, Status=ACTIVE
+
+Name=MSS5, PointCode=285, Status=ACTIVE
+
+Name=MSS6, PointCode=286, Status=ACTIVE
+
+Closing JMX connection...
+
+Done.
+----
+[[_checking-hlr-query-functionality]]
+=== Checking HLR query functionality
+
+You can check if IM-SCF HLR query subsystem is up and working by
+invoking the [class]`startup/atifnr/checkHlrFnr.sh` script. The scripts check
+if ATI and FNR queries are working for all configured HLR instances on
+all IM-SCF endpoints. The script must be invoked on the oam01 machine
+and the output is similar to the following if everything is okay:
+----
+192.168.1.51 fnr HLRFE0FNR Target instance=1a
+
+SUCCESS
+
+192.168.1.51 ati HLRFE0 Target instance=1a
+
+SUCCESS
+
+192.168.1.51 fnr HLRFE0FNR Target instance=1b
+
+SUCCESS
+
+192.168.1.51 ati HLRFE0 Target instance=1b
+
+SUCCESS
+
+192.168.1.51 fnr HLRFE1FNR Target instance=1a
+
+SUCCESS
+
+192.168.1.51 ati HLRFE1 Target instance=1a
+
+SUCCESS
+
+192.168.1.51 fnr HLRFE1FNR Target instance=1b
+
+SUCCESS
+
+192.168.1.51 ati HLRFE1 Target instance=1b
+
+SUCCESS
+
+192.168.1.51 fnr HLRFE2FNR Target instance=1a
+
+SUCCESS
+
+192.168.1.51 ati HLRFE2 Target instance=1a
+
+SUCCESS
+
+192.168.1.51 fnr HLRFE2FNR Target instance=1b
+
+SUCCESS
+
+192.168.1.51 ati HLRFE2 Target instance=1b
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE0FNR Target instance=2a
+
+SUCCESS
+
+192.168.1.52 ati HLRFE0 Target instance=2a
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE0FNR Target instance=2b
+
+SUCCESS
+
+192.168.1.52 ati HLRFE0 Target instance=2b
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE1FNR Target instance=2a
+
+SUCCESS
+
+192.168.1.52 ati HLRFE1 Target instance=2a
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE1FNR Target instance=2b
+
+SUCCESS
+
+192.168.1.52 ati HLRFE1 Target instance=2b
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE2FNR Target instance=2a
+
+SUCCESS
+
+192.168.1.52 ati HLRFE2 Target instance=2a
+
+SUCCESS
+
+192.168.1.52 fnr HLRFE2FNR Target instance=2b
+
+SUCCESS
+
+192.168.1.52 ati HLRFE2 Target instance=2b
+
+SUCCESS
+----
+[[_managing-sctp-links]]
+== Managing SCTP links
+
+It is possible to query the status of and manage the SCTP associations
+on a specific SL server. The [class]`/home/imscfadmin/tools/linkManager.sh` does
+this job. You can query the status of all defined links on a server with
+the --list switch:
+----
+imscfadmin@site1-mobile03:~/startup$ *tools/linkManager.sh slessSL 01a --list*
+
+Setting IM-SCF Environment
+
+This is a LIVE node on site1-mobile03
+
+SL server: slessSL 01a
+
+EL servers: slessEL 01a 01b
+
+Connecting to 192.168.2.21:13111
+
+SCTP associations:
+
+RS-MSS0A - [STARTED][UP]
+
+RS-MSS0B - [STARTED][UP]
+
+RS-MSS1A - [STARTED][UP]
+
+RS-MSS1B - [STARTED][UP]
+
+RS-MSS2A - [STARTED][UP]
+
+RS-MSS2B - [STARTED][UP]
+
+RS-MSS3A - [STARTED][UP]
+
+RS-MSS3B - [STARTED][UP]
+
+RS-MSS4A - [STARTED][UP]
+
+RS-MSS4B - [STARTED][UP]
+
+RS-MSS5A - [STARTED][UP]
+
+RS-MSS5B - [STARTED][UP]
+
+RS-MSS6A - [STARTED][UP]
+
+RS-MSS6B - [STARTED][UP]
+
+Closing JMX connection...
+
+Done.
+----
+Associations can be stopped and started with the switches --stop and
+--start respectively. Note that only M3UA associations can be started or
+stopped. Managing SCTP associations for Diameter connections is not
+supported.
+
+Note that when you stop an association which has generated an alert
+because it is down, the alert will be ceased when the association is
+stopped. This is because IM-SCF does not consider a link erroneous if it
+is down and stopped intentionally.
+----
+$ *tools/linkManager.sh perfSL 01a --stop RS-MSS0A*
+
+Setting IM-SCF Environment
+This is a LIVE node on site1-mobile03
+SL server: slessSL 01a
+EL servers: slessEL 01a 01b
+Connecting to 192.168.2.21:13111
+Stopping association=RS-MSS0A
+Closing JMX connection...
+Done.
+----
+----
+$ *tools/linkManager.sh perfSL 01a --list*
+
+Setting IM-SCF Environment
+This is a LIVE node on site1-mobile03
+SL server: slessSL 01a
+EL servers: slessEL 01a 01b
+Connecting to 192.168.2.21:13111
+SCTP associations:
+RS-MSS0A - [STOPPED][DOWN]
+RS-MSS0B - [STARTED][UP]
+(…)
+Closing JMX connection...
+Done.
+----
+----
+$ *tools/linkManager.sh perfSL 01a --start RS-MSS0A*
+
+Setting IM-SCF Environment
+This is a LIVE node on site1-mobile03
+SL server: slessSL 01a
+EL servers: slessEL 01a 01b
+Connecting to 192.168.2.21:13111
+Starting assoctiation=RS-MSS0A
+Closing JMX connection...
+Done.
+----
+----
+$ *tools/linkManager.sh perfSL 01a --list*
+
+Setting IM-SCF Environment
+This is a LIVE node on site1-mobile03
+SL server: slessSL 01a
+EL servers: slessEL 01a 01b
+Connecting to 192.168.2.21:13111
+SCTP associations:
+RS-MSS0A - [STARTED][UP]
+RS-MSS0B - [STARTED][UP]
+(…)
+Closing JMX connection...
+Done.
+----

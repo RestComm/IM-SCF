@@ -1,0 +1,100 @@
+[[_administration]]
+= Administration
+
+[[_domains-machines-and-processes]]
+== Domains, machines and processes
+
+IM-SCF deployments are managed in terms of domains. A domain is an
+administrative concept of managed servers configured for the same
+purpose. A domain has two types of servers (instances):
+
+* Signaling Layer (SL) servers act as a communication layer with the
+telco network over SIGTRAN
+* Execution Layer (EL) servers are the “brain” – they process the
+low-level telco messages from SL, communicate with the AS layer over SIP
+and construct the messages to be sent back to the telco network (and
+send them through SL)
+
+Each server is a WildFly application server instance. The IM-SCF is
+basically an enterprise Java application deployed into this WildFly
+application server. We use the WildFly instances in a so-called
+standalone mode, so even instances in the same IM-SCF domain do not
+communicate with each other on application server level.
+
+There can be at most two SL servers per domain. Since an SL server’s
+task is simple, they are lightweight servers and the two-server limit is
+not holding back throughput. Scaling is done by installing more EL
+servers in the domain since the processing is done in the EL servers.
+
+Configuration of a domain is stored in an XML file which can be edited
+by hand as well but the IM-SCF package provides quick scripts for the
+most common everyday tasks to minimize human errors.
+
+[[_directories]]
+== Directories
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Directory |Description
+|/home/users/imscfadmin |imscfadmin user home directory
+
+|/home/users/monitor |monitor user home directory
+
+|/home/imscfadmin |Symbolic link to /home/users/imscf™admin
+
+|/usr/imscf/imscf_1_0 |IM-SCF installation
+
+|/usr/imscf/jdk_xxx |Installed Java runtime
+
+|/usr/imscf/java |Symlink to the currently used Java runtime
+
+|/usr/imscf/trace |Directory of all log files separated by instance
+
+|/usr/imscf/servers |IM-SCF instance runtime files (configuration,
+deployment and temporary
+
+|/home/users/imscfadmin/startup |Start/stop and configuration scripts
+
+|/home/users/imscfadmin/trace |Symlink to /usr/imscf/trace
+|=======================================================================
+
+[[_log-files]]
+== Log files
+
+All log files are located in directory
+
+[class]`/usr/imscf/trace`
+
+The symbolic link
+
+[class]`/home/users/imscfadmin/trace`
+
+points to the directory [class]`/usr/imscf/trace`.
+
+All instance’s logs are located in a separate directory under
+[class]`/usr/imscf/trace`. The name of the directory is the instance name.
+
+In case of managed servers, inside the instance’s directory there are
+the following files:
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Log file |Description
+|<instance>.out |Standard error and standard output of the process
+
+|<instance>.gclog |The Java Garbage Collector log of the process
+
+|<instance>.log |WildFly server log
+
+|imscf.log |IM-SCF technical log
+
+|imscf.audit.log |IM-SCF audit log (one line per call)
+
+|archive/ |Historical .out, .gclog, .log, imscf.log and imscf.audit.log
+files are kept here
+
+|logrotate.conf |Log rotation configuration (do not edit, created by
+script)
+
+|logrotate.status |The result of the last logrotate operation
+|=======================================================================

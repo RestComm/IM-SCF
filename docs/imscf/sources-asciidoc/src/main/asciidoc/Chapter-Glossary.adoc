@@ -1,0 +1,58 @@
+[_[glossary]]
+= Glossary
+
+[term]_AS_ – Application Server. In this document AS is either a SIP AS or a
+HTTP AS.
+
+[term]_IM-SCF_ – The Restcomm’s Reverse IM-SSF implementation.
+
+[term]_CAMEL_ - Customized Applications for Mobile networks Enhanced Logic, or
+CAMEL (ETSI TS 123 078) is a set of standards designed to work on either
+a GSM core network or UMTS network.
+
+[term]_CAP_ – The CAMEL Application Part (CAP) is a signaling protocol used in
+the Intelligent Network (IN) architecture.
+
+[term]_CDF_ – Charging Dispatch Function.
+
+[term]_EL_ – Execution Layer, a type of IM-SCF server which executes call
+processing logic.
+
+[term]_HLR_ – Home Location Register, a central database that contains details
+of each mobile phone subscriber that is authorized to use the GSM core
+network.
+
+[term]_IN_ – Intelligent Network, the standard network architecture specified in
+the ITU-T Q.1200 series recommendations. It is intended for fixed as
+well as mobile telecom networks. It allows operators to differentiate
+themselves by providing value-added services in addition to the standard
+telecom services such as PSTN, ISDN and GSM services on mobile phones.
+
+[term]_LWCOMM_ – Lightweight Communications, a custom text-based protocol over
+UDP developed for IM-SCF to communicate between SL and EL servers.
+
+[term]_MAP_ – Mobile Application Part, an SS7 protocol that provides an
+application layer for the various nodes in GSM and UMTS mobile core
+networks and GPRS core networks to communicate with each other in order
+to provide services to mobile phone users.
+
+[term]_MSC_ – Mobile Switching Centre, the primary service delivery node for
+GSM/CDMA, responsible for routing voice calls and SMS.
+
+[term]_MSS_ – Mobile Soft Switch solution.
+
+[term]_SCCP_ – Signaling Connection Control Part, a network layer protocol that
+provides extended routing, flow control, segmentation,
+connection-orientation, and error correction facilities in SS7
+telecommunications networks.
+
+[term]_SCTP_ – Stream Control Transmission Protocol, a transport-layer protocol,
+serving in a similar role to the popular protocols Transmission Control
+Protocol (TCP) and User Datagram Protocol (UDP).
+
+[term]_SL_ – Signaling Layer, the type of server in IM-SCF which communicates
+with telco systems.
+
+[term]_SS7_ – Signaling System No. 7, a set of telephony signaling protocols
+developed in 1975, which is used to set up and tear down most of the
+world's public switched telephone network (PSTN) telephone calls.
