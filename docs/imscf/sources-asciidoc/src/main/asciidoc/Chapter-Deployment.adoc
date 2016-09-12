@@ -1,0 +1,176 @@
+[[_deployment]]
+= Deployment
+
+[[_requirements]]
+== Requirements
+
+This section describes the required hardware and software to safely run
+IM-SCF. We provide an initial resource requirement estimation for both
+physical and virtual (cloud) configurations.
+
+[[_hardware-requirements]]
+=== Hardware requirements
+
+IM-SCF is designed to run multi-core x86 CPUs. Usually the modern CPUs
+designed to operate in servers are sufficient.
+
+The exact memory footprint of an IM-SCF process is fine-tuned during
+load tests before shipment, these are the expected memory consumptions
+for the processes:
+
+Signaling Layer server: 1GB Java heap.
+
+Execution Layer server: 4GB Java heap.
+
+The nodes running IM-SCF instances use multiple networks which are
+summarized in the following table:
+
+[cols=",,,",frame="all",options="header",]
+|=======================================================================
+|Network |Description |IM-SCF bandwith requirements |Other
+|External |The external network through which the node is accessible |-
+|
+
+|Internal |For internal communication of IM-SCF instances |gigabit/s |
+
+|SIP internal |For SIP communication between IM-SCF instances and SIP
+application servers |gigabit/s |MTU=9000 setting is required
+|=======================================================================
+
+[[_os-requirements]]
+=== OS requirements
+
+IM-SCF is expected to run Linux operatiom system. The reference impementation is design to run on Red Hat Enterprise Linux 6.5 or later and the example below assume RHEL6.5 is used. Red
+Hat Enterprise Linux (RHEL) is a Linux distribution developed by Red Hat
+and targeted toward the commercial market.
+
+[[_configuration-changes]]
+==== Configuration changes
+
+For best performance, the following changes must be made on a regular
+RHEL 6.5 installation:
+
+[class]`/etc/sysctl.conf:`
+----
+net.ipv4.conf.default.rp_filter = 2
+----
+[class]`/etc/ssh/sshd_config:`
+----
+AddressFamily inet
+----
+[class]`/etc/security/limits.conf:`
+----
+@imscfadmin soft nofile 65536
+@imscfadmin hard nofile 65536
+----
+[class]`/etc/security/limits.d/90-nproc.conf`
+----
+imscfadmin soft nproc 65535
+----
+Apart from the above NTP clock synchronization is required for proper
+run of IM-SCF on the machinces so it is adviced to use an NTP server
+deployed.
+
+Another important point in Linux configuration that there must not be a
+real DNS lookup when translating host names to IP addresses of machines
+in the platform including IM-SCF machines, SIP/HTTP application servers
+and other infrastructure elements. This can be achieved by listing all
+the IP addresses of the machines in file /etc/hosts.
+
+[[_large-pages-settings]]
+==== Large pages settings
+
+A page, memory page, or virtual page is a fixed-length contiguous block
+of virtual memory, described by a single entry in the page table. It is
+the smallest unit of data for memory allocation performed by the
+operating system on behalf of a program, and for transfers between the
+main memory and any other auxiliary store, such as a hard disk drive. On
+normal configurations of x86 based machines, the page size is 4K, but
+the hardware offers support for pages which are larger in size. CPUs
+with a “pse” flag present are capable of allocating 2MB pages. The
+support of this feature can be verified by checking [class]`/proc/cpuinfo` if the
+“pse” flag is present:
+----
+processor : 7
+vendor_id : GenuineIntel
+cpu family : 6
+model : 44
+model name : Westmere E56xx/L56xx/X56xx (Nehalem-C)
+stepping : 1
+cpu MHz : 2533.422
+cache size : 4096 KB
+fpu : yes
+fpu_exception : yes
+cpuid level : 11
+wp : yes
+flags : fpu vme de *pse* tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm
+constant_tsc rep_good unfair_spinlock pni pclmulqdq vmx ssse3 cx16 pcid
+sse4_1 sse4_2 x2apic popcnt aes hypervisor lahf_lm vnmi ept
+bogomips : 5066.84
+clflush size : 64
+cache_alignment : 64
+address sizes : 40 bits physical, 48 bits virtual
+power management:
+----
+This is true for the physical and virtual CPUs used in an IM-SCF
+installation so we should deal with 2MB pages.
+
+IM-SCF machines take advantage of this support so they are configured to
+use a necessary amount of large pages and the JVMs are started with the
+appropriate switches to use the large pages instead of the regular
+memory pages.
+
+To set the amount of memory to be addressed as large pages, the
+__vm.nr_hugepages__ entry must be set in file [class]`/etc/sysct.conf:`
+----
+# Large page allocation
+vm.nr_hugepages=<LARGEPAGES>
+----
+The <LARGEPAGES> part of course must be replaced with the actual needed
+large page count for the machine.
+
+To calculate the required number of large pages on a machine the number
+and heap size of the IM-SCF processes running on the machine must be
+known. We reserve additionally 512MB of large pages for every process
+above its heap requirement, so since one page is 2 megabytes in size,
+the number of large pages required on a machine is the following:
+
+<sum of the heap size of all IM-SCF processes in MB> / 2 + <number of
+IM-SCF processes> * 256
+
+[[_users-and-directories]]
+== Users and directories
+
+All IM-SCF instances, scripts and configuration processes run by the
+user __“imscfadmin”__. The imscfadmin user should be created during the
+installation process of IM-SCF.
+
+The machines have the following important directories related to IM-SCF
+
+[cols=",",frame="all",options="header",]
+|=======================================================================
+|Directory |Description
+|/home/users/imscfadmin |imscfadmin user home directory
+
+|/home/imscfadmin |Symbolic link to /home/users/imscfadmin
+
+|/usr/imscf |IM-SCF root directory
+
+|/usr/imscf/java |The actual Java runtime used to run IM-SCF instances.
+This is a symbolic link to the actual Java runtime
+
+|/usr/imscf/servers |IM-SCF instances are located here
+
+|/usr/imscf/trace |Directory of all log files separated by instance
+
+|/usr/imscf/imscf_1_0 |JBoss and IM-SCF binaries
+
+|/usr/imscf/tmp |Temporary space for IM-SCF to use instead of /tmp
+
+|/usr/imscf/install |IM-SCF install bundles, patches, backups
+
+|/home/users/imscfadmin/startup |Start/stop and configuration scripts
+
+|/home/users/imscfadmin/trace |Symlink to /usr/imscf/trace
+|=======================================================================

@@ -1,0 +1,46 @@
+= IM-SCF Operation and maintenance guide
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:sourcedir: .
+:toclevels: {toclevels-value}
+
+:sectnumlevels: 7
+
+:leveloffset: 1
+
+include::Book_Info.adoc[]
+
+:leveloffset: 0
+
+:leveloffset: 1
+
+include::Common_Content/Preface.adoc[]
+
+:leveloffset: 0
+
+:leveloffset: 1
+
+include::Chapter-Administration.adoc[]
+
+:leveloffset: 0
+
+:leveloffset: 1
+
+include::Chapter-Management.adoc[]
+
+:leveloffset: 0
+
+:leveloffset: 1
+
+include::Chapter-Configuration.adoc[]
+
+:leveloffset: 0
+
+:leveloffset: 1
+
+include::Revision_History.adoc[]
+
+:leveloffset: 0
