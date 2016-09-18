@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>org.restcomm.imscf</groupId>
-	<artifactId>restcomm-ss7-oamguide-sources-asciidoc</artifactId>
+	<artifactId>restcomm-imscf-oamguide-sources-asciidoc</artifactId>
 	<version>1.0-SNAPSHOT</version>
 
-	<name>Restcomm jSS7 :: Docs :: User Guide :: Sources Asciidoc :: ${project.artifactId}</name>
+	<name>Restcomm IM-SCF :: Docs :: User Guide :: Sources Asciidoc :: ${project.artifactId}</name>
 
 	<properties>
 		<asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
