@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@ package org.restcomm.imscf.sl.history;
 import org.restcomm.imscf.common.util.ImscfCallId;
 import org.restcomm.imscf.common.util.history.CallHistory;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SlCallHistoryStore {
 
-    private Map<ImscfCallId, CallHistory> callHistoryMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<ImscfCallId, CallHistory> callHistoryMap = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(SlCallHistoryStore.class);
 
@@ -43,11 +42,7 @@ public class SlCallHistoryStore {
     }
 
     public void registerEvent(ImscfCallId imscfCallId, Event event, String... parameters) {
-        CallHistory ch = callHistoryMap.get(imscfCallId);
-        if (ch == null) {
-            ch = new CallHistory(imscfCallId.toString());
-            callHistoryMap.put(imscfCallId, ch);
-        }
+        CallHistory ch = callHistoryMap.computeIfAbsent(imscfCallId, cid -> new CallHistory(cid.toString()));
         ch.addEvent(event.toEventString(parameters));
     }
 

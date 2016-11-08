@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -48,12 +48,19 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
     @Override
     public void onDialogClose(CAPDialog arg0) {
         logger.debug("onDialogClose: {}", arg0);
-        try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
-            if (call == null) {
-                logger.warn("Could not find call for onDialogClose: {}", arg0);
-                return;
+        try (ContextLayer cl = CallContext.with(callStore)) {
+            try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
+                if (call == null) {
+                    logger.warn("Could not find call for onDialogClose: {}", arg0);
+                    return;
+                }
+                try {
+                    call.getCapModule().onDialogClose(arg0);
+                } catch (RuntimeException ex) {
+                    logger.error("Exception on CAMEL processing for {}", call, ex);
+                    throw ex;
+                }
             }
-            call.getCapModule().onDialogClose(arg0);
         }
     }
 
@@ -70,12 +77,19 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
     @Override
     public void onDialogProviderAbort(CAPDialog arg0, PAbortCauseType arg1) {
         logger.debug("onDialogProviderAbort: {}, {}", arg0, arg1);
-        try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
-            if (call == null) {
-                logger.warn("Could not find call for onDialogProviderAbort: {}", arg0);
-                return;
+        try (ContextLayer cl = CallContext.with(callStore)) {
+            try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
+                if (call == null) {
+                    logger.warn("Could not find call for onDialogProviderAbort: {}", arg0);
+                    return;
+                }
+                try {
+                    call.getCapModule().onDialogProviderAbort(arg0, arg1);
+                } catch (RuntimeException ex) {
+                    logger.error("Exception on CAMEL processing for {}", call, ex);
+                    throw ex;
+                }
             }
-            call.getCapModule().onDialogProviderAbort(arg0, arg1);
         }
     }
 
@@ -88,7 +102,12 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
                     logger.debug("Could not find call for onDialogRelease: {}", arg0);
                     return;
                 }
-                call.getCapModule().onDialogRelease(arg0);
+                try {
+                    call.getCapModule().onDialogRelease(arg0);
+                } catch (RuntimeException ex) {
+                    logger.error("Exception on CAMEL processing for {}", call, ex);
+                    throw ex;
+                }
             }
         }
     }
@@ -107,7 +126,12 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
                     logger.warn("Could not find call for onDialogTimeout: {}", arg0);
                     return;
                 }
-                call.getCapModule().onDialogTimeout(arg0);
+                try {
+                    call.getCapModule().onDialogTimeout(arg0);
+                } catch (RuntimeException ex) {
+                    logger.error("Exception on CAMEL processing for {}", call, ex);
+                    throw ex;
+                }
             }
         }
     }
@@ -115,12 +139,19 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
     @Override
     public void onDialogUserAbort(CAPDialog arg0, CAPGeneralAbortReason arg1, CAPUserAbortReason arg2) {
         logger.debug("onDialogUserAbort: {}, {}, {}", arg0, arg1, arg2);
-        try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
-            if (call == null) {
-                logger.warn("Could not find call for onDialogUserAbort: {}", arg0);
-                return;
+        try (ContextLayer cl = CallContext.with(callStore)) {
+            try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
+                if (call == null) {
+                    logger.warn("Could not find call for onDialogUserAbort: {}", arg0);
+                    return;
+                }
+                try {
+                    call.getCapModule().onDialogUserAbort(arg0, arg1, arg2);
+                } catch (RuntimeException ex) {
+                    logger.error("Exception on CAMEL processing for {}", call, ex);
+                    throw ex;
+                }
             }
-            call.getCapModule().onDialogUserAbort(arg0, arg1, arg2);
         }
     }
 

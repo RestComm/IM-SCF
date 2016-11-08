@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,10 +20,12 @@ package org.restcomm.imscf.el.stack;
 
 import org.restcomm.imscf.common.lwcomm.service.IncomingTextMessage;
 import org.restcomm.imscf.common.lwcomm.service.MessageReceiver;
+import org.restcomm.imscf.el.call.MDCParameters;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +51,10 @@ public class LwcommMessageReceiver implements LwCommMessageProvider, MessageRece
     public void onMessage(IncomingTextMessage lwcommMessage) {
         MDC.clear();
         try {
-            // TODO: check if received group id already belongs to an existing call.
-            // If so, retrieve call and populate MDC immediately.
+            // Start logging with the ascCallId (which is the same as the Group-Id) immediately, even without locking on
+            // the call. If a call is found, the value will be overwritten and other parameters added as well.
+            Optional.ofNullable(lwcommMessage.getGroupId()).ifPresent(
+                    gid -> MDC.put(MDCParameters.IMSCF_CALLID.getKey(), gid));
             LOG.debug("Message from SL:\n " + lwcommMessage);
             Matcher m = LWC_MESSAGE_PATTERN.matcher(lwcommMessage.getPayload());
             String target;

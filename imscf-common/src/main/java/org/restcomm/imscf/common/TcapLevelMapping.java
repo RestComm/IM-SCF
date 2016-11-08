@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -98,9 +98,9 @@ public class TcapLevelMapping<Data> implements ConcurrentMap<TcapDialogId, NodeM
 
     public TcapLevelMapping(int expectedConcurrentTcapDialogCount) {
         byRemoteTcapTID = new ConcurrentHashMap<Long, TcapLevelMapping<Data>.NodeMappingWrapper>(
-                expectedConcurrentTcapDialogCount);
+                expectedConcurrentTcapDialogCount, 0.8f);
         byLocalTcapTID = new ConcurrentHashMap<Long, TcapLevelMapping<Data>.NodeMappingWrapper>(
-                expectedConcurrentTcapDialogCount);
+                expectedConcurrentTcapDialogCount, 0.8f);
     }
 
     private NodeMappingWrapper findWrapper(TcapDialogId key) {

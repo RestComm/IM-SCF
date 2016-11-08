@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -58,14 +58,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Collection of common algorythms, constants which could be useful for building Ss7 stacks.
+ * Collection of common algorithms, constants which could be useful for building Ss7 stacks.
  *
  * @author Balogh GÃ¡bor
  *
  */
 @SuppressWarnings("PMD")
 public final class Ss7StackBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Ss7StackBuilder.class.toString());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Ss7StackBuilder.class);
     private static final AtomicInteger REMOTE_SPC_SEQ = new AtomicInteger();
     private static final AtomicInteger REMOTE_SSN_SEQ = new AtomicInteger();
     private static final AtomicInteger SCCP_ROUTER_RULE_SEQ = new AtomicInteger();
@@ -161,9 +161,16 @@ public final class Ss7StackBuilder {
         String[] extraHostIps = associationLocalSide.getSigtranIp2() == null ? null
                 : new String[] { associationLocalSide.getSigtranIp2() };
         assocName = associationRemoteSide.getName();
-        sctpManagement.addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
-                associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
-                IpChannelType.SCTP, extraHostIps);
+        if (sctpManagement instanceof MultiManagementImpl && associationRemoteSide.getRemoteIp2() != null
+                && !associationRemoteSide.getRemoteIp2().isEmpty()) {
+            ((MultiManagementImpl) sctpManagement).addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
+                    associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
+                    IpChannelType.SCTP, extraHostIps, associationRemoteSide.getRemoteIp2());
+        } else {
+            sctpManagement.addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
+                    associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
+                    IpChannelType.SCTP, extraHostIps);
+        }
         return assocName;
     }
 

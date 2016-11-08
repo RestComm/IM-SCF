@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import org.restcomm.imscf.common.config.SipApplicationServerType;
 import org.restcomm.imscf.el.cap.call.CapSipCsCall;
 import org.restcomm.imscf.el.config.ConfigBean;
 import org.restcomm.imscf.el.sip.SIPCall;
+import org.restcomm.imscf.el.sip.routing.SipURIAndNetmask;
 import org.restcomm.imscf.el.sip.servlets.MainServlet;
 import org.restcomm.imscf.el.sip.servlets.SipServletResources;
 import org.restcomm.imscf.el.sip.servlets.SipSessions;
@@ -29,6 +30,13 @@ import org.restcomm.imscf.el.stack.CallContext;
 import org.restcomm.imscf.util.IteratorStream;
 
 import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -82,19 +90,93 @@ public final class SipUtil {
         // NOOP
     }
 
-    public static void prepareInitialInviteToAS(SipServletRequest invite, SipURI appServerURI) {
-        ConfigBean configBean = Objects.requireNonNull((ConfigBean) CallContext.get(CallContext.CONFIG),
-                "ConfigBean missing from CallContext");
+    public static void prepareInitialInviteToAS(SipServletRequest invite, SipURI appSerevrSipURI,
+            InetSocketAddress backroute) {
+
         String key = MainServlet.getAppSessionKey(invite.getApplicationSession());
-        invite.pushRoute(MainServlet.prepareBackRouteURI(configBean.getLocalSipURI(), key));
-        invite.pushRoute(appServerURI);
+        invite.pushRoute(MainServlet.prepareBackRouteURI(createSipURI(backroute), key));
+        invite.pushRoute((SipURI) appSerevrSipURI.clone());
     }
 
-    public static void prepareIcaResponseToAS(SipServletResponse resp) {
+    public static InterfaceAddress getInterfaceAddress(String nameOrAddress) throws SocketException {
+        for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+            if (ni.getParent() != null || ni.isLoopback())
+                continue;
+            if (ni.getName().equals(nameOrAddress)) {
+                for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                    if (!(ia.getAddress() instanceof Inet6Address)) {
+                        return ia;
+                    }
+                }
+            }
+            for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                if (ia.getAddress() instanceof Inet6Address)
+                    continue;
+                if (ia.getAddress().getHostAddress().equals(nameOrAddress)) {
+                    return ia;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static SipURI createSipURI(InetSocketAddress inetSocketAddress) {
+        SipURI sipURI = SipServletResources.getSipFactory().createSipURI("",
+                inetSocketAddress.getAddress().getHostAddress());
+        sipURI.setPort(inetSocketAddress.getPort());
+        sipURI.setTransportParam("udp");
+        return sipURI;
+    }
+
+    public static SipURI getMatchingOutboundNetwork(String address) {
         ConfigBean configBean = Objects.requireNonNull(CallContext.getConfigBean(),
                 "ConfigBean missing from CallContext");
+        for (SipURIAndNetmask suan : configBean.getLocalSipURIsWithNetmask()) {
+            if (netMatch(suan.getNetMask(), address)) {
+                return suan.getSipURI();
+            }
+        }
+        throw new RuntimeException("Could not find a matching outbound network for " + address);
+    }
+
+    /**
+    *  Return true if the address matches the netmask.
+    *  @param netmask netmask in the form x.x.x.x/y
+    *  @param netmask IP address to check
+    */
+    private static boolean netMatch(String netmask, String addr) {
+        if (addr == null)
+            return false;
+        String[] parts = netmask.split("/");
+        String ip = parts[0];
+        int prefix = parts.length < 2 ? 0 : Integer.parseInt(parts[1]);
+        int net = intIP(ip);
+        int a = intIP(addr);
+        int mask = 0xFFFFFFFF << (32 - prefix);
+        return ((net & mask) == (a & mask));
+    }
+
+    private static int intIP(String addr) {
+        try {
+            return bytesToInt(InetAddress.getByName(addr).getAddress());
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Failed to parse IP address " + addr, e);
+        }
+    }
+
+    private static int bytesToInt(byte[] ip4) {
+        if (ip4 == null || ip4.length != 4)
+            throw new IllegalArgumentException("address is not 4 bytes: " + Arrays.toString(ip4));
+        int ret = 0;
+        for (int i = 0; i < 4; i++) {
+            ret |= (ip4[3 - i] & 0xFF) << (i * 8);
+        }
+        return ret;
+    }
+
+    public static void prepareIcaResponseToAS(SipServletResponse resp, String remoteAddress) {
         String key = MainServlet.getAppSessionKey(resp.getApplicationSession());
-        SipURI uri = MainServlet.prepareBackRouteURI(configBean.getLocalSipURI(), key);
+        SipURI uri = MainServlet.prepareBackRouteURI(getMatchingOutboundNetwork(remoteAddress), key);
         resp.setHeader(SipConstants.HEADER_ICA_ROUTE, uri.toString());
     }
 

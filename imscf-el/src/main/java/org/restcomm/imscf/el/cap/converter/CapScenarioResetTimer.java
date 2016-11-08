@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ public final class CapScenarioResetTimer implements
 
     public static CapScenarioResetTimer start(CAPCSCall call, ResetTimerRequest rt) throws CAPException {
         CAPDialogCircuitSwitchedCall dialog = call.getCapDialog();
-        Long invokeId = dialog.addResetTimerRequest(rt.getTimerID(), rt.getTimerValue(), rt.getExtensions(),
+        Long invokeId = dialog.addResetTimerRequest(1, rt.getTimerID(), rt.getTimerValue(), rt.getExtensions(),
                 rt.getCallSegmentID());
         // send this immediately
         dialog.send();

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,12 +20,18 @@ package org.restcomm.imscf.el.sip.servlets;
 
 import org.restcomm.imscf.common.config.ImscfConfigType;
 import org.restcomm.imscf.common.config.ExecutionLayerServerType;
+import org.restcomm.imscf.common.config.ListenAddressType;
 import org.restcomm.imscf.el.cap.sip.SipUtil;
 import org.restcomm.imscf.el.config.ConfigBean;
 import org.restcomm.imscf.common.util.ImscfCallId;
+import org.restcomm.imscf.el.sip.routing.SipURIAndNetmask;
 
 import java.io.IOException;
+import java.net.InterfaceAddress;
+import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.ListIterator;
 import javax.ejb.EJB;
 import javax.servlet.ServletConfig;
@@ -69,7 +75,7 @@ public class MainServlet extends SipServlet {
             // .map(s -> s.getSipApplicationServerGroups()).ifPresent(ignored -> {
             // SipAsLoadBalancer.initialize(configBean.getConfig()); // depends on SipServletResources
             // });
-            configBean.setLocalSipURI(findLocalSipURI(config.getServletContext(), configBean.getConfig()));
+            configBean.setLocalSipURIsWithNetmask(findLocalSipURIs(config.getServletContext(), configBean.getConfig()));
             isSipUsed = true;
             LOG.info("MainServlet init done");
         } else {
@@ -164,38 +170,55 @@ public class MainServlet extends SipServlet {
             return null;
     }
 
-    public static SipURI findLocalSipURI(ServletContext ctx) {
-        SipURI uri = null;
+    public static List<SipURIAndNetmask> findLocalSipURIs(ServletContext ctx) {
+        List<SipURIAndNetmask> locaSipURIsWithNetmaskFromOutboundInterfaces = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<SipURI> allOutbound = (Collection<SipURI>) ctx.getAttribute(SipServlet.OUTBOUND_INTERFACES);
         LOG.debug("all outbound interfaces: {}", allOutbound);
         for (SipURI s : allOutbound) {
             if ("udp".equalsIgnoreCase(s.getTransportParam())) {
-                uri = s;
-                break;
-            } else if ("tcp".equalsIgnoreCase(s.getTransportParam())) {
-                uri = s;
-                // continue to search for udp
-            } else if (uri == null) {
-                uri = s;
+                InterfaceAddress ia;
+                try {
+                    ia = SipUtil.getInterfaceAddress(s.getHost());
+                } catch (SocketException e) {
+                    throw new RuntimeException("Failed to get interface address for IP address " + s.getHost(), e);
+                }
+                String netmask = ia.getAddress().getHostAddress() + "/" + ia.getNetworkPrefixLength();
+                locaSipURIsWithNetmaskFromOutboundInterfaces.add(new SipURIAndNetmask((SipURI) s.clone(), netmask));
+                LOG.debug("Local SIP URI chosen from all interfaces: {}, netmask: {}", s, netmask);
             }
         }
-        LOG.debug("Local SIP URI chosen from all interfaces: {}", uri);
-        return (SipURI) uri.clone();
+        return locaSipURIsWithNetmaskFromOutboundInterfaces;
     }
 
-    public static SipURI findLocalSipURI(ServletContext ctx, ImscfConfigType config) {
+    public static List<SipURIAndNetmask> findLocalSipURIs(ServletContext ctx, ImscfConfigType config) {
+        List<SipURIAndNetmask> localSipURIsWithNetmask = new ArrayList<>();
         for (ExecutionLayerServerType el : config.getServers().getExecutionLayerServers()) {
             if (el.getName().equals(ConfigBean.SERVER_NAME)) {
                 SipFactory sf = (SipFactory) ctx.getAttribute(SIP_FACTORY);
-                SipURI s = sf.createSipURI("", el.getConnectivity().getSipListenAddress().getHost());
-                s.setPort(el.getConnectivity().getSipListenAddress().getPort());
-                s.setTransportParam("udp");
-                LOG.debug("Local SIP URI derived from config: {}", s);
-                return s;
+                for (ListenAddressType sla : el.getConnectivity().getSipListenAddresses()) {
+                    InterfaceAddress ia;
+                    try {
+                        ia = SipUtil.getInterfaceAddress(sla.getHost());
+                    } catch (SocketException e) {
+                        throw new RuntimeException("Failed to get interface address for IP/NIC " + sla.getHost(), e);
+                    }
+                    SipURI s = sf.createSipURI("", ia.getAddress().getHostAddress());
+                    s.setPort(sla.getPort());
+                    s.setTransportParam("udp");
+                    String netmask = ia.getAddress().getHostAddress() + "/" + ia.getNetworkPrefixLength();
+                    localSipURIsWithNetmask.add(new SipURIAndNetmask(s, netmask));
+                    LOG.debug("Local SIP URI derived from config: {}, derived SipURI: {}, netmask: {}", sla.getHost(),
+                            s, netmask);
+                }
+                Collection<SipURI> allOutbound = (Collection<SipURI>) ctx.getAttribute(SipServlet.OUTBOUND_INTERFACES);
+                for (SipURI suri : allOutbound) {
+                    LOG.debug("Outbound interface from context: {} ", suri);
+                }
+                return localSipURIsWithNetmask;
             }
         }
-        return findLocalSipURI(ctx);
+        return findLocalSipURIs(ctx);
     }
 
     public static String generateNewAppSessionKey() {

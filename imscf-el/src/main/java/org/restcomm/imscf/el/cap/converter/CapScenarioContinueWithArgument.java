@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,6 +23,7 @@ import org.restcomm.imscf.el.cap.call.CAPCSCall;
 import org.mobicents.protocols.ss7.cap.api.CAPException;
 import org.mobicents.protocols.ss7.cap.api.errors.CAPErrorMessage;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPDialogCircuitSwitchedCall;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.LegOrCallSegment;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.ContinueWithArgumentArgExtensionImpl;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.LegOrCallSegmentImpl;
 import org.mobicents.protocols.ss7.inap.api.primitives.LegID;
@@ -38,21 +39,24 @@ public final class CapScenarioContinueWithArgument implements
     private Long invokeId;
 
     public static CapScenarioContinueWithArgument start(CAPCSCall call, LegID legID) throws CAPException {
-        CAPDialogCircuitSwitchedCall dialog = call.getCapDialog();
-        Long invokeId = dialog.addContinueWithArgumentRequest(null, null, null, null, null, null, false, null, null,
-                false, null, false, false, new ContinueWithArgumentArgExtensionImpl(false, false, false,
-                        new LegOrCallSegmentImpl(legID)));
-        // send this immediately
-        dialog.send();
-        return new CapScenarioContinueWithArgument(invokeId);
-
+        return start(call, new LegOrCallSegmentImpl(legID));
     }
 
     public static CapScenarioContinueWithArgument start(CAPCSCall call, int callSegmentID) throws CAPException {
+        return start(call, new LegOrCallSegmentImpl(callSegmentID));
+    }
+
+    private static CapScenarioContinueWithArgument start(CAPCSCall call, LegOrCallSegment locs) throws CAPException {
         CAPDialogCircuitSwitchedCall dialog = call.getCapDialog();
+
+        if (dialog.getApplicationContext().getVersion().getVersion() < 4) {
+            LOG.warn("Cannot send CWA for a leg/CS in dialog ctx {}", dialog.getApplicationContext());
+            return null;
+        }
+
         Long invokeId = dialog.addContinueWithArgumentRequest(null, null, null, null, null, null, false, null, null,
-                false, null, false, false, new ContinueWithArgumentArgExtensionImpl(false, false, false,
-                        new LegOrCallSegmentImpl(callSegmentID)));
+                false, null, false, false, new ContinueWithArgumentArgExtensionImpl(false, false, false, locs));
+
         // send this immediately
         dialog.send();
         return new CapScenarioContinueWithArgument(invokeId);

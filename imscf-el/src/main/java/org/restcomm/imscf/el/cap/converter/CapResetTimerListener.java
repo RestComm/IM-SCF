@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mobicents.protocols.ss7.cap.api.CAPException;
+import org.mobicents.protocols.ss7.cap.api.dialog.CAPDialogState;
 import org.mobicents.protocols.ss7.cap.api.primitives.TimerID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,19 @@ public class CapResetTimerListener implements CallSegmentAssociationListener, Ti
     @Override
     public void timeout(Serializable info) {
         try (CAPCSCall call = ((CAPCSCall) CallContext.getCallStore().getCallByImscfCallId(imscfCallId))) {
+            CAPDialogState dialogState = call.getCapDialog().getState();
+            switch (dialogState) {
+            case InitialSent:
+            case Expunged:
+            case Idle:
+                // don't send this time and don't renew the timer either
+                LOG.warn("ResetTimer should not be active in CAP dialog state {}, disabling it.", dialogState);
+                return;
+            case Active:
+            case InitialReceived:
+            default:
+                break;
+            }
             int csid = (Integer) info;
             int delay;
             CallSegment cs = call.getCallSegmentAssociation().getCallSegment(csid);
@@ -103,7 +117,7 @@ public class CapResetTimerListener implements CallSegmentAssociationListener, Ti
                         + state);
             }
             try {
-                call.getCapDialog().addResetTimerRequest(TimerID.tssf, delay, null, csid);
+                call.getCapDialog().addResetTimerRequest(1, TimerID.tssf, delay, null, csid);
                 call.getCapDialog().send();
             } catch (CAPException e) {
                 LOG.warn("Failed to send resetTimer in {}", cs, e);

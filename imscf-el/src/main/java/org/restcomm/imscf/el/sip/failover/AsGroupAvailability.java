@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,10 +18,12 @@
  */
 package org.restcomm.imscf.el.sip.failover;
 
+import org.restcomm.imscf.common.config.ListenAddressType;
 import org.restcomm.imscf.common.config.MessageDistributionType;
 import org.restcomm.imscf.common.config.SipApplicationServerGroupType;
 import org.restcomm.imscf.common.config.SipApplicationServerType;
 import org.restcomm.imscf.el.sip.failover.SipAsLoadBalancer.FailoverContext;
+import org.restcomm.imscf.el.sip.routing.SipAsRouteAndInterface;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -32,8 +34,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.servlet.sip.SipURI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +51,14 @@ class AsGroupAvailability {
     private final Map<String, AsAvailability> asAvailabilityAsMap;
     private final ThreadLocal<LoadBalancer> loadBalancer;
 
-    AsGroupAvailability(SipApplicationServerGroupType group) {
+    AsGroupAvailability(SipApplicationServerGroupType group, Map<String, ListenAddressType> outboundInterfaces) {
         this.distributionType = group.getDistribution();
 
-        this.asAvailability = group.getSipApplicationServer().stream()
-                .map(sas -> new AsAvailability(group.getName(), sas)).toArray(AsAvailability[]::new);
+        this.asAvailability = group
+                .getSipApplicationServer()
+                .stream()
+                .map(sas -> new AsAvailability(group.getName(), sas, outboundInterfaces.get(sas.getHost()).getHost(),
+                        outboundInterfaces.get(sas.getHost()).getPort())).toArray(AsAvailability[]::new);
         // read-only map, no need for ConcurrentMap
         this.asAvailabilityAsMap = Collections.<String, AsAvailability> unmodifiableMap(Stream.of(asAvailability)
                 .collect(Collectors.toMap(ava -> ava.getServer().getName(), Function.identity())));
@@ -108,9 +111,13 @@ class AsGroupAvailability {
         return ava != null ? ava.getServer() : null;
     }
 
-    SipURI getNextAvailableServerURI(FailoverContext ctx) {
-        AsAvailability ava = getNextAvailable((FailoverContextImpl) ctx);
-        return ava != null ? ava.getUri() : null;
+    /*
+     * SipURI getNextAvailableServerURI(FailoverContext ctx) { AsAvailability ava =
+     * getNextAvailable((FailoverContextImpl) ctx); return ava != null ? ava.getUri() : null; }
+     */
+    SipAsRouteAndInterface getNextAvailableAsRouteAndInterface(FailoverContext ctx) {
+        AsAvailability nextAvailable = getNextAvailable((FailoverContextImpl) ctx);
+        return nextAvailable != null ? nextAvailable.getSipAsRouteAndInterface() : null;
     }
 
     List<AsAvailability> getAll() {

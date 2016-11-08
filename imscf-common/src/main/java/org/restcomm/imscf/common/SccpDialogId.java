@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -54,6 +54,15 @@ public final class SccpDialogId {
             localSSN = msg.getCallingPartyAddress().getSubsystemNumber();
         }
         return new SccpDialogId(remoteGT, remoteSSN, localSSN);
+    }
+
+    public boolean isRemoteGtPresent() {
+        return remoteGT != null;
+    }
+
+    /** Returns a clone with the remoteGT ignored and everything else kept. */
+    public SccpDialogId noRemoteGT() {
+        return new SccpDialogId(null, remoteSSN, localSSN);
     }
 
     /** Returns a clone with only local SSN/GT kept. */

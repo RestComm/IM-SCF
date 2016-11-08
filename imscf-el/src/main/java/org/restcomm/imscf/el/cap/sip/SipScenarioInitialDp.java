@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,12 +23,15 @@ import org.restcomm.imscf.el.sip.Scenario;
 import org.restcomm.imscf.el.sip.SipResponseClass;
 import org.restcomm.imscf.el.sip.SipResponseDetector;
 import org.restcomm.imscf.el.sip.servlets.SipServletResources;
+import org.restcomm.imscf.el.sip.routing.SipAsRouteAndInterface;
 import org.restcomm.imscf.util.Jss7ToXml;
 import org.restcomm.imscf.util.MultipartBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
@@ -36,7 +39,6 @@ import javax.servlet.ServletException;
 import javax.servlet.sip.SipApplicationSession;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipSession;
-import javax.servlet.sip.SipURI;
 
 import org.mobicents.protocols.ss7.cap.api.CAPException;
 import org.mobicents.protocols.ss7.cap.api.isup.CalledPartyNumberCap;
@@ -57,8 +59,8 @@ public final class SipScenarioInitialDp {
         throw new UnsupportedOperationException();
     }
 
-    public static SipServletRequest start(CapSipCsCall call, SipURI asRoute) throws CAPException, IOException,
-            ServletException, MessagingException {
+    public static SipServletRequest start(CapSipCsCall call, SipAsRouteAndInterface asRoute) throws CAPException,
+            IOException, ServletException, MessagingException {
         InitialDPRequest idp = call.getIdp();
         SipApplicationSession sas = call.getAppSession();
         SipServletRequest invite;
@@ -187,7 +189,12 @@ public final class SipScenarioInitialDp {
         invite.addHeader("Supported", SipConstants.SUPPORTED_100REL);
 
         // sets up encodeuri and return route
-        SipUtil.prepareInitialInviteToAS(invite, asRoute);
+        InetSocketAddress outboundInterface = new InetSocketAddress(InetAddress.getByName(asRoute
+                .getOutboundInterfaceHost()), asRoute.getOutboundInterfacePort());
+        SipUtil.prepareInitialInviteToAS(invite, asRoute.getAsRoute(), outboundInterface);
+
+        // setting the appropriate outbound interface
+        session.setOutboundInterface(outboundInterface);
 
         // technical scenario: store final response for INVITE if it arrives
         // this must be added BEFORE the Request Queue Processor for the INVITE added by queueMessage()

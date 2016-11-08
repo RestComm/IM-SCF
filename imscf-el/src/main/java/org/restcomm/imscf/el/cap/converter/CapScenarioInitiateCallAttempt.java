@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -87,7 +87,7 @@ public final class CapScenarioInitiateCallAttempt implements
 
         // respond with 183 + SDP
         SipServletResponse resp = invite.createResponse(SipServletResponse.SC_SESSION_PROGRESS);
-        SipUtil.prepareIcaResponseToAS(resp);
+        SipUtil.prepareIcaResponseToAS(resp, invite.getRemoteHost());
 
         String xmlContent = Jss7ToXml.encode(response, "initiateCallAttemptResponse");
         String sdpContent = SipUtil.createSdpForLegs(invite.getSession());

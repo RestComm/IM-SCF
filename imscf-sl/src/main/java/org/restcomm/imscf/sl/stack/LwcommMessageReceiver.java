@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -163,7 +163,13 @@ public class LwcommMessageReceiver implements MessageReceiver {
 
             callHistoryStore.registerEvent(imscfCallId, Event.LWC_IN, info.getMessageType().toString(), msg.getId());
             sccpProvider.send(sdm);
-            callHistoryStore.registerEvent(imscfCallId, Event.fromTcap(info, false));
+            if (info.getMessageType() == MessageType.TC_BEGIN) {
+                callHistoryStore.registerEvent(imscfCallId, Event.fromTcap(info, false), sdid.toString(), "OTID: 0x"
+                        + Long.toHexString(info.getOtid()));
+            } else {
+                callHistoryStore.registerEvent(imscfCallId, Event.fromTcap(info, false));
+            }
+
             if (info.getMessageType() == MessageType.TC_END || info.getMessageType() == MessageType.TC_ABORT) {
                 callHistoryStore.logAndRemoveCallHistory(imscfCallId);
             }
@@ -335,7 +341,9 @@ public class LwcommMessageReceiver implements MessageReceiver {
                     String lwcommRouteName = slElRouter.getDirectRouteNameTo(mapping.getNodeName());
                     slSccpListener.sendSccpToElNode(lwcommRouteName, imscfCallId, info, sdid, tdid, sdm);
                 } else {
-                    logger.warn("Missing EL node mapping entry for {} in other SL as well, dropping message!", queryId);
+                    logger.warn(
+                            "Missing EL node mapping entry for {}/{} (query ID: {}) in other SL as well, dropping message!",
+                            sdid, tdid, queryId);
                 }
 
                 return;

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.BiFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +107,7 @@ public class SLELRouter<Data> {
         private static final long serialVersionUID = 1L;
 
         public SccpLevelMapping(int expectedConcurrentSccpConnectionCount) {
-            super(expectedConcurrentSccpConnectionCount);
+            super(expectedConcurrentSccpConnectionCount, 0.8f);
         }
     }
 
@@ -138,8 +140,15 @@ public class SLELRouter<Data> {
 
         tm = mapping.get(sdid);
         if (tm == null) {
-            LOG.trace("No node mapping exists for {}", sdid);
-            return null;
+            // Bad MSS workaround: sometimes SCCP messages that should come with "route on GT" arrive with no remote GT
+            // present. Check using TCAP IDs only. Note: the local TID should still be unique for each call.
+            if (!sdid.isRemoteGtPresent()) {
+                LOG.trace("Remote GT not present in {}, trying to search everywhere for {}", sdid, tdid);
+                return findCurrentStorageIgnoreRemoteGT(sdid, tdid);
+            } else {
+                LOG.trace("No node mapping exists for SDID {}", sdid);
+                return null;
+            }
         }
         m = tm.get(tdid);
         if (m == null) {
@@ -148,6 +157,27 @@ public class SLELRouter<Data> {
         }
         LOG.trace("Found mapping in main storage");
         return new Storage<>(tm, m);
+    }
+
+    private Storage<Data> findCurrentStorageIgnoreRemoteGT(SccpDialogId sdid, TcapDialogId tdid) {
+        BiFunction<SccpDialogId, TcapLevelMapping<Data>, Storage<Data>> searchFunction = (s, tm) -> {
+            if (tm != null && s.noRemoteGT().equals(sdid)) { // local SSN matches
+                NodeMapping<Data> m = tm.get(tdid);
+                if (m != null) { // local TID matches
+                    LOG.trace("Search found {} as parent mapping for {}", s, tdid);
+                    return new Storage<>(tm, m);
+                }
+            }
+            return null;
+        };
+
+        Storage<Data> result = mapping.search(ForkJoinPool.getCommonPoolParallelism(), searchFunction);
+        if (result != null) {
+            LOG.trace("Found mapping in main storage without remoteGT for {}/{}", sdid, tdid);
+        } else {
+            LOG.trace("No node mapping exists for TDID {}", tdid);
+        }
+        return result;
     }
 
     /**
@@ -242,15 +272,19 @@ public class SLELRouter<Data> {
             sccpCount += remote.getRemoteGtAddresses().size() + remote.getRemoteSubSystemPointCodeAddresses().size();
         }
 
-        // we expect the load to be shared evenly among the EL servers, so just check the first one
-        TcapTransactionIdRangeType range = config.getServers().getExecutionLayerServers().iterator().next()
-                .getTcapTransactionIdRange();
-
-        long tcapPerMapping = (range.getMaxInclusive() - range.getMinInclusive()) / sccpCount;
-        expectedConcurrentTcapDialogCount = tcapPerMapping > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                : (int) tcapPerMapping;
         LOG.debug("Expected concurrent SCCP connection count set to: {}", sccpCount);
-        LOG.debug("Expected concurrent TCAP dialog count set to: {}", expectedConcurrentTcapDialogCount);
+
+        // Just because a sufficiently big TCAP ID range is given to us does not mean that the amount of actually stored
+        // mappings will be that high. Reserving that much space in advance consumes a lot of memory which cannot be
+        // freed as the map cannot shrink itself once it has allocated the tables. Also, mappings may be allocated to
+        // remote GTs not present in the config, resulting in the TCAP level traffic being spread accross many more SCCP
+        // level mappings than initially expected. For these reasons, the initial size of the TCAP level mappings should
+        // be minimal to avoid wasting memory. If actual traffic is high, the map will grow to accommodate it, and the
+        // initial performance loss should be negligible compared to the memory waste that would occur from initializing
+        // this value too high.
+        expectedConcurrentTcapDialogCount = 4;
+        LOG.debug("TCAP level mapping initial capacity set to: {}", expectedConcurrentTcapDialogCount);
+
         mapping = new SccpLevelMapping<Data>(sccpCount);
         localOnlyMapping = new SccpLevelMapping<>(sccpCount);
     }

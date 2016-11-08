@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -138,10 +138,14 @@ public class CallFactoryBean {
         call.setCapDialog(dialog);
         ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
-        // call.getEventQueue().add(idp);
         call.setLocalTcapTrId(idp.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idp.getCAPDialog().getRemoteDialogId());
-        call.getCallHistory().addEvent("->IDP");
+        // e.g. "->IDP2(LTID:0xacb123, cap2Module, SK_00016)
+        String eventStr = new StringBuilder("->IDP")
+                .append(idp.getCAPDialog().getApplicationContext().getVersion().getVersion()).append('(')
+                .append("LTID:0x").append(Long.toHexString(idp.getCAPDialog().getLocalDialogId())).append(", ")
+                .append(module.getName()).append(", ").append(call.getServiceIdentifier()).append(')').toString();
+        call.getCallHistory().addEvent(eventStr);
         ((IMSCFCallBase) call).populateMDC();
         LOG.debug("Created CS call {}", call);
         IMSCFCallBase.clearMDC();
@@ -239,10 +243,11 @@ public class CallFactoryBean {
         call.setCapDialog(dialog);
         ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
-        // call.getEventQueue().add(idp);
         call.setLocalTcapTrId(idpSms.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idpSms.getCAPDialog().getRemoteDialogId());
-        call.getCallHistory().addEvent("->IDPSMS");
+        call.getCallHistory().addEvent(
+			"->IDPSMS" + idpSms.getCAPDialog().getApplicationContext().getVersion().getVersion() + "("
+                        + module.getName() + ")");
         ((IMSCFCallBase) call).populateMDC();
         LOG.debug("Created SMS call {}", call);
         IMSCFCallBase.clearMDC();

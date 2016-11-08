@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,14 @@ import org.restcomm.imscf.common.config.ImscfConfigType;
 import org.restcomm.imscf.common.config.ExecutionLayerServerType;
 import org.restcomm.imscf.common.config.lib.ImscfConfigChecker;
 import org.restcomm.imscf.util.MBeanHelper;
+import org.restcomm.imscf.el.sip.routing.SipURIAndNetmask;
 import org.restcomm.imscf.common.el.config.ConfigurationManagerMBean;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -44,7 +47,6 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
-import javax.servlet.sip.SipURI;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -75,7 +77,7 @@ public class ConfigBean {
     private static final String CONFIG_MBEAN_NAME = MBeanHelper.EL_MBEAN_DOMAIN + ":type=Configuration";
 
     private int serverIndex = 0;
-    private SipURI localSipURI;
+    private List<SipURIAndNetmask> localSipURIsWithNetmask = new ArrayList<>();
     private ImscfConfigType config;
     private ImscfConfigChecker checker;
     private Set<ConfigurationChangeListener> configListeners = new HashSet<>();
@@ -169,14 +171,14 @@ public class ConfigBean {
         return config;
     }
 
-    @Lock(LockType.WRITE)
-    public void setLocalSipURI(SipURI localSipURI) {
-        this.localSipURI = localSipURI;
+    @Lock(LockType.READ)
+    public List<SipURIAndNetmask> getLocalSipURIsWithNetmask() {
+        return localSipURIsWithNetmask;
     }
 
-    @Lock(LockType.READ)
-    public SipURI getLocalSipURI() {
-        return (SipURI) localSipURI.clone();
+    @Lock(LockType.WRITE)
+    public void setLocalSipURIsWithNetmask(List<SipURIAndNetmask> localSipURIsWithNetmask) {
+        this.localSipURIsWithNetmask = localSipURIsWithNetmask;
     }
 
     @Lock(LockType.READ)

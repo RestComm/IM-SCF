@@ -35,72 +35,72 @@
         <dependency>
             <groupId>org.mobicents.protocols.ss7.statistics</groupId>
             <artifactId>statistics-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.statistics</groupId>
             <artifactId>statistics-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.sccp</groupId>
             <artifactId>sccp-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.sccp</groupId>
             <artifactId>sccp-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.tcap</groupId>
             <artifactId>tcap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.tcap</groupId>
             <artifactId>tcap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.map</groupId>
             <artifactId>map-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.map</groupId>
             <artifactId>map-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.inap</groupId>
             <artifactId>inap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.inap</groupId>
             <artifactId>inap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.isup</groupId>
             <artifactId>isup-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.isup</groupId>
             <artifactId>isup-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.cap</groupId>
             <artifactId>cap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.cap</groupId>
             <artifactId>cap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>2.1.0-appngin-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
