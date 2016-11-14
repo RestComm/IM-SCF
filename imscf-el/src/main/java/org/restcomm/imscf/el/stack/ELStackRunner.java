@@ -55,6 +55,7 @@ import org.restcomm.imscf.common.LwcommConfigurator;
 import org.restcomm.imscf.common.ss7.cap.CAPStackImplImscfWrapper;
 import org.restcomm.imscf.common.ss7.map.MAPStackImplImscfWrapper;
 import org.restcomm.imscf.common.ss7.tcap.TCAPStackImplImscfWrapper;
+import org.restcomm.imscf.common.ss7.cap.CAPTimerDefault;
 import org.restcomm.imscf.util.MBeanHelper;
 import org.restcomm.imscf.common.util.ThreadLocalCleaner;
 import org.restcomm.imscf.common.util.overload.OverloadProtector;
@@ -87,7 +88,6 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 
 import org.mobicents.protocols.ss7.cap.CAPStackImpl;
-import org.mobicents.protocols.ss7.cap.CAPTimerDefault;
 import org.mobicents.protocols.ss7.cap.api.CAPStack;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPServiceCircuitSwitchedCall;
 import org.mobicents.protocols.ss7.cap.api.service.sms.CAPServiceSms;

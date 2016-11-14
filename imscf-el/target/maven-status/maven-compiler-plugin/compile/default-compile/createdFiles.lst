@@ -1,0 +1,13 @@
+org\restcomm\imscf\el\stack\LwcommMessageReceiver.class
+org\restcomm\imscf\el\sip\adapters\ServletTimerAdapter.class
+org\restcomm\imscf\util\ImscfXMLObjectWriter.class
+org\restcomm\imscf\el\sip\servlets\package-info.class
+org\restcomm\imscf\el\stack\CallContext$1.class
+org\restcomm\imscf\el\stack\CallContext$ContextLayer.class
+org\restcomm\imscf\el\stack\LwCommMessageProvider.class
+org\restcomm\imscf\el\sip\adapters\AdapterBase.class
+org\restcomm\imscf\el\config\ConfigBean$ConfigurationManager.class
+org\restcomm\imscf\el\stack\CallContext.class
+org\restcomm\imscf\el\call\CallStore.class
+org\restcomm\imscf\el\config\ConfigBean.class
+org\restcomm\imscf\el\stack\DiameterImpl.class

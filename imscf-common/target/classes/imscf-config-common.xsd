@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config"
+    targetNamespace="http://common.imscf.restcomm.org/config"
+    elementFormDefault="qualified">
+    
+    
+    <xs:simpleType name="Ss7SignalingModeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="itu14"/>
+            <xs:enumeration value="itu16"/>
+            <xs:enumeration value="itu24"/>
+            <xs:enumeration value="ansi"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NetworkIndicatorType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="national"/>
+            <xs:enumeration value="nationalExtension"/>
+            <xs:enumeration value="international"/>
+            <xs:enumeration value="internationalExtension"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="GlobalTitleType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]+"/>
+            <xs:maxLength value="15"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="Ss7AddressType">
+        <xs:sequence>
+            <xs:element name="numberingPlan" type="NumberingPlanType"/>
+            <xs:element name="noa" type="NatureOfAddressType"/>
+            <xs:element name="address" type="GlobalTitleType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="NatureOfAddressType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="unknown"/>
+            <xs:enumeration value="subscriberNumber"/>
+            <xs:enumeration value="national"/>
+            <xs:enumeration value="international"/>
+            <xs:enumeration value="networkSpecific"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="NumberingPlanType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ISDN"/>
+            <xs:enumeration value="data"/>
+            <xs:enumeration value="telex"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="OctetStringType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-fA-F]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="Ipv4AddressType">
+        <xs:annotation>
+            <xs:documentation>
+                IPv4 address in the dotted-decimal notation.
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:restriction base="xs:string">
+            <xs:pattern value="((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="PortType">
+        <xs:annotation>
+            <xs:documentation>
+                Port number in the range [1, 65536].
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:restriction base="xs:unsignedShort">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+	<xs:simpleType name="NumberRangeListType">
+		<xs:annotation>
+			<xs:documentation>
+				A comma separated list of numbers or number ranges. An empty list is allowed, as well as whitespace around the
+				numbers, hyphen and separator.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\s*|(\s*[1-9][0-9]*(\s*-\s*[1-9][0-9]*)?\s*)(,\s*[1-9][0-9]*(\s*-\s*[1-9][0-9]*)?\s*)*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="StringListType">
+		<xs:annotation>
+			<xs:documentation>
+				A comma separated list of string tokens consisting of the following IMSCFII characters:
+				'a'-'z', 'A'-'Z', '0'-'9', '.', '-', '_'.
+				An empty list is allowed, as well as whitespace around the tokens.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<!-- whitespace only, or a list of strings. Whitespace is allowed around the separator comma. -->
+			<xs:pattern value="\s*(([-a-zA-Z0-9_.]+)(\s*,\s*([-a-zA-Z0-9_.]+))*)?\s*" />
+		</xs:restriction>
+	</xs:simpleType>
+    
+    <xs:simpleType name="HttpUrlType">
+        <xs:restriction base="xs:anyURI">
+            <xs:pattern value="https?://.*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="ListenAddressType">
+        <xs:sequence>
+            <xs:element name="host" type="xs:string"/>
+            <xs:element name="port" type="PortType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="MessageDistributionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="loadbalance"/>
+            <xs:enumeration value="failover"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+</xs:schema>

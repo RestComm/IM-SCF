@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.mobicents.protocols.ss7.mtp</groupId>
             <artifactId>mtp-api</artifactId>
-            <version>2.1.0-appngin-4-SNAPSHOT</version>
+            <version>8.0.51</version>
         </dependency>
     </dependencies>
 

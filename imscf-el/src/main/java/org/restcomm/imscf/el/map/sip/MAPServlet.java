@@ -91,6 +91,9 @@ public class MAPServlet extends ScenarioBasedServlet {
                 call.setAtiRequest(atiRequest);
                 try {
                     call.getMapOutgoingRequestScenarios().add(MapAnyTimeInterrogationRequestScenario.start(call));
+                    CapDialogCallData data = new CapDialogCallData();
+					data.setImscfCallId(callId);
+					((MAPDialogImpl) call.getMAPDialog()).setUserObject(data);
                 } catch (MAPException ex) {
                     LOG.error("Exception while sending ATI message: ", ex);
                     resp = reqA.createResponse(500);

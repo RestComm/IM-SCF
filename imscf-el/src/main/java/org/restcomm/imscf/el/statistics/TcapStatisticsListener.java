@@ -30,7 +30,7 @@ import org.restcomm.imscf.el.stack.CallContext;
 
 import org.mobicents.protocols.ss7.cap.api.CAPOperationCode;
 import org.mobicents.protocols.ss7.map.api.MAPOperationCode;
-import org.mobicents.protocols.ss7.tcap.TCAPCounterProviderImplListener;
+import org.mobicents.protocols.ss7.tcap.api.TCAPCounterEventsListener;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Miklos Pocsaji
  */
 @SuppressWarnings("PMD.GodClass")
-public class TcapStatisticsListener implements TCAPCounterProviderImplListener {
+public class TcapStatisticsListener implements TCAPCounterEventsListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(TcapStatisticsListener.class);
 

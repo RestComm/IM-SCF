@@ -18,12 +18,19 @@
  */
 package org.restcomm.imscf.common.ss7.cap;
 
+import javax.servlet.sip.SipApplicationSession;
+
 import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
+import org.restcomm.common.ss7.tcap.NamedTCListener;
+import org.restcomm.imscf.el.cap.call.CapDialogCallData;
+import org.restcomm.imscf.el.sip.adapters.SipApplicationSessionAdapter;
 
 import org.mobicents.protocols.ss7.cap.CAPProviderImpl;
-import org.mobicents.protocols.ss7.tcap.api.NamedTCListener;
+import org.mobicents.protocols.ss7.cap.CAPDialogImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
-
+import org.mobicents.protocols.ss7.tcap.asn.InvokeImpl;
+import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
+import org.mobicents.servlet.sip.core.session.MobicentsSipApplicationSession;
 
 /**
  * Wrapper class to extends CAPProviderImpl class functionality with IMSCF specific features.
@@ -34,6 +41,8 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
  */
 @SuppressWarnings("serial")
 public class CAPProviderImplImscfWrapper extends CAPProviderImpl implements NamedTCListener {
+
+    protected transient CAPTimerDefault timerDefault=null;
 
     private String name;
 
@@ -49,6 +58,30 @@ public class CAPProviderImplImscfWrapper extends CAPProviderImpl implements Name
     @Override
     public String getName() {
         return name;
+    }
+
+    public CAPTimerDefault getCAPTimerDefault() {
+        return this.timerDefault;
+    }
+
+    public void setCAPTimerDefault(CAPTimerDefault timerDefault) {
+        this.timerDefault = timerDefault;
+    }
+
+    @Override
+    public void onInvokeTimeout(Invoke invoke) {
+        CAPDialogImpl capDialogImpl = (CAPDialogImpl) this.getCAPDialog(((InvokeImpl) invoke).getDialog().getLocalDialogId());
+        CapDialogCallData capData = (CapDialogCallData) capDialogImpl.getUserObject();
+        SipApplicationSession sas = SipServletResources.getSipSessionsUtil().getApplicationSessionByKey(
+            capData.getImscfCallId(), false);
+        sas = SipApplicationSessionAdapter.unwrap(sas);
+        try {
+            ((MobicentsSipApplicationSession) sas).acquire();
+            super.onInvokeTimeout(invoke);
+		}
+		finally {
+            ((MobicentsSipApplicationSession) sas).release();
+		}
     }
 
 }

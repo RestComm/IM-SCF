@@ -121,7 +121,7 @@ public class CapDialogLevelListener extends ImscfStackListener implements CAPDia
     public void onDialogTimeout(CAPDialog arg0) {
         logger.debug("onDialogTimeout: {}", arg0);
         try (ContextLayer cl = CallContext.with(callStore)) {
-            try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrId(arg0.getLocalDialogId())) {
+            try (CAPCall<?> call = (CAPCall<?>) callStore.getCallByLocalTcapTrIdUnlocked(arg0.getLocalDialogId())) {
                 if (call == null) {
                     logger.warn("Could not find call for onDialogTimeout: {}", arg0);
                     return;

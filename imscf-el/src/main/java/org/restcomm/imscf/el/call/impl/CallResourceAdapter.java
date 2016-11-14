@@ -29,31 +29,48 @@ import org.restcomm.imscf.el.stack.CallContext;
 public abstract class CallResourceAdapter implements DelegatingIMSCFCall {
 
     IMSCFCall delegate;
+    private boolean isLocked;
+    private int reentryCounter = 0;
 
-    protected CallResourceAdapter(IMSCFCall delegate) {
+    protected CallResourceAdapter(IMSCFCall delegate, boolean lock) {
         this.delegate = delegate;
+        isLocked = lock;
         // first lock is always the appsession lock, no need for TCAP locking
-
-        ((IMSCFCallBase) delegate).lock();
+        if(isLocked) {
+            ((IMSCFCallBase) delegate).lock();
+	    }
+	    else {
+			reentryCounter++;
+		}
         ((IMSCFCallBase) delegate).populateMDC();
-
         CallContext.put(CallContext.IMSCFCALLID, delegate.getImscfCallId());
     }
 
     @SuppressWarnings("unchecked")
     public static final <T extends IMSCFCall> T wrap(T call) {
+		return wrap(call, true);
+	}
+
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    @SuppressWarnings("unchecked")
+    public static final <T extends IMSCFCall> T wrapUnlocked(T call) {
+		return wrap(call, false);
+	}
+
+    @SuppressWarnings("unchecked")
+    private static final <T extends IMSCFCall> T wrap(T call, boolean lock) {
         if (call == null)
             return null;
         else if (call instanceof CallResourceAdapter)
             return call;
         else if (call instanceof CapSipCsCall)
-            return (T) new CallResourceAdapterCapSipCsCall((CapSipCsCall) call);
+            return (T) new CallResourceAdapterCapSipCsCall((CapSipCsCall) call, lock);
         else if (call instanceof CapSipSmsCall)
-            return (T) new CallResourceAdapterCapSipSmsCall((CapSipSmsCall) call);
+            return (T) new CallResourceAdapterCapSipSmsCall((CapSipSmsCall) call, lock);
         else if (call instanceof MAPSIPCall)
-            return (T) new CallResourceAdapterMapSipCall((MAPSIPCall) call);
+            return (T) new CallResourceAdapterMapSipCall((MAPSIPCall) call, lock);
         else if (call instanceof DiameterHttpCall)
-            return (T) new CallResourceAdapterDiameterHttpCall((DiameterHttpCall) call);
+            return (T) new CallResourceAdapterDiameterHttpCall((DiameterHttpCall) call, lock);
         else
             throw new IllegalArgumentException();
     }
@@ -80,21 +97,28 @@ public abstract class CallResourceAdapter implements DelegatingIMSCFCall {
 
     @Override
     public final void close() {
-        boolean lastHolder = ((IMSCFCallBase) delegate).unlock();
-
-        if (lastHolder) {
-            delegate.close();
-            CallContext.remove(CallContext.IMSCFCALLID);
-        }
-
+        if(isLocked) {
+            boolean lastHolder = ((IMSCFCallBase) delegate).unlock();
+            if (lastHolder) {
+               delegate.close();
+               CallContext.remove(CallContext.IMSCFCALLID);
+           }
+	   }
+       else {
+		   reentryCounter--;
+		   if(reentryCounter == 0) {
+               delegate.close();
+               CallContext.remove(CallContext.IMSCFCALLID);
+		   }
+	   }
     }
 
 }
 
 /** Subclass for CS call. */
 class CallResourceAdapterCapSipCsCall extends CallResourceAdapter implements DelegatingCapSipCsCall {
-    protected CallResourceAdapterCapSipCsCall(CapSipCsCall delegate) {
-        super(delegate);
+    protected CallResourceAdapterCapSipCsCall(CapSipCsCall delegate, boolean lock) {
+        super(delegate, lock);
     }
 
     @Override
@@ -105,8 +129,8 @@ class CallResourceAdapterCapSipCsCall extends CallResourceAdapter implements Del
 
 /** Subclass for SMS call. */
 class CallResourceAdapterCapSipSmsCall extends CallResourceAdapter implements DelegatingCapSipSmsCall {
-    protected CallResourceAdapterCapSipSmsCall(CapSipSmsCall delegate) {
-        super(delegate);
+    protected CallResourceAdapterCapSipSmsCall(CapSipSmsCall delegate, boolean lock) {
+        super(delegate, lock);
     }
 
     @Override
@@ -117,8 +141,8 @@ class CallResourceAdapterCapSipSmsCall extends CallResourceAdapter implements De
 
 /** Delegate implementation for MAP call. */
 class CallResourceAdapterMapSipCall extends CallResourceAdapter implements DelegatingMapSipCall {
-    protected CallResourceAdapterMapSipCall(MAPSIPCall delegate) {
-        super(delegate);
+    protected CallResourceAdapterMapSipCall(MAPSIPCall delegate, boolean lock) {
+        super(delegate, lock);
     }
 
     @Override
@@ -129,8 +153,8 @@ class CallResourceAdapterMapSipCall extends CallResourceAdapter implements Deleg
 
 /** Delegate implementation for Diameter Http call. */
 class CallResourceAdapterDiameterHttpCall extends CallResourceAdapter implements DelegatingDiameterHttpCall {
-    protected CallResourceAdapterDiameterHttpCall(DiameterHttpCall delegate) {
-        super(delegate);
+    protected CallResourceAdapterDiameterHttpCall(DiameterHttpCall delegate, boolean lock) {
+        super(delegate, lock);
     }
 
     @Override

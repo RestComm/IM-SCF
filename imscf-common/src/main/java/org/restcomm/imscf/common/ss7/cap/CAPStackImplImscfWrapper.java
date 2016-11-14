@@ -22,6 +22,10 @@ import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
 
 import org.mobicents.protocols.ss7.cap.CAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
+import org.mobicents.protocols.ss7.cap.api.CAPStack;
+import org.mobicents.protocols.ss7.cap.api.CAPProvider;
+import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
+import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
 
 
 /**
@@ -31,14 +35,63 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
  * @author Balogh Gábor
  *
  */
-public class CAPStackImplImscfWrapper extends CAPStackImpl {
+public class CAPStackImplImscfWrapper implements CAPStack {
+
+    protected CAPProviderImplImscfWrapper capProvider = null;
+
+    private State state = State.IDLE;
+
+    private final String name;
 
     public CAPStackImplImscfWrapper(int subSystemNumber, TCAPProvider tcapProvider) {
         this(ImscfTCAPUtil.getCapStackNameForSsn(subSystemNumber), tcapProvider);
     }
 
     protected CAPStackImplImscfWrapper(String name, TCAPProvider tcapProvider) {
-        super(name);
+        this.name = name;
+        this.state = State.CONFIGURED;
         capProvider = new CAPProviderImplImscfWrapper(name, tcapProvider);
     }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public CAPProvider getCAPProvider() {
+        return this.capProvider;
+    }
+
+    @Override
+    public void start() throws Exception {
+        if (state != State.CONFIGURED) {
+            throw new IllegalStateException("Stack has not been configured or is already running!");
+        }
+        this.capProvider.start();
+        this.state = State.RUNNING;
+    }
+
+    @Override
+    public void stop() {
+        if (state != State.RUNNING) {
+            throw new IllegalStateException("Stack is not running!");
+        }
+        this.capProvider.stop();
+        this.state = State.CONFIGURED;
+    }
+
+    @Override
+    public TCAPStack getTCAPStack() {
+        return null;
+    }
+
+    public void setCAPTimerDefault(CAPTimerDefault timerDefault) {
+        this.capProvider.setCAPTimerDefault(timerDefault);
+    }
+
+    private enum State {
+        IDLE, CONFIGURED, RUNNING;
+    }
+
 }

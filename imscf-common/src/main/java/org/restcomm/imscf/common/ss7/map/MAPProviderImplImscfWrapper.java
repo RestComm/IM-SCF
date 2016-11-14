@@ -18,10 +18,15 @@
  */
 package org.restcomm.imscf.common.ss7.map;
 
+import java.util.Map;
+import java.util.HashMap;
+
+import org.mobicents.ss7.congestion.CongestionTicket;
+
 import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
+import org.restcomm.common.ss7.tcap.NamedTCListener;
 
 import org.mobicents.protocols.ss7.map.MAPProviderImpl;
-import org.mobicents.protocols.ss7.tcap.api.NamedTCListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 
 /**
@@ -33,6 +38,11 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
  */
 @SuppressWarnings("serial")
 public class MAPProviderImplImscfWrapper extends MAPProviderImpl implements NamedTCListener {
+
+    /**
+     * Congestion sources name list. Congestion is where this collection is not empty
+     */
+    protected transient Map<String, String> congSources = new HashMap<String, String>();
 
     private String name;
 
@@ -50,4 +60,22 @@ public class MAPProviderImplImscfWrapper extends MAPProviderImpl implements Name
        return name;
     }
 
+    public void onCongestionFinish(CongestionTicket ticket) {
+        synchronized (this.congSources) {
+            this.congSources.put(ticket.getSource(), ticket.getSource());
+        }
+    }
+
+    public void onCongestionStart(CongestionTicket ticket) {
+        synchronized (this.congSources) {
+            this.congSources.remove(ticket.getSource());
+        }
+    }
+
+    public boolean isCongested() {
+        if (this.congSources.size() > 0)
+            return true;
+        else
+            return false;
+    }
 }

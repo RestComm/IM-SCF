@@ -73,6 +73,12 @@ public class CallStoreBean implements CallStore {
         return CallResourceAdapter.wrap(callsByLocalTcapTrId.get(localTcapTrId));
     }
 
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    @Override
+    public TCAPCall getCallByLocalTcapTrIdUnlocked(Long localTcapTrId) {
+        return CallResourceAdapter.wrapUnlocked(callsByLocalTcapTrId.get(localTcapTrId));
+    }
+
     @Override
     public DiameterCall getCallByDiameterSessionId(String sessionId) {
         return CallResourceAdapter.wrap(callsByDiameterSessionId.get(sessionId));
@@ -86,6 +92,12 @@ public class CallStoreBean implements CallStore {
     @Override
     public CAPCall<?> getCapCall(Long localTcapTrId) {
         return (CAPCall<?>) getCallByLocalTcapTrId(localTcapTrId);
+    }
+
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    @Override
+    public CAPCall<?> getCapCallUnlocked(Long localTcapTrId) {
+        return (CAPCall<?>) getCallByLocalTcapTrIdUnlocked(localTcapTrId);
     }
 
     @Override

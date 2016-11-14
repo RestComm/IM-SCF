@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://common.imscf.restcomm.org/config" targetNamespace="http://common.imscf.restcomm.org/config" elementFormDefault="qualified">
+	<xs:include schemaLocation="imscf-config-common.xsd"/>
+	<xs:complexType name="SccpRemoteProfileType">
+		<xs:sequence>
+			<xs:element name="remoteSubSystemPointCodeAddresses">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="remoteSubSystemPointCode" type="RemoteSubSystemPointCodeType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="remoteGtAddresses">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="remoteGtAddress" type="RemoteGtAddressType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="gtRouting" type="GtRoutingType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="GtRoutingType">
+		<xs:sequence>
+			<xs:element name="primaryGttPointCode" type="xs:int"/>
+			<xs:element name="secondaryGttPointCode" type="xs:int" minOccurs="0"/>
+			<xs:element name="distribution" type="MessageDistributionType"/>
+		</xs:sequence>	
+	</xs:complexType>
+	
+	<xs:complexType name="SccpLocalProfileType">
+		<xs:sequence>
+			<xs:element name="localNetworkIndicator" type="NetworkIndicatorType"/>
+			<xs:element name="removePcWhenRouteOnGt" type="xs:boolean"/>
+			<xs:element name="localSubSystems">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="localSubSystem" type="SubSystemType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="localGtAddresses">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="localGtAddress" type="GtAddressType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="RemoteSubSystemPointCodeType">
+		<xs:complexContent>
+			<xs:extension base="SubSystemType">
+				<xs:sequence>
+					<xs:element name="pointCode" type="xs:int"/>
+					<xs:element name="networkIndicator" type="NetworkIndicatorType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="SubSystemType">
+		<xs:sequence>
+			<xs:element name="subSystemNumber" type="xs:int"/>
+		</xs:sequence>
+		<xs:attribute name="alias" type="xs:ID" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="GtAddressType">
+		<xs:sequence>
+			<xs:element name="globalTitle" type="GlobalTitleType"/>
+			<xs:element name="subSystemNumber" type="xs:int"/>
+			<xs:element name="gtIndicator" type="xs:unsignedShort" default="4"/>
+			<xs:element name="gtNoa" type="xs:unsignedShort" default="4"/>
+			<xs:element name="gtNumberingPlan" type="xs:unsignedShort" default="1"/>
+			<xs:element name="gtTranslationType" type="xs:unsignedShort" default="0"/>
+		</xs:sequence>
+		<xs:attribute name="alias" type="xs:ID" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="RemoteGtAddressType">
+		<xs:complexContent>
+			<xs:extension base="GtAddressType">
+				<xs:sequence>
+					<xs:element name="networkIndicator" type="NetworkIndicatorType"/>
+					<xs:element name="pointCode" type="xs:int"/>					
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

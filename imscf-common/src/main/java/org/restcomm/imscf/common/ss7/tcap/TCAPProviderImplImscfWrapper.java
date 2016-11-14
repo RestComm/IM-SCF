@@ -45,7 +45,7 @@ public class TCAPProviderImplImscfWrapper extends TCAPProviderImpl {
     protected TCAPProviderImplImscfWrapper(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn) {
         super(sccpProvider, stack, ssn);
         adapter = new TCAPListenerImscfAdapter(this);
-        tcListeners.add(adapter);
+        addTCListener(adapter);
     }
 
     @Override

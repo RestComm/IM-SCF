@@ -56,42 +56,42 @@
         <dependency>
             <groupId>org.mobicents.protocols.ss7.mtp</groupId>
             <artifactId>mtp-api</artifactId>
-            <version>2.1.0-appngin-4-SNAPSHOT</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.mtp</groupId>
             <artifactId>mtp</artifactId>
-            <version>2.1.0-appngin-4-SNAPSHOT</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.sctp</groupId>
             <artifactId>sctp-api</artifactId>
-            <version>1.7.0-appngin-4-SNAPSHOT</version>
+            <version>2.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.sctp</groupId>
             <artifactId>sctp-impl</artifactId>
-            <version>1.7.0-appngin-4-SNAPSHOT</version>
+            <version>2.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.m3ua</groupId>
             <artifactId>m3ua-api</artifactId>
-            <version>2.1.0-appngin-4-SNAPSHOT</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.m3ua</groupId>
             <artifactId>m3ua-impl</artifactId>
-            <version>2.1.0-appngin-4-SNAPSHOT</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.diameter</groupId>
             <artifactId>jdiameter-api</artifactId>
-            <version>1.7.0-appngin-4-SNAPSHOT</version>
+            <version>2.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.diameter</groupId>
             <artifactId>jdiameter-impl</artifactId>
-            <version>1.7.0-appngin-4-SNAPSHOT</version>
+            <version>2.0.10</version>
             <exclusions>
                 <exclusion>  
                      <groupId>org.slf4j</groupId>

@@ -23,13 +23,14 @@ import org.restcomm.imscf.el.cap.scenarios.CapIncomingRequestScenario;
 import org.restcomm.imscf.el.cap.scenarios.CapOutgoingRequestScenario;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Extension of TCAP-SIP call. */
 public abstract class CapSipCallBase extends TCAPSIPCallBase {
 
-    protected List<CapOutgoingRequestScenario> capOutgoingScenarios = new ArrayList<>();
-    protected List<CapIncomingRequestScenario<?>> capIncomingScenarios = new ArrayList<>();
+    protected List<CapOutgoingRequestScenario> capOutgoingScenarios = Collections.synchronizedList(new ArrayList<>());
+    protected List<CapIncomingRequestScenario<?>> capIncomingScenarios = Collections.synchronizedList(new ArrayList<>());
 
     public List<CapOutgoingRequestScenario> getCapOutgoingRequestScenarios() {
         return capOutgoingScenarios;

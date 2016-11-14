@@ -136,7 +136,6 @@ public class CallFactoryBean {
         call.setCsCapState(CAPCSCall.CAPState.IDP_ARRIVED);
         CAPDialogCircuitSwitchedCall dialog = idp.getCAPDialog();
         call.setCapDialog(dialog);
-        ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
         call.setLocalTcapTrId(idp.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idp.getCAPDialog().getRemoteDialogId());
@@ -212,7 +211,11 @@ public class CallFactoryBean {
             deleteCall(call);
             return null;
         }
-        ((CAPDialogImpl) capDialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
+
+        CapDialogCallData data = new CapDialogCallData();
+        data.setImscfCallId(call.getImscfCallId());
+        ((CAPDialogImpl) capDialog).getCAPDialog().setUserObject(data);
+
         capDialog.setIdleTaskTimeout(capModule.getTcapIdleTimeoutMillis());
         call.setCapDialog(capDialog);
 
@@ -241,7 +244,6 @@ public class CallFactoryBean {
         call.setSmsCapState(CapSmsCall.CAPState.IDPSMS_ARRIVED);
         CAPDialogSms dialog = idpSms.getCAPDialog();
         call.setCapDialog(dialog);
-        ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
         call.setLocalTcapTrId(idpSms.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idpSms.getCAPDialog().getRemoteDialogId());

@@ -19,13 +19,13 @@
 package org.restcomm.imscf.el.call.impl;
 
 import org.restcomm.imscf.el.sip.adapters.SipApplicationSessionAdapter;
+import org.restcomm.imscf.el.call.LockAction;
 
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.sip.SipApplicationSession;
 
-import org.mobicents.protocols.ss7.tcap.api.tc.dialog.LockAction;
 import org.mobicents.servlet.sip.core.session.MobicentsSipApplicationSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

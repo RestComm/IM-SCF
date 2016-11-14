@@ -20,8 +20,12 @@ package org.restcomm.imscf.common.ss7.map;
 
 import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
 
-import org.mobicents.protocols.ss7.map.MAPStackImpl;
+import org.mobicents.protocols.ss7.map.api.MAPStack;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
+import org.mobicents.protocols.ss7.map.api.MAPProvider;
+import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
+import org.mobicents.ss7.congestion.CongestionListener;
+import org.mobicents.ss7.congestion.CongestionTicket;
 
 /**
  * Wrapper class to extends MAPStackImpl class functionality with IMSCF specific features.
@@ -30,15 +34,64 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
  * @author Balogh Gábor
  *
  */
-public class MAPStackImplImscfWrapper extends MAPStackImpl {
+public class MAPStackImplImscfWrapper implements MAPStack, CongestionListener {
+
+    protected MAPProviderImplImscfWrapper mapProvider = null;
+
+    private State state = State.IDLE;
+
+    private final String name;
 
     public MAPStackImplImscfWrapper(int subSystemNumber, TCAPProvider tcapProvider) {
         this(ImscfTCAPUtil.getMapStackNameForSsn(subSystemNumber), tcapProvider);
     }
 
     protected MAPStackImplImscfWrapper(String name, TCAPProvider tcapProvider) {
-        super(name);
+        this.name = name;
+        this.state = State.CONFIGURED;
         mapProvider = new MAPProviderImplImscfWrapper(name, tcapProvider);
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public MAPProvider getMAPProvider() {
+        return this.mapProvider;
+    }
+
+    public void start() throws Exception {
+        if (state != State.CONFIGURED) {
+            throw new IllegalStateException("Stack has not been configured or is already running!");
+        }
+        this.mapProvider.start();
+        this.state = State.RUNNING;
+    }
+
+    public void stop() {
+        if (state != State.RUNNING) {
+            throw new IllegalStateException("Stack is not running!");
+        }
+        this.mapProvider.stop();
+        this.state = State.CONFIGURED;
+    }
+
+    public TCAPStack getTCAPStack() {
+        return null;
+    }
+
+    public void onCongestionStart(CongestionTicket ticket) {
+        this.mapProvider.onCongestionStart(ticket);
+    }
+
+    public void onCongestionFinish(CongestionTicket ticket) {
+        this.mapProvider.onCongestionFinish(ticket);
+    }
+
+    private enum State {
+        IDLE, CONFIGURED, RUNNING;
+    }
+
 }
+
