@@ -21,13 +21,22 @@ package org.restcomm.imscf.common.ss7.map;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.servlet.sip.SipApplicationSession;
+
 import org.mobicents.ss7.congestion.CongestionTicket;
 
 import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
 import org.restcomm.common.ss7.tcap.NamedTCListener;
+import org.restcomm.imscf.el.cap.call.CapDialogCallData;
+import org.restcomm.imscf.el.sip.adapters.SipApplicationSessionAdapter;
 
 import org.mobicents.protocols.ss7.map.MAPProviderImpl;
+import org.mobicents.protocols.ss7.map.MAPDialogImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
+import org.mobicents.protocols.ss7.tcap.asn.InvokeImpl;
+import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
+import org.mobicents.servlet.sip.core.session.MobicentsSipApplicationSession;
+
 
 /**
  * Wrapper class to extends MAPProviderImpl class functionality with IMSCF specific features.
@@ -78,4 +87,21 @@ public class MAPProviderImplImscfWrapper extends MAPProviderImpl implements Name
         else
             return false;
     }
+
+    @Override
+    public void onInvokeTimeout(Invoke invoke) {
+        MAPDialogImpl mapDialogImpl = (MAPDialogImpl) this.getMAPDialog(((InvokeImpl) invoke).getDialog().getLocalDialogId());
+        CapDialogCallData capData = (CapDialogCallData) mapDialogImpl.getUserObject();
+        SipApplicationSession sas = SipServletResources.getSipSessionsUtil().getApplicationSessionByKey(
+            capData.getImscfCallId(), false);
+        sas = SipApplicationSessionAdapter.unwrap(sas);
+        try {
+            ((MobicentsSipApplicationSession) sas).acquire();
+            super.onInvokeTimeout(invoke);
+		}
+		finally {
+            ((MobicentsSipApplicationSession) sas).release();
+		}
+    }
+
 }
