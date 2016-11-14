@@ -41,11 +41,29 @@ import org.mobicents.protocols.ss7.map.api.MAPMessage;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.AuthenticationFailureReportRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.AuthenticationFailureReportResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.faultRecovery.ForwardCheckSSIndicationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.faultRecovery.ResetRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.faultRecovery.RestoreDataRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.faultRecovery.RestoreDataResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeRequest_Mobility;
+import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.NoteSubscriberPresentRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMResponse;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,4 +284,90 @@ public class MAPModuleImpl implements MAPModule, SipModule {
         // ATI calls: Nothing to do for now, as they consist of a single TC_BEGIN-TC_END pair.
         // ---------- Neither MAP release message nor TC_ABORT can be sent after the TC_BEGIN.
     }
+
+    @Override
+    public void onReadyForSMRequest(ReadyForSMRequest request) {
+        LOG.debug("onReadyForSMRequest {}", request);
+	}
+
+    @Override
+    public void onReadyForSMResponse(ReadyForSMResponse response) {
+        LOG.debug("onReadyForSMResponse {}", response);
+	}
+
+    public void onNoteSubscriberPresentRequest(NoteSubscriberPresentRequest request) {
+        LOG.debug("onNoteSubscriberPresentRequest {}", request);
+	}
+
+    @Override
+    public void onAuthenticationFailureReportRequest(AuthenticationFailureReportRequest ind) {
+        LOG.debug("onAuthenticationFailureReportRequest {}", ind);
+    }
+
+    @Override
+    public void onAuthenticationFailureReportResponse(AuthenticationFailureReportResponse ind) {
+        LOG.debug("onAuthenticationFailureReportResponse {}", ind);
+    }
+
+    @Override
+    public void onResetRequest(ResetRequest ind) {
+        LOG.debug("onResetRequest {}", ind);
+    }
+
+    @Override
+    public void onForwardCheckSSIndicationRequest(ForwardCheckSSIndicationRequest ind) {
+        LOG.debug("onForwardCheckSSIndicationRequest {}", ind);
+    }
+
+    @Override
+    public void onRestoreDataRequest(RestoreDataRequest ind) {
+        LOG.debug("onRestoreDataRequest {}", ind);
+    }
+
+    @Override
+    public void onRestoreDataResponse(RestoreDataResponse ind) {
+        LOG.debug("onRestoreDataResponse {}", ind);
+    }
+
+    @Override
+    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
+        LOG.debug("onAnyTimeSubscriptionInterrogationRequest {}", request);
+    }
+
+    @Override
+    public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response) {
+        LOG.debug("onAnyTimeSubscriptionInterrogationResponse {}", response);
+    }
+
+    @Override
+    public void onProvideSubscriberInfoRequest(ProvideSubscriberInfoRequest request) {
+        LOG.debug("onProvideSubscriberInfoRequest {}", request);
+    }
+
+    @Override
+    public void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response) {
+        LOG.debug("onProvideSubscriberInfoResponse {}", response);
+    }
+
+    @Override
+    public void onDeleteSubscriberDataRequest(DeleteSubscriberDataRequest request) {
+        LOG.debug("onDeleteSubscriberDataRequest {}", request);
+    }
+
+    @Override
+    public void onDeleteSubscriberDataResponse(DeleteSubscriberDataResponse request) {
+        LOG.debug("onDeleteSubscriberDataResponse {}", request);
+    }
+
+    @Override
+    public void onActivateTraceModeRequest_Mobility(ActivateTraceModeRequest_Mobility ind) {
+        LOG.debug("onActivateTraceModeRequest_Mobility {}", ind);
+    }
+
+    @Override
+    public void onActivateTraceModeResponse_Mobility(ActivateTraceModeResponse_Mobility ind) {
+        LOG.debug("onActivateTraceModeResponse_Mobility {}", ind);
+    }
+
+
 }

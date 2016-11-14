@@ -74,8 +74,8 @@ public final class SlOverloadUtil {
         if (calling.getGlobalTitle() != null
                 && calling.getAddressIndicator().getRoutingIndicator() != RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE) {
             calling = sccpProvider.getParameterFactory().createSccpAddress(
-                    RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, calling.getSignalingPointCode(),
-                    calling.getGlobalTitle(), calling.getSubsystemNumber());
+                    RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, calling.getGlobalTitle(),
+                    calling.getSignalingPointCode(), calling.getSubsystemNumber());
         }
         SccpDataMessage uabort = sccpProvider.getMessageFactory().createDataMessageClass1(called, calling, data, 0,
                 calling.getSubsystemNumber(), false, null, null);

@@ -214,7 +214,7 @@ public class CallFactoryBean {
 
         CapDialogCallData data = new CapDialogCallData();
         data.setImscfCallId(call.getImscfCallId());
-        ((CAPDialogImpl) capDialog).getCAPDialog().setUserObject(data);
+        capDialog.setUserObject(data);
 
         capDialog.setIdleTaskTimeout(capModule.getTcapIdleTimeoutMillis());
         call.setCapDialog(capDialog);

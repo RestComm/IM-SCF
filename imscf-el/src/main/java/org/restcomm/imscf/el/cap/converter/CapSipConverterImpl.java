@@ -69,6 +69,7 @@ import org.mobicents.protocols.ss7.cap.api.service.sms.CAPDialogSms;
 import org.mobicents.protocols.ss7.cap.api.service.sms.InitialDPSMSRequest;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.MOSMSCause;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.RPCause;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CollectInformationRequest;
 import org.mobicents.protocols.ss7.isup.message.parameter.CauseIndicators;
 import org.mobicents.protocols.ss7.tcap.asn.comp.PAbortCauseType;
 import org.slf4j.Logger;
@@ -438,6 +439,11 @@ public class CapSipConverterImpl extends CAPModuleBase implements CapSipConverte
         LOG.debug("AS did not respond in time");
         handleUnroutableCSCall((CapSipCsCall) call);
     }
+
+    @Override
+    public void onCollectInformationRequest(CollectInformationRequest ind) {
+        LOG.debug("Called onCollectInformationRequest {}", ind);
+	}
 
     private void routeToNextAs(CapSipCsCall call) {
         SipAsRouteAndInterface next = selectNextAppServer(call);

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
-package org.restcomm.imscf.common.ss7.cap;
+package org.restcomm.imscf.el.cap;
 
 public class CAPTimerDefault {
 

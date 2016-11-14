@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
-package org.restcomm.imscf.common.ss7.map;
+package org.restcomm.imscf.el.map;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -29,6 +29,7 @@ import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
 import org.restcomm.common.ss7.tcap.NamedTCListener;
 import org.restcomm.imscf.el.cap.call.CapDialogCallData;
 import org.restcomm.imscf.el.sip.adapters.SipApplicationSessionAdapter;
+import org.restcomm.imscf.el.sip.servlets.SipServletResources;
 
 import org.mobicents.protocols.ss7.map.MAPProviderImpl;
 import org.mobicents.protocols.ss7.map.MAPDialogImpl;

@@ -66,12 +66,12 @@
         <dependency>
             <groupId>org.mobicents.protocols.sctp</groupId>
             <artifactId>sctp-api</artifactId>
-            <version>2.0.10</version>
+            <version>1.6.0.FINAL</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.sctp</groupId>
             <artifactId>sctp-impl</artifactId>
-            <version>2.0.10</version>
+            <version>1.6.0.FINAL</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.m3ua</groupId>
@@ -86,12 +86,12 @@
         <dependency>
             <groupId>org.mobicents.diameter</groupId>
             <artifactId>jdiameter-api</artifactId>
-            <version>2.0.10</version>
+            <version>1.7.0.106</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.diameter</groupId>
             <artifactId>jdiameter-impl</artifactId>
-            <version>2.0.10</version>
+            <version>1.7.0.106</version>
             <exclusions>
                 <exclusion>  
                      <groupId>org.slf4j</groupId>

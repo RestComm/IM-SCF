@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,8 +105,8 @@ public class LwcommMessageReceiver implements MessageReceiver {
             if (sdm.getCallingPartyAddress().getSignalingPointCode() == PC_FILLED_BY_SL) {
                 logger.debug("Calling party's point code is special: 0xC0000 -- this means that it should be replaced by the point code of this SL.");
                 SccpAddress origCalling = sdm.getCallingPartyAddress();
-                SccpAddress calling = new SccpAddress(origCalling.getAddressIndicator().getRoutingIndicator(),
-                        server.getPointCode(), origCalling.getGlobalTitle(), origCalling.getSubsystemNumber());
+                SccpAddress calling = new SccpAddressImpl(origCalling.getAddressIndicator().getRoutingIndicator(),
+                        origCalling.getGlobalTitle(), server.getPointCode(), origCalling.getSubsystemNumber());
                 sdm.setCallingPartyAddress(calling);
                 logger.debug("Calling party address set to {}", calling);
             }

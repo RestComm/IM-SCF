@@ -21,7 +21,7 @@ package org.restcomm.imscf.sl.mgmt.sctp;
 
 import java.io.IOException;
 
-import org.mobicents.protocols.sctp.multiclient.MultiManagementImpl;
+import org.restcomm.imscf.sl.sctp.multiclient.MultiManagementImpl;
 
 /**
  * MultiManagamentImpl wrapper which implements the ImscfManagedSctpManagementWrapper abstract class.

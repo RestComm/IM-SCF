@@ -38,7 +38,13 @@ public interface CallStore {
 
     TCAPCall getCallByLocalTcapTrId(Long localTcapTrId);
 
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    TCAPCall getCallByLocalTcapTrIdUnlocked(Long localTcapTrId);
+
     CAPCall<?> getCapCall(Long localTcapTrId);
+
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    public CAPCall<?> getCapCallUnlocked(Long localTcapTrId);
 
     MAPCall getMapCall(Long localTcapTrId);
 

@@ -16,40 +16,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
-package org.restcomm.imscf.common.ss7.map;
+package org.restcomm.imscf.el.cap;
 
 import org.restcomm.imscf.common.ss7.tcap.ImscfTCAPUtil;
 
-import org.mobicents.protocols.ss7.map.api.MAPStack;
+import org.mobicents.protocols.ss7.cap.CAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
-import org.mobicents.protocols.ss7.map.api.MAPProvider;
+import org.mobicents.protocols.ss7.cap.api.CAPStack;
+import org.mobicents.protocols.ss7.cap.api.CAPProvider;
+import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
-import org.mobicents.ss7.congestion.CongestionListener;
-import org.mobicents.ss7.congestion.CongestionTicket;
+
 
 /**
- * Wrapper class to extends MAPStackImpl class functionality with IMSCF specific features.
+ * Wrapper class to extends CAPStackImpl class functionality with IMSCF specific features.
  *
  *
  * @author Balogh Gábor
  *
  */
-public class MAPStackImplImscfWrapper implements MAPStack, CongestionListener {
+public class CAPStackImplImscfWrapper implements CAPStack {
 
-    protected MAPProviderImplImscfWrapper mapProvider = null;
+    protected CAPProviderImplImscfWrapper capProvider = null;
 
     private State state = State.IDLE;
 
     private final String name;
 
-    public MAPStackImplImscfWrapper(int subSystemNumber, TCAPProvider tcapProvider) {
-        this(ImscfTCAPUtil.getMapStackNameForSsn(subSystemNumber), tcapProvider);
+    public CAPStackImplImscfWrapper(int subSystemNumber, TCAPProvider tcapProvider) {
+        this(ImscfTCAPUtil.getCapStackNameForSsn(subSystemNumber), tcapProvider);
     }
 
-    protected MAPStackImplImscfWrapper(String name, TCAPProvider tcapProvider) {
+    protected CAPStackImplImscfWrapper(String name, TCAPProvider tcapProvider) {
         this.name = name;
         this.state = State.CONFIGURED;
-        mapProvider = new MAPProviderImplImscfWrapper(name, tcapProvider);
+        capProvider = new CAPProviderImplImscfWrapper(name, tcapProvider);
     }
 
     @Override
@@ -57,36 +58,36 @@ public class MAPStackImplImscfWrapper implements MAPStack, CongestionListener {
         return name;
     }
 
-    public MAPProvider getMAPProvider() {
-        return this.mapProvider;
+    @Override
+    public CAPProvider getCAPProvider() {
+        return this.capProvider;
     }
 
+    @Override
     public void start() throws Exception {
         if (state != State.CONFIGURED) {
             throw new IllegalStateException("Stack has not been configured or is already running!");
         }
-        this.mapProvider.start();
+        this.capProvider.start();
         this.state = State.RUNNING;
     }
 
+    @Override
     public void stop() {
         if (state != State.RUNNING) {
             throw new IllegalStateException("Stack is not running!");
         }
-        this.mapProvider.stop();
+        this.capProvider.stop();
         this.state = State.CONFIGURED;
     }
 
+    @Override
     public TCAPStack getTCAPStack() {
         return null;
     }
 
-    public void onCongestionStart(CongestionTicket ticket) {
-        this.mapProvider.onCongestionStart(ticket);
-    }
-
-    public void onCongestionFinish(CongestionTicket ticket) {
-        this.mapProvider.onCongestionFinish(ticket);
+    public void setCAPTimerDefault(CAPTimerDefault timerDefault) {
+        this.capProvider.setCAPTimerDefault(timerDefault);
     }
 
     private enum State {
@@ -94,4 +95,3 @@ public class MAPStackImplImscfWrapper implements MAPStack, CongestionListener {
     }
 
 }
-

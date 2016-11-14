@@ -32,12 +32,15 @@ import org.restcomm.imscf.el.call.CallStore;
 import org.restcomm.imscf.el.call.impl.ManagedScheduledTimerService;
 import org.restcomm.imscf.el.cap.CAPModule;
 import org.restcomm.imscf.el.cap.converter.CapSipConverterImpl;
+import org.restcomm.imscf.el.cap.CAPStackImplImscfWrapper;
+import org.restcomm.imscf.el.cap.CAPTimerDefault;
 import org.restcomm.imscf.el.config.ConfigBean;
 import org.restcomm.imscf.el.config.ConfigurationChangeListener;
 import org.restcomm.imscf.el.diameter.DiameterGWModuleBase;
 import org.restcomm.imscf.el.diameter.DiameterModule;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.MAPModuleImpl;
+import org.restcomm.imscf.el.map.MAPStackImplImscfWrapper;
 import org.restcomm.imscf.el.modules.Module;
 import org.restcomm.imscf.el.modules.ModuleInitializationException;
 import org.restcomm.imscf.el.modules.ModuleStore;
@@ -52,10 +55,7 @@ import org.restcomm.imscf.el.statistics.ElStatistics;
 import org.restcomm.imscf.el.statistics.TcapStatisticsListener;
 import org.restcomm.imscf.common.LwcTags;
 import org.restcomm.imscf.common.LwcommConfigurator;
-import org.restcomm.imscf.common.ss7.cap.CAPStackImplImscfWrapper;
-import org.restcomm.imscf.common.ss7.map.MAPStackImplImscfWrapper;
 import org.restcomm.imscf.common.ss7.tcap.TCAPStackImplImscfWrapper;
-import org.restcomm.imscf.common.ss7.cap.CAPTimerDefault;
 import org.restcomm.imscf.util.MBeanHelper;
 import org.restcomm.imscf.common.util.ThreadLocalCleaner;
 import org.restcomm.imscf.common.util.overload.OverloadProtector;
@@ -450,7 +450,7 @@ public class ELStackRunner implements ConfigurationChangeListener {
         tcapStack.getProvider().addTCListener(new EchoTCapListener(tcapStack.getName()));
         tcapStack.start();
         tcapStack.setStatisticsEnabled(true);
-        tcapStack.addTCAPCounterProviderImplListener(new TcapStatisticsListener());
+        tcapStack.setTCAPCounterEventsListener(new TcapStatisticsListener());
         StackTree s = new StackTree();
         s.tcap = tcapStack;
         stacks.put(subSystem.getSubSystemNumber(), s);
@@ -464,7 +464,7 @@ public class ELStackRunner implements ConfigurationChangeListener {
             StackTree s = entry.getValue();
             TCAPStack tcap = s.tcap;
             logger.debug("Initializing CAP stack for SSN {}...", ssn);
-            CAPStackImpl capStack = new CAPStackImplImscfWrapper(ssn, tcap.getProvider());
+            CAPStackImplImscfWrapper capStack = new CAPStackImplImscfWrapper(ssn, tcap.getProvider());
 
             // using the maximum allowed values in the specs (in ms): 10s, 60s, 30m, 20s, 10s
             capStack.setCAPTimerDefault(new CAPTimerDefault(10 * 1000, 60 * 1000, 30 * 60 * 1000, 20 * 1000, 20 * 1000));

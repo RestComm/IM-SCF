@@ -51,9 +51,12 @@ import java.util.regex.Matcher;
 
 import javax.servlet.sip.SipApplicationSession;
 
+import javolution.util.FastMap;
+
 import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.impl.message.MessageFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
@@ -61,10 +64,13 @@ import org.mobicents.protocols.ss7.sccp.message.MessageFactory;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 import org.mobicents.servlet.sip.core.session.MobicentsSipApplicationSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+
 
 /**
  * Implementation of an "SCCP User Adaptation" like layer to be used underneath the jss7 TCAP stack.
@@ -207,7 +213,7 @@ public class SUAImpl implements MessageReceiver, SccpProvider {
     }
 
     @Override
-    public int getMaxUserDataLength(SccpAddress arg0, SccpAddress arg1) {
+    public int getMaxUserDataLength(SccpAddress arg0, SccpAddress arg1, int msgNetworkId) {
         // TODO FIXME
         return 1000;
     }
@@ -308,4 +314,22 @@ public class SUAImpl implements MessageReceiver, SccpProvider {
             logger.error("Error getting SendResult", e);
         }
     }
+
+    @Override
+    public void coordRequest(int ssn) {
+        logger.error("Unimplemented method is called: coordRequest()");
+	}
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        logger.error("Unimplemented method is called: getNetworkIdStateList()");
+	    return null;
+	}
+
+    @Override
+    public ExecutorCongestionMonitor[] getExecutorCongestionMonitorList() {
+        logger.error("Unimplemented method is called: getExecutorCongestionMonitorList()");
+	    return null;
+	}
+
 }

@@ -40,6 +40,7 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.MoveLegRe
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.PromptAndCollectUserInformationResponse;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SpecializedResourceReportRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegResponse;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CollectInformationRequest;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,5 +329,10 @@ public class CAPCSCallListener extends ImscfStackListener implements GsmScfCsCal
             }
         }
     }
+
+    @Override
+    public void onCollectInformationRequest(CollectInformationRequest ind) {
+        LOG.debug("Called onCollectInformationRequest {}", ind);
+	}
 
 }

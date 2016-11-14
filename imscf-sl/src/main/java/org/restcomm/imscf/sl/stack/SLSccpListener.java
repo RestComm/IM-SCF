@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.mobicents.protocols.ss7.sccp.RemoteSccpStatus;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.SignallingPointStatus;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.message.SccpMessage;
@@ -100,15 +101,13 @@ public class SLSccpListener implements SccpListener {
     }
 
     @Override
-    public void onCoordRequest(int arg0, int arg1, int arg2) {
+    public void onCoordResponse(int arg1, int arg2) {
         // TODO
-        logger.debug("onCoordRequest {} {} {}", arg0, arg1, arg2);
+        logger.debug("onCoordResponse {} {}", arg1, arg2);
     }
 
-    @Override
-    public void onCoordResponse(int arg0, int arg1, int arg2) {
-        // TODO
-        logger.debug("onCoordResponse {} {} {}", arg0, arg1, arg2);
+    public void onNetworkIdState(int networkId, NetworkIdState networkIdState) {
+        logger.debug("onNetworkIdState {} {}", networkId, networkIdState);
     }
 
     @Override
@@ -285,7 +284,7 @@ public class SLSccpListener implements SccpListener {
     }
 
     @Override
-    public void onPcState(int arg0, SignallingPointStatus arg1, int arg2, RemoteSccpStatus arg3) {
+    public void onPcState(int arg0, SignallingPointStatus arg1, Integer arg2, RemoteSccpStatus arg3) {
         // TODO Auto-generated method stub
         logger.debug("onPcState {} {} {} {}", arg0, arg1, arg2, arg3);
     }

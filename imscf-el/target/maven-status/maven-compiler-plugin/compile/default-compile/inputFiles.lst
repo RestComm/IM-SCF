@@ -116,8 +116,10 @@ c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\routing\
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\adapters\AdapterBase.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\scenarios\CapScenarioTypesCsCall.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\sip\SipSessionAttributes.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\map\MAPProviderImplImscfWrapper.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\SipInitialReleaseDetector.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\servlets\SipServletResources.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\CAPTimerDefault.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\scenarios\CapScenarioTypesSms.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\map\scenarios\MapIncomingRequestScenario.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\failover\RoundRobinLoadBalancer.java
@@ -162,6 +164,7 @@ c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\statistics\S
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\diameter\creditcontrol\DiameterAsRoutes.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\map\MAPModule.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\routing\SipAsRouter.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\CAPProviderImplImscfWrapper.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\stack\ImscfStackListener.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\GsmScfCsCallListener.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\call\TimerListener.java
@@ -227,6 +230,7 @@ c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\scenario
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\AlternativesScenario.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\diameter\DiameterGWModuleBase.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\adapters\TimerServiceAdapter.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\CAPStackImplImscfWrapper.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\CapScenarioContinueWithArgument.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\call\impl\DelegatingDiameterHttpCall.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\SipScenarioPromptAndCollectUserInformation.java
@@ -244,11 +248,13 @@ c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\sip\SipModul
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\util\JNDIHelper.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\statistics\TcapStatisticsSetterBase.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\CapScenarioFurnishChargingInformation.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\map\MAPStackImplImscfWrapper.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\scenarios\CapRequestScenarioBase.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\stack\LwCommMessageProvider.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\CapScenarioInitiateCallAttempt.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\call\impl\DelegatingCapSipCsCall.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\statistics\SlidingWindowStatisticsMBeanBase.java
+c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\call\LockAction.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\GsmScfSmsListener.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\cap\converter\SipScenarioPlayAnnouncement.java
 c:\work\Alerant\IM-SCF\imscf-el\src\main\java\org\restcomm\imscf\el\statistics\MapStatistics.java
