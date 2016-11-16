@@ -20,7 +20,6 @@ package org.restcomm.imscf.el.call;
 
 import org.restcomm.imscf.el.call.history.ElEventCreator;
 import org.restcomm.imscf.el.call.impl.IMSCFCallBase;
-import org.restcomm.imscf.el.call.impl.AppSessionLockAction;
 import org.restcomm.imscf.el.call.impl.ImscfCallMaxAgeTimerListener;
 import org.restcomm.imscf.el.cap.CAPModule;
 import org.restcomm.imscf.el.cap.call.CAPCSCall;
