@@ -21,7 +21,6 @@ package org.restcomm.imscf.el.stack;
 import org.restcomm.imscf.common.config.ImscfConfigType;
 import org.restcomm.imscf.common.config.ImscfConfigType.Sccp;
 import org.restcomm.imscf.common.config.CapModuleType;
-import org.restcomm.imscf.common.config.DiameterGatewayModuleType;
 import org.restcomm.imscf.common.config.ExecutionLayerServerType;
 import org.restcomm.imscf.common.config.GtAddressType;
 import org.restcomm.imscf.common.config.MapModuleType;
@@ -36,8 +35,6 @@ import org.restcomm.imscf.el.cap.CAPStackImplImscfWrapper;
 import org.restcomm.imscf.el.cap.CAPTimerDefault;
 import org.restcomm.imscf.el.config.ConfigBean;
 import org.restcomm.imscf.el.config.ConfigurationChangeListener;
-import org.restcomm.imscf.el.diameter.DiameterGWModuleBase;
-import org.restcomm.imscf.el.diameter.DiameterModule;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.MAPModuleImpl;
 import org.restcomm.imscf.el.map.MAPStackImplImscfWrapper;
@@ -112,7 +109,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
     private static Logger logger = LoggerFactory.getLogger(ELStackRunner.class);
 
     private SUAImpl sua;
-    private DiameterImpl diam;
 
     // SSN -> TCAP+CAP+MAP
     private Map<Integer, StackTree> stacks = new HashMap<>();
@@ -193,16 +189,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
 
             } else {
                 logger.info("SIGTRAN not configured");
-            }
-
-            if (configBean.isDiameterStackNeeded()) {
-                logger.info("Initializing Diameter stack...");
-                initDiameter();
-                lwcommListener.addModuleListener("DiameterGW", diam);
-
-                ManagedScheduledTimerService.initialize();
-            } else {
-                logger.info("Diameter not configured");
             }
 
             logger.info("Stacks initialized.");
@@ -320,18 +306,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
 
         } else {
             logger.info("SIGTRAN not configured");
-        }
-
-        if (configBean.isDiameterStackNeeded()) {
-            logger.info("Initializing for Diameter");
-
-            logger.info("Initializing Diameter modules...");
-            initDiameterModules();
-
-            logger.info("Initializing Diameter HTTP AS router...");
-            diam.initializeDiameterAsRoutes();
-        } else {
-            logger.info("Diameter not configured");
         }
 
         logger.info("Components initialized!");
@@ -531,15 +505,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
         }
     }
 
-    private void initDiameter() {
-        DiameterImpl diam = new DiameterImpl();
-
-        diam.setCallStore(callStoreBean);
-        diam.setCallFactoryBean(callFactoryBean);
-        diam.setConfigBean(configBean);
-        this.diam = diam;
-    }
-
     private void initSccpModules() {
         ModuleStore.getSccpModules().clear();
         Optional.ofNullable(configBean.getConfig().getSccp()).ifPresent(sccp -> {
@@ -577,15 +542,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
             module.setMAPProvider(stacks.get(ssn).map.getMAPProvider());
             module.setSccpProvider(getSccpProvider());
             initModule(module, configBean.getConfig(), ModuleStore.getMapModules());
-        }
-    }
-
-    private void initDiameterModules() {
-        ModuleStore.getDiameterModules().clear();
-        for (DiameterGatewayModuleType diameterModuleConfig : configBean.getConfig().getDiameterGatewayModules()) {
-            DiameterModule module = new DiameterGWModuleBase();
-            module.setName(diameterModuleConfig.getName());
-            initModule(module, configBean.getConfig(), ModuleStore.getDiameterModules());
         }
     }
 

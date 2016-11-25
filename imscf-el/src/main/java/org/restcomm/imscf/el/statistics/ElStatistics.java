@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.restcomm.imscf.common.config.ImscfConfigType;
-import org.restcomm.imscf.common.config.DiameterCounterThresholdNotificationType;
 import org.restcomm.imscf.common.config.MapCounterThresholdNotificationType;
 import org.restcomm.imscf.common.config.ServiceKeyCounterThresholdNotificationType;
 import org.restcomm.imscf.common.config.SipApplicationServerGroupType;
@@ -59,7 +58,6 @@ public final class ElStatistics {
 
     private List<ServiceKeyCounterThresholdNotificationType> serviceKeyNotifications;
     private List<MapCounterThresholdNotificationType> mapNotifications;
-    private List<DiameterCounterThresholdNotificationType> diameterNotifications;
 
     private ElStatistics() {
         // empty constructor
@@ -81,11 +79,8 @@ public final class ElStatistics {
         tmpInstance.serviceKeyNotifications = imscfConfig.getNotificationConfiguration()
                 .getServiceKeyCounterThresholdNotifications();
         tmpInstance.mapNotifications = imscfConfig.getNotificationConfiguration().getMapCounterThresholdNotifications();
-        tmpInstance.diameterNotifications = imscfConfig.getNotificationConfiguration()
-                .getDiameterCounterThresholdNotifications();
         LOG.info("Service key notifications: {}", tmpInstance.serviceKeyNotifications);
         LOG.info("MAP notifications: {}", tmpInstance.mapNotifications);
-        LOG.info("Diameter notifications: {}", tmpInstance.diameterNotifications);
 
         for (SipApplicationServerGroupType sag : Optional.ofNullable(imscfConfig.getSipApplicationServers())
                 .map(s -> s.getSipApplicationServerGroups()).orElse(Collections.emptyList())) {
@@ -170,17 +165,6 @@ public final class ElStatistics {
         }
         ServiceKeyStatisticsSetterImpl ret = new ServiceKeyStatisticsSetterImpl(serviceIdentifier,
                 instance.windowSeconds, instance.serviceKeyNotifications);
-        instance.statisticsThread.setterQueue.add(ret);
-        return ret;
-    }
-
-    public static DiameterStatisticsSetter createOneShotDiameterStatisticsSetter(String alias, String moduleName) {
-        if (instance == null) {
-            LOG.error("ElStatistics is not initialized");
-            return null;
-        }
-        DiameterStatisticsSetterImpl ret = new DiameterStatisticsSetterImpl(alias, moduleName, instance.windowSeconds,
-                instance.diameterNotifications);
         instance.statisticsThread.setterQueue.add(ret);
         return ret;
     }

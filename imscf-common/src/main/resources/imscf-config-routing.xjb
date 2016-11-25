@@ -31,16 +31,4 @@
         </jaxb:property>
     </jaxb:bindings>
     
-    <jaxb:bindings node="//xs:complexType[@name='DiameterRoutingConfigType']//xs:element[@name='httpApplicationServerGroup']">
-        <jaxb:property>
-            <jaxb:baseType name="org.restcomm.imscf.common.config.HttpApplicationServerGroupType"/>
-        </jaxb:property>
-    </jaxb:bindings>
-    
-    <jaxb:bindings node="//xs:complexType[@name='DiameterRoutingConfigType']//xs:element[@name='diameterGatewayModule']">
-        <jaxb:property>
-            <jaxb:baseType name="org.restcomm.imscf.common.config.DiameterGatewayModuleType"/>
-        </jaxb:property>
-    </jaxb:bindings>
-    
 </jaxb:bindings>

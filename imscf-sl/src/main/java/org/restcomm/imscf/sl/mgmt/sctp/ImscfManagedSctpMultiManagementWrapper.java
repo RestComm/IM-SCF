@@ -26,7 +26,6 @@ import org.restcomm.imscf.sl.sctp.multiclient.MultiManagementImpl;
 /**
  * MultiManagamentImpl wrapper which implements the ImscfManagedSctpManagementWrapper abstract class.
  * Its main feature is to register the MultiManagementImpl object to the IMSCF LinkManager object in its constructor.
- * Useful when it is dynamically instantiated by 3rd party components like jdiameter stack.
  * NOTE: it could be as simple as a super class of MultiManagementImpl but wrapper pattern seemed to
  * be more future proof.
  *

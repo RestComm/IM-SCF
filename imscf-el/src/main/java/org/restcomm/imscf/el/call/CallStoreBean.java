@@ -20,8 +20,6 @@ package org.restcomm.imscf.el.call;
 
 import org.restcomm.imscf.el.call.impl.CallResourceAdapter;
 import org.restcomm.imscf.el.cap.call.CAPCall;
-import org.restcomm.imscf.el.diameter.call.DiameterCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
 import org.restcomm.imscf.el.map.call.MAPCall;
 import org.restcomm.imscf.el.sip.SIPCall;
 import org.restcomm.imscf.el.tcap.call.TCAPCall;
@@ -48,14 +46,12 @@ public class CallStoreBean implements CallStore {
     // different views of the same store
     Map<String, SIPCall> callsByAppSessionId;
     Map<Long, TCAPCall> callsByLocalTcapTrId;
-    Map<String, DiameterCall> callsByDiameterSessionId;
 
     @PostConstruct
     public void init() {
         callsByAppSessionId = new ConcurrentHashMap<String, SIPCall>();
         callsByImscfCallId = new ConcurrentHashMap<String, IMSCFCall>();
         callsByLocalTcapTrId = new ConcurrentHashMap<Long, TCAPCall>();
-        callsByDiameterSessionId = new ConcurrentHashMap<String, DiameterCall>();
     }
 
     @Override
@@ -77,16 +73,6 @@ public class CallStoreBean implements CallStore {
     @Override
     public TCAPCall getCallByLocalTcapTrIdUnlocked(Long localTcapTrId) {
         return CallResourceAdapter.wrapUnlocked(callsByLocalTcapTrId.get(localTcapTrId));
-    }
-
-    @Override
-    public DiameterCall getCallByDiameterSessionId(String sessionId) {
-        return CallResourceAdapter.wrap(callsByDiameterSessionId.get(sessionId));
-    }
-
-    @Override
-    public DiameterHttpCall getHttpCallByDiameterSessionId(String sessionId) {
-        return CallResourceAdapter.wrap((DiameterHttpCall) callsByDiameterSessionId.get(sessionId));
     }
 
     @Override
@@ -125,11 +111,6 @@ public class CallStoreBean implements CallStore {
             if (t.getLocalTcapTrId() != null)
                 callsByLocalTcapTrId.put(t.getLocalTcapTrId(), t);
         }
-        if (call instanceof DiameterCall) {
-            DiameterCall d = (DiameterCall) call;
-            if (d.getDiameterSessionId() != null)
-                callsByDiameterSessionId.put(d.getDiameterSessionId(), d);
-        }
     }
 
     @Override
@@ -146,11 +127,6 @@ public class CallStoreBean implements CallStore {
             TCAPCall t = (TCAPCall) call;
             if (t.getLocalTcapTrId() != null)
                 callsByLocalTcapTrId.remove(t.getLocalTcapTrId());
-        }
-        if (call instanceof DiameterCall) {
-            DiameterCall d = (DiameterCall) call;
-            if (d.getDiameterSessionId() != null)
-                callsByDiameterSessionId.remove(d.getDiameterSessionId());
         }
     }
 }

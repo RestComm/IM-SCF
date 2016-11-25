@@ -231,15 +231,6 @@
                                    </extensionArgs>
                                 </xsdOption>
                                 <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/imscf-config-diametergw.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/imscf-config-diametergw.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xxew</extensionArg>
-                                        <extensionArg>-Xts</extensionArg>
-                                    </extensionArgs>
-                                </xsdOption>
-                                <xsdOption>
                                     <xsd>${basedir}/src/main/resources/imscf-config-routing.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/imscf-config-routing.xjb</bindingFile>
                                     <extension>true</extension>

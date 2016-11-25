@@ -201,11 +201,6 @@ public class ConfigBean {
         return !config.getMapModules().isEmpty();
     }
 
-    @Lock(LockType.READ)
-    public boolean isDiameterStackNeeded() {
-        return checker.isDiameterStackNeeded();
-    }
-
     /** MBean implementation. */
     private class ConfigurationManager extends StandardMBean implements ConfigurationManagerMBean {
 

@@ -41,16 +41,10 @@ public final class ImscfConfigChecker {
                 throw new IllegalStateException("SCCP local GT/SSN must be configured if CAP/MAP modules are used.");
         }
 
-        // Diameter config checks
-        // ...
-
     }
 
     public boolean isSigtranStackNeeded() {
         return !config.getCapModules().isEmpty() || !config.getMapModules().isEmpty();
     }
 
-    public boolean isDiameterStackNeeded() {
-        return !config.getDiameterGatewayModules().isEmpty();
-    }
 }

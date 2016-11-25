@@ -19,7 +19,6 @@
 package org.restcomm.imscf.el.modules;
 
 import org.restcomm.imscf.el.cap.CAPModule;
-import org.restcomm.imscf.el.diameter.DiameterModule;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.sccp.SccpModule;
 
@@ -32,7 +31,6 @@ public final class ModuleStore {
     private static final ConcurrentHashMap<String, SccpModule> SCCP_MODULES = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, CAPModule> CAP_MODULES = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, MAPModule> MAP_MODULES = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, DiameterModule> DIAMETER_MODULES = new ConcurrentHashMap<>();
 
     public static final String SCCP_MODULE_NAME = "ElSccpModule";
 
@@ -55,7 +53,4 @@ public final class ModuleStore {
         return MAP_MODULES;
     }
 
-    public static ConcurrentHashMap<String, DiameterModule> getDiameterModules() {
-        return DIAMETER_MODULES;
-    }
 }

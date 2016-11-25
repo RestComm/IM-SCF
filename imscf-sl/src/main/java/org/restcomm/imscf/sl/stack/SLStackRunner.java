@@ -18,8 +18,6 @@
  */
 package org.restcomm.imscf.sl.stack;
 
-import org.restcomm.imscf.common.config.DiameterGatewayModuleType;
-import org.restcomm.imscf.common.config.DiameterRoutingConfigType;
 import org.restcomm.imscf.common.config.OverloadProtectionType;
 import org.restcomm.imscf.common.config.SctpAssociationLocalSideType;
 import org.restcomm.imscf.common.config.SctpAssociationRemoteSideProfileType;
@@ -31,11 +29,6 @@ import org.restcomm.imscf.sl.config.Ss7StackParameters;
 import org.restcomm.imscf.sl.mgmt.sctp.ImscfManagedSctpMultiManagementWrapper;
 import org.restcomm.imscf.sl.mgmt.sctp.SctpLinkManager;
 import org.restcomm.imscf.sl.config.ConfigBean;
-import org.restcomm.imscf.sl.diameter.ELDiameterRouterBean;
-import org.restcomm.imscf.sl.diameter.SLELDiameterRouter;
-import org.restcomm.imscf.sl.diameter.config.DiameterGWConfiguration;
-import org.restcomm.imscf.sl.diameter.listener.SLDiameterCCASessionListener;
-import org.restcomm.imscf.sl.diameter.listener.SLDiameterCCAStateChangeListener;
 import org.restcomm.imscf.sl.history.SlCallHistoryStore;
 import org.restcomm.imscf.sl.overload.SlOverloadUtil;
 import org.restcomm.imscf.sl.statistics.SlStatistics;
@@ -64,15 +57,6 @@ import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
-import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.DisconnectCause;
-import org.jdiameter.api.IllegalDiameterStateException;
-import org.jdiameter.api.InternalException;
-import org.jdiameter.api.Network;
-import org.jdiameter.api.Stack;
-import org.jdiameter.client.api.ISessionFactory;
-import org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl;
-import org.jdiameter.server.impl.StackImpl;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.M3UAManagement;
@@ -81,30 +65,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for starting and shutting down the SS7 and Diameter stack.
+ * Class for starting and shutting down the SS7 stack.
  */
 @Startup
 @Singleton
-@DependsOn(value = { "ConfigBean", "ELRouterBean", "ELDiameterRouterBean" })
+@DependsOn(value = { "ConfigBean", "ELRouterBean" })
 public class SLStackRunner {
     private static Logger logger = LoggerFactory.getLogger(SLStackRunner.class);
     private static final String SCTP_LINK_MANAGER_MBEAN_NAME = ConfigBean.SL_MBEAN_DOMAIN + ":type=SctpLinkManager";
     private static final String SCTP_LINK_STATUS_NOTIFIER_MBEAN_NAME = ConfigBean.SL_MBEAN_DOMAIN
             + ":type=SctpLinkStatus";
 
-    private ConcurrentMap<String, CCASessionFactoryImpl> ccaSessionFactories;
-
     ImscfSigtranStack stack;
-    List<Stack> jdiameterStacks = new ArrayList<>();
 
     @EJB
     ConfigBean configBean;
 
     @EJB
     ELRouterBean elRouterBean;
-
-    @EJB
-    ELDiameterRouterBean eldiameterRouterBean;
 
     @PostConstruct
     public void onApplicationStart() {
@@ -176,73 +154,6 @@ public class SLStackRunner {
             logger.info("SIGTRAN not configured");
         }
 
-        // Build diameter stack
-        if (configBean.isDiameterStackNeeded()) {
-            logger.info("Initializing for Diameter");
-            mr.setupForDiameter(eldiameterRouterBean);
-
-            SignalingLayerServerType actSignalingServer = findActualSignalingServer();
-
-            for (DiameterGatewayModuleType module : configBean.getConfig().getDiameterGatewayModules()) {
-                logger.info("Starting jdiameter stack for module {}", module.getName());
-                try {
-                    // Find diameter module and SCTP association local side pairs
-                    for (SctpAssociationLocalSideType sctpAssociationLocal : actSignalingServer
-                            .getSctpAssociationLocalSides()) {
-
-                        if (sctpAssociationLocal.getSctpAssociationRemoteSideProfile() != null
-                                && module.getSctpAssociationRemoteSideProfile().getName()
-                                        .equals(sctpAssociationLocal.getSctpAssociationRemoteSideProfile().getName())) {
-                            SctpAssociationRemoteSideProfileType actSctpAssociationRemoteSideProfile = findActualSctpAssociationRemoteSideProfile(sctpAssociationLocal);
-
-                            // Find SCTP association remote side
-                            if (actSctpAssociationRemoteSideProfile.getSctpAssociationRemoteSideWrapper() != null) {
-                                for (SctpAssociationRemoteSideWrapperType remoteSide : actSctpAssociationRemoteSideProfile
-                                        .getSctpAssociationRemoteSideWrapper()) {
-                                    Stack diamStack = new StackImpl();
-                                    ISessionFactory factory;
-
-                                    DiameterGWConfiguration diamConf;
-                                    diamConf = new DiameterGWConfiguration(module, actSignalingServer,
-                                            sctpAssociationLocal, remoteSide.getSctpAssociationRemoteSide());
-
-                                    factory = (ISessionFactory) diamStack.init(diamConf.getDiameterConfig());
-
-                                    ApplicationId aid = ApplicationId.createByAuthAppId(module
-                                            .getDestinationApplicationId().getVendorId(), module
-                                            .getDestinationApplicationId().getAuthApplId());
-
-                                    String stackName = ConfigBean.SERVER_NAME
-                                            + remoteSide.getSctpAssociationRemoteSide().getName();
-
-                                    // Find service context ids
-                                    List<String> serviceContextIds = new ArrayList<String>();
-                                    serviceContextIds.addAll(findServiceContextIdsForDiameterStack(module));
-
-                                    int ccaSessionTimeout = module.getSessionTimeoutSec();
-
-                                    diamStack.unwrap(Network.class).addNetworkReqListener(
-                                            new SLDiameterReqListener(getServerCCASessionFactory(factory, stackName,
-                                                    serviceContextIds, ccaSessionTimeout, eldiameterRouterBean, lwc,
-                                                    callHistoryStore), aid), aid);
-
-                                    diamStack.start();
-
-                                    this.jdiameterStacks.add(diamStack);
-                                    logger.info("Done.");
-
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Failed to start diameter stack for module {}", module.getName(), e);
-                }
-            }
-        } else {
-            logger.info("Diameter not configured");
-        }
-
         logger.info("SL started!");
     }
 
@@ -271,44 +182,6 @@ public class SLStackRunner {
             }
         }
         return actSctpAssociationRemoteSideProfile;
-    }
-
-    // Find serviceContextIds
-    public List<String> findServiceContextIdsForDiameterStack(DiameterGatewayModuleType module) {
-        List<String> serviceContextIds = new ArrayList<String>();
-
-        for (DiameterRoutingConfigType diameterRouting : configBean.getConfig().getDiameterRouting()) {
-            if (diameterRouting.getDiameterGatewayModule().getName().equals(module.getName())) {
-
-                StringTokenizer st = new StringTokenizer(diameterRouting.getServiceContextIds(), ",");
-                while (st.hasMoreElements()) {
-                    serviceContextIds.add(st.nextToken());
-                }
-            }
-        }
-
-        return serviceContextIds;
-    }
-
-    // Get CCA session Factory
-    private CCASessionFactoryImpl getServerCCASessionFactory(ISessionFactory factory, String whichStack,
-            List<String> serviceContextIds, int ccaSessionTimeout, SLELDiameterRouter<SlElMappingData> elRouterBean,
-            LwCommService lwc, SlCallHistoryStore callHistoryStore) {
-        if (ccaSessionFactories == null) {
-            ccaSessionFactories = new ConcurrentHashMap<String, CCASessionFactoryImpl>();
-            CCASessionFactoryImpl ccaSessionFactory = new CCASessionFactoryImpl(factory);
-            ccaSessionFactory.setServerSessionListener(new SLDiameterCCASessionListener(serviceContextIds,
-                    ccaSessionTimeout, elRouterBean, lwc, callHistoryStore));
-            ccaSessionFactory.setStateListener(new SLDiameterCCAStateChangeListener());
-            ccaSessionFactories.put(whichStack, ccaSessionFactory);
-        } else if (ccaSessionFactories.get(whichStack) == null) {
-            CCASessionFactoryImpl ccaSessionFactory = new CCASessionFactoryImpl(factory);
-            ccaSessionFactory.setServerSessionListener(new SLDiameterCCASessionListener(serviceContextIds,
-                    ccaSessionTimeout, elRouterBean, lwc, callHistoryStore));
-            ccaSessionFactory.setStateListener(new SLDiameterCCAStateChangeListener());
-            ccaSessionFactories.put(whichStack, ccaSessionFactory);
-        }
-        return ccaSessionFactories.get(whichStack);
     }
 
     private void initOverloadProtection() {
@@ -385,22 +258,6 @@ public class SLStackRunner {
             SlStatistics.shutdownStatistics(stack);
             stack = null;
             logger.info("SIGTRAN stack is down.");
-        }
-
-        if (!jdiameterStacks.isEmpty()) {
-            logger.info("Stopping diameter stacks...");
-            for (Stack stack : jdiameterStacks) {
-                if (stack.isActive()) {
-                    try {
-                        stack.stop(10, TimeUnit.SECONDS, DisconnectCause.REBOOTING);
-                    } catch (IllegalDiameterStateException | InternalException e) {
-                        logger.error("Error stopping jdiameter stack!", e);
-                    }
-                }
-                stack.destroy();
-            }
-            jdiameterStacks.clear();
-            logger.info("Diameter stacks are down.");
         }
 
         // Shut down overload utility

@@ -29,9 +29,6 @@ import org.restcomm.imscf.el.cap.call.CapSipCsCallImpl;
 import org.restcomm.imscf.el.cap.call.CapSipSmsCallImpl;
 import org.restcomm.imscf.el.cap.call.CapSmsCall;
 import org.restcomm.imscf.el.cap.sip.SipSessionAttributes;
-import org.restcomm.imscf.el.diameter.DiameterModule;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCallImpl;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.call.MAPCall;
 import org.restcomm.imscf.el.map.call.MapSipCallImpl;
@@ -45,7 +42,6 @@ import org.restcomm.imscf.el.stack.SlElMappingData;
 import org.restcomm.imscf.el.tcap.call.TCAPCall;
 import org.restcomm.imscf.common.SccpDialogId;
 import org.restcomm.imscf.common.TcapDialogId;
-import org.restcomm.imscf.common.diameter.creditcontrol.DiameterSLELCreditControlRequest;
 import org.restcomm.imscf.common.messages.SccpManagementMessage;
 import org.restcomm.imscf.common.util.ImscfCallId;
 import org.restcomm.imscf.util.IteratorStream;
@@ -257,27 +253,6 @@ public class CallFactoryBean {
         return call.getImscfCallId();
     }
 
-    /**
-     * Create a new call. Returns the IMSCF call id of the new call, the instance itself can be retrieved through the CallStore.
-     * @return imscfCallId
-     */
-    public String newCall(DiameterSLELCreditControlRequest diameterRequest, String callId, String msgId,
-            DiameterModule module) {
-        DiameterHttpCall specificCall = new DiameterHttpCallImpl();
-        specificCall.setDiameterModule(module);
-        specificCall.setImscfCallId(callId);
-        DiameterHttpCall call = initCall(specificCall, module);
-        call.setDiameterSessionId(diameterRequest.getSessionId());
-        call.setServiceContextId(diameterRequest.getServiceContextId());
-        call.getCallHistory().addEvent("->LWC(" + diameterRequest.getRequestType() + ", " + msgId + ")");
-        ((IMSCFCallBase) call).populateMDC();
-        LOG.debug("Created Diameter call {}", call);
-        IMSCFCallBase.clearMDC();
-        callStore.updateCall(call);
-        call.setImscfState(ImscfCallLifeCycleState.ACTIVE);
-        return call.getImscfCallId();
-    }
-
     private static CAPUserAbortReason getDefaultCapAbortReason() {
         return CAPUserAbortReason.application_timer_expired;
     }
@@ -428,9 +403,6 @@ public class CallFactoryBean {
             MAPCall mc = (MAPCall) call;
             sccpDialogId = getSccpDialogId(mc.getMAPDialog());
             tcapDialogId = getTcapDialogId(mc);
-        } else if (call instanceof DiameterHttpCall) {
-            LOG.debug("SL mapping for DiameterHttpCall is automatically removed on the SL side, no cleanup necessary.");
-            return;
         } else {
             LOG.warn("call is {}, sending delete call message to SL is not implemented!", call);
             return;

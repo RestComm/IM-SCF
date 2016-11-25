@@ -26,7 +26,7 @@ import java.util.List;
 import javax.servlet.sip.SipApplicationSession;
 
 /**
- * Common call interface for all call types, i.e. CAP, MAP and Diameter.
+ * Common call interface for all call types, i.e. CAP and MAP.
  */
 public interface IMSCFCall extends AutoCloseable {
 
@@ -85,7 +85,6 @@ public interface IMSCFCall extends AutoCloseable {
      * <p>
      * <li>For network initiated CAP CS/SMS calls, this could be the value of the serviceKey from the initialDP.
      * <li>For AS initiated calls, it could be some other identifier received from the AS.
-     * <li>For diameter calls, this could be the value of the serviceContextId.
      */
     String getServiceIdentifier();
 }

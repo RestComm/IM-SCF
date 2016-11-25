@@ -51,7 +51,7 @@ public class LwcommMessageReceiver implements LwCommMessageProvider, MessageRece
     public void onMessage(IncomingTextMessage lwcommMessage) {
         MDC.clear();
         try {
-            // Start logging with the ascCallId (which is the same as the Group-Id) immediately, even without locking on
+            // Start logging with the imscfCallId (which is the same as the Group-Id) immediately, even without locking on
             // the call. If a call is found, the value will be overwritten and other parameters added as well.
             Optional.ofNullable(lwcommMessage.getGroupId()).ifPresent(
                     gid -> MDC.put(MDCParameters.IMSCF_CALLID.getKey(), gid));

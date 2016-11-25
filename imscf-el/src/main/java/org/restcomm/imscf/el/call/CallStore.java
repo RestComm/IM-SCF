@@ -21,8 +21,6 @@ package org.restcomm.imscf.el.call;
 import javax.servlet.sip.SipServletMessage;
 
 import org.restcomm.imscf.el.cap.call.CAPCall;
-import org.restcomm.imscf.el.diameter.call.DiameterCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
 import org.restcomm.imscf.el.map.call.MAPCall;
 import org.restcomm.imscf.el.sip.SIPCall;
 import org.restcomm.imscf.el.tcap.call.TCAPCall;
@@ -49,10 +47,6 @@ public interface CallStore {
     MAPCall getMapCall(Long localTcapTrId);
 
     SIPCall getSipCall(SipServletMessage msg);
-
-    DiameterCall getCallByDiameterSessionId(String sessionId);
-
-    DiameterHttpCall getHttpCallByDiameterSessionId(String sessionId);
 
     void updateCall(IMSCFCall call);
 

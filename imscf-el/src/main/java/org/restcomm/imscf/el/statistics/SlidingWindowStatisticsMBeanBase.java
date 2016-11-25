@@ -18,7 +18,6 @@
  */
 package org.restcomm.imscf.el.statistics;
 
-import org.restcomm.imscf.common.config.DiameterCounterThresholdNotificationType;
 import org.restcomm.imscf.common.config.MapCounterThresholdNotificationType;
 import org.restcomm.imscf.common.config.ServiceKeyCounterThresholdNotificationType;
 import org.restcomm.imscf.el.config.ConfigBean;
@@ -309,13 +308,4 @@ public abstract class SlidingWindowStatisticsMBeanBase extends NotificationBroad
         return ret;
     }
 
-    static List<Notification> convertFromDiameterThresholdNotifications(
-            List<DiameterCounterThresholdNotificationType> nots) {
-        List<Notification> ret = new ArrayList<Notification>(nots.size());
-        nots.forEach(n -> ret.add(new Notification(n.getThresholdLow(), n.getThresholdHigh(), n
-                .isNotificationWhenLowFromBelow(), n.isNotificationWhenLowFromAbove(), n
-                .isNotificationWhenHighFromBelow(), n.isNotificationWhenHighFromAbove(), n.getCounterName().value(), n
-                .getNotificationText())));
-        return ret;
-    }
 }

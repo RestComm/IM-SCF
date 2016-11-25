@@ -18,8 +18,6 @@
  */
 package org.restcomm.imscf.sl.history;
 
-import org.restcomm.imscf.common.diameter.creditcontrol.CCAResultCode;
-import org.restcomm.imscf.common.diameter.creditcontrol.CCRequestType;
 import org.restcomm.imscf.common.util.TCAPMessageInfo;
 
 import java.util.Arrays;
@@ -94,41 +92,4 @@ public enum Event {
         }
     }
 
-    public static Event fromDiameter(CCRequestType reqType, CCAResultCode resType, boolean fromMobileNetwork) {
-        switch (reqType) {
-
-        case BALANCE:
-            if (resType != null) {
-                switch (resType) {
-                case SUCCESS:
-                    return fromMobileNetwork ? D_BALANCE_SUCCES_IN : D_BALANCE_SUCCES_OUT;
-                case END_USER_SERVICE_DENIED:
-                    return fromMobileNetwork ? D_BALANCE_SERVICE_DENIED_IN : D_BALANCE_SERVICE_DENIED_OUT;
-                case TECHNICAL_ERROR:
-                    return fromMobileNetwork ? D_BALANCE_TECHNICAL_ERROR_IN : D_BALANCE_TECHNICAL_ERROR_OUT;
-                default:
-                    throw new IllegalArgumentException("Unexpected Diameter Response type!");
-                }
-            } else {
-                return fromMobileNetwork ? D_BALANCE_IN : D_BALANCE_OUT;
-            }
-        case DEBIT:
-            if (resType != null) {
-                switch (resType) {
-                case SUCCESS:
-                    return fromMobileNetwork ? D_DEBIT_SUCCES_IN : D_DEBIT_SUCCES_OUT;
-                case END_USER_SERVICE_DENIED:
-                    return fromMobileNetwork ? D_DEBIT_SERVICE_DENIED_IN : D_DEBIT_SERVICE_DENIED_OUT;
-                case TECHNICAL_ERROR:
-                    return fromMobileNetwork ? D_DEBIT_TECHNICAL_ERROR_IN : D_DEBIT_TECHNICAL_ERROR_OUT;
-                default:
-                    throw new IllegalArgumentException("Unexpected Diameter Response type!");
-                }
-            } else {
-                return fromMobileNetwork ? D_DEBIT_IN : D_DEBIT_OUT;
-            }
-        default:
-            throw new IllegalArgumentException("Unexpected Diameter Request type!");
-        }
-    }
 }

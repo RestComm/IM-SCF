@@ -107,8 +107,4 @@ public class ConfigBean {
         return checker.isSigtranStackNeeded();
     }
 
-    @Lock(LockType.READ)
-    public boolean isDiameterStackNeeded() {
-        return checker.isDiameterStackNeeded();
-    }
 }

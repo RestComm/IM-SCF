@@ -19,22 +19,15 @@
 package org.restcomm.imscf.sl.stack;
 
 import org.restcomm.imscf.common.config.SignalingLayerServerType;
-import org.restcomm.imscf.sl.diameter.DiameterDialogId;
-import org.restcomm.imscf.sl.diameter.DiameterGW;
-import org.restcomm.imscf.sl.diameter.ELDiameterRouterBean;
-import org.restcomm.imscf.sl.diameter.listener.SLDiameterCCASessionListener;
 import org.restcomm.imscf.sl.history.Event;
 import org.restcomm.imscf.sl.history.SlCallHistoryStore;
 import org.restcomm.imscf.sl.log.MDCParameters;
 import org.restcomm.imscf.sl.log.MDCParameters.Parameter;
 import org.restcomm.imscf.sl.statistics.SlStatistics;
-import org.restcomm.imscf.common.DiameterSerializer;
 import org.restcomm.imscf.common.SLELRouter;
 import org.restcomm.imscf.common.SccpDialogId;
 import org.restcomm.imscf.common.SccpSerializer;
 import org.restcomm.imscf.common.TcapDialogId;
-import org.restcomm.imscf.common.diameter.creditcontrol.CCRequestType;
-import org.restcomm.imscf.common.diameter.creditcontrol.DiameterSLELCreditControlResponse;
 import org.restcomm.imscf.common.messages.SccpManagementMessage;
 import org.restcomm.imscf.common.util.TCAPMessageInfo;
 import org.restcomm.imscf.common.util.TCAPMessageInfo.MessageType;
@@ -74,7 +67,6 @@ public class LwcommMessageReceiver implements MessageReceiver {
     private SLELRouter<SlElMappingData> slElRouter;
     private SignalingLayerServerType server;
     private SlCallHistoryStore callHistoryStore;
-    private ELDiameterRouterBean elDiameterRouterBean;
     private transient LwCommService lwc;
 
     private transient SLSccpListener slSccpListener;
@@ -90,10 +82,6 @@ public class LwcommMessageReceiver implements MessageReceiver {
         this.slElRouter = Objects.requireNonNull(slElRouter, "SL-EL router cannot be null");
         this.lwc = Objects.requireNonNull(lwc, "LwcommService cannot be null");
         this.slSccpListener = Objects.requireNonNull(slSccpListener, "SLSccpListener cannot be null");
-    }
-
-    public void setupForDiameter(ELDiameterRouterBean elDiameterRouterBean) {
-        this.elDiameterRouterBean = Objects.requireNonNull(elDiameterRouterBean, "ELDiameterRouter cannot be null");
     }
 
     private void handleSccpDataMessageContent(IncomingTextMessage msg, String sccpData) {
@@ -200,48 +188,6 @@ public class LwcommMessageReceiver implements MessageReceiver {
             default:
                 break;
             }
-        } finally {
-            MDCParameters.clearMDC();
-        }
-    }
-
-    private void handleDiameterAnswerMessageContent(IncomingTextMessage msg, String data) {
-        try {
-            MDCParameters.toMDC(MDCParameters.Parameter.IMSCF_CALLID, msg.getGroupId());
-            DiameterSLELCreditControlResponse drm = DiameterSerializer.deserializeResponse(data);
-            logger.trace("DiameterDataMessage got: {}", drm);
-
-            DiameterDialogId diamId = new DiameterDialogId(drm.getSessionId());
-
-            String elNodeName = msg.getFrom().getName();
-            ImscfCallId imscfCallId = ImscfCallId.parse(msg.getGroupId());
-
-            SlElMappingData mappingData = new SlElMappingData();
-            mappingData.setNodeName(elNodeName);
-            mappingData.setImscfCallId(imscfCallId);
-
-            SlElMappingData previousData = elDiameterRouterBean.setMappingData(diamId, mappingData);
-            String storedElNodeName = previousData != null ? previousData.getNodeName() : null;
-            if (storedElNodeName != null && !storedElNodeName.equals(elNodeName)) {
-                logger.warn("Unexpected EL mapping change: {} -> {}!", storedElNodeName, elNodeName);
-            }
-            CCRequestType requestType = null;
-
-            requestType = (DiameterGW.getDataForCCASessionId().get(drm.getSessionId())).getCcRequestType();
-
-            callHistoryStore.registerEvent(imscfCallId, Event.LWC_IN);
-
-            SLDiameterCCASessionListener.processCCResponse(drm.getSessionId(), drm, false, drm.isRemoveSession());
-
-            callHistoryStore.registerEvent(imscfCallId,
-                    Event.fromDiameter(requestType, drm.getQueryResultObject(), false));
-
-            if (drm.isRemoveSession() || (requestType.equals(CCRequestType.DEBIT))) {
-                elDiameterRouterBean.setMappingData(diamId, null);
-                callHistoryStore.logAndRemoveCallHistory(imscfCallId);
-            }
-        } catch (Exception e) {
-            logger.error("Error while sending diameter response message: {}", e.getMessage(), e);
         } finally {
             MDCParameters.clearMDC();
         }
@@ -410,16 +356,6 @@ public class LwcommMessageReceiver implements MessageReceiver {
                     break;
                 default:
                     logger.error("Unknown content for SccpProvider: " + content);
-                    break;
-                }
-                break;
-            case "DiameterStack":
-                switch (content) { // NOPMD for too few branches
-                case "DiameterDataMessage":
-                    handleDiameterAnswerMessageContent(msg, data);
-                    break;
-                default:
-                    logger.error("Unknown content for DiameterStack: " + content);
                     break;
                 }
                 break;

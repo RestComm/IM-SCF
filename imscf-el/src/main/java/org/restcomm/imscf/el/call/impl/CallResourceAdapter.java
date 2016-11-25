@@ -21,7 +21,6 @@ package org.restcomm.imscf.el.call.impl;
 import org.restcomm.imscf.el.call.IMSCFCall;
 import org.restcomm.imscf.el.cap.call.CapSipCsCall;
 import org.restcomm.imscf.el.cap.call.CapSipSmsCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
 import org.restcomm.imscf.el.map.call.MAPSIPCall;
 import org.restcomm.imscf.el.stack.CallContext;
 
@@ -69,8 +68,6 @@ public abstract class CallResourceAdapter implements DelegatingIMSCFCall {
             return (T) new CallResourceAdapterCapSipSmsCall((CapSipSmsCall) call, lock);
         else if (call instanceof MAPSIPCall)
             return (T) new CallResourceAdapterMapSipCall((MAPSIPCall) call, lock);
-        else if (call instanceof DiameterHttpCall)
-            return (T) new CallResourceAdapterDiameterHttpCall((DiameterHttpCall) call, lock);
         else
             throw new IllegalArgumentException();
     }
@@ -151,14 +148,3 @@ class CallResourceAdapterMapSipCall extends CallResourceAdapter implements Deleg
     }
 }
 
-/** Delegate implementation for Diameter Http call. */
-class CallResourceAdapterDiameterHttpCall extends CallResourceAdapter implements DelegatingDiameterHttpCall {
-    protected CallResourceAdapterDiameterHttpCall(DiameterHttpCall delegate, boolean lock) {
-        super(delegate, lock);
-    }
-
-    @Override
-    public DiameterHttpCall getDelegate() {
-        return (DiameterHttpCall) super.getDelegate();
-    }
-}
