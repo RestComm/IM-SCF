@@ -1,3 +1,2 @@
-Reverse IM-SSF Config samples
-
-TODO
+=======
+# IM-SSC - Configuration samples
