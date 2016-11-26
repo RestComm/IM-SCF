@@ -1,5 +1,5 @@
 =======
-# IM-SSC - Common package for Signaling and Execution Layers
+# IM-SCF - Common package for Signaling and Execution Layers
 
 The Execution and Signaling Layer servers share some functionality that is implemented in this common package. Usually, configuration and management modules are very similar in the servers:
 

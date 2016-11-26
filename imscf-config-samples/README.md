@@ -1,2 +1,2 @@
 =======
-# IM-SSC - Configuration samples
+# IM-SCF - Configuration samples
