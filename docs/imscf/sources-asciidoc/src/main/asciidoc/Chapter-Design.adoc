@@ -10,11 +10,6 @@ telecommunication services. IM-SCF communicates with telco components on
 SS7 (CAMEL and MAP) protocol over SCTP. The interface between IM-SCF and
 application servers use a high-level SIP protocol.
 
-IM-SCF acts as a Diameter Gateway as well. It is connected to CDF over
-SCTP and forwards requests arriving over DIAMETER protocol from these
-systems to application servers. In this scenario the protocol used
-between IM-SCF and application servers is HTTP.
-
 [[_architecture-diagram]]
 === Architecture diagram
 
@@ -35,8 +30,6 @@ signal that a call has been initiated
 SCCP+MAP over SCTP. This connection is used to issue subscriber queries
 from IM-SCF towards HLR, e.g. AnyTimeInterrogation (location and status)
 query
-* Connection between CDF and IM-SCF uses DIAMETER+CCA over SCTP. This
-link is used for calls being initiated using the DIAMETER CCA protocol
 
 [[_networks-and-peer-systems]]
 === Networks and peer systems
@@ -47,7 +40,6 @@ The following table summarizes the networks and connecting systems.
 |=====================================================
 |Network |Connecting systems
 |SIGTRAN / SS7 |HLR, MSS
-|SCTP / DIAMETER |CDF
 |SIP |Application Servers
 |INTERNAL |IM-SCF nodes internal
 |EXTERNAL |Servers are reachable for the outside world
@@ -134,7 +126,7 @@ risk that maintenance suddenly ends
 [[_signaling-layer]]
 === Signaling Layer
 
-The Signaling Layer’s task is to communicate with telco and DIAMETER
+The Signaling Layer’s task is to communicate with telco 
 systems using SS7 and SCTP protocols. The Signaling Layer acts as the
 message middleware between the Execution Layer and the connecting
 systems – the Execution Layer uses it as a messaging system. The
@@ -156,8 +148,8 @@ appropriate direction.
 *SIGTRAN / SS7*
 
 The Signaling Layer establishes and maintains SCTP associations towards
-MSSs, HLRs, and CDF systems through the SIGTRAN / SS7 module which
-utilizes the Linux kernel module “sctp”. The SS7 / DIAMETER messages are
+MSSs, and HLRs through the SIGTRAN / SS7 module which
+utilizes the Linux kernel module “sctp”. The SS7 messages are
 sent through these SCTP associations.
 
 The SIGTRAN / SS7 module has extensive configuration see section
@@ -182,9 +174,9 @@ receives callbacks and sends messages to the appropriate direction.
 
 *AS module*
 
-The AS module handles the SIP and HTTP connections towards Application
-Servers. This module is responsible for sending and receiving SIP and
-HTTP messages to and from application servers and monitoring which SIP
+The AS module handles the SIP connections towards Application
+Servers. This module is responsible for sending and receiving SIP 
+messages to and from application servers and monitoring which SIP
 application servers are reachable in order to implement failover. This
 monitoring is achieved by periodically sending SIP OPTIONS messages to
 all SIP application servers and those servers who do not answer in time
@@ -260,47 +252,12 @@ There can be multiple CAP modules defined with different parameters.
 Calls can be routed to a specific CAP module in order to fulfill
 different requirements of different services.
 
-*Diameter module*
-
-The Diameter module processes requests from CDF and constructs the HTTP
-request towards application servers. It instructs the AS module to send
-the HTTP request to the appropriate AS and processes its response.
-Extracts the values from the received DIAMETER message and constructs a
-JSON body of the data, e.g.:
-
-[source,json] 
-----
-{
-    "caller":"+36303495361",
-    "callee":"+36302458634",
-    "params":
-    [
-        {
-            "name":"RequestType",
-            "value":"BALANCE"
-        },{
-            "name":"CallerImsi",
-            "value":"216306316109152"
-        },{
-            "name":"VlrGt",
-            "value":"421903002003"
-        },{
-            "name":"SmscAddress",
-            "value":"363098884990"
-        }
-    ]
-}
-----
-
-This body is then sent to the HTTP AS.
-
 *Routing*
 
 In general, routing module handles the following situations:
 
 * which CAP module should handle the incoming call
 * which SIP application server should handle the incoming call
-* which Diameter module should handle the incoming CCA request
 
 In case of incoming calls, the decision criteria is a combination of
 service key range list and TCAP application context.
@@ -408,9 +365,9 @@ the other only.
 [[_signaling-layer-server-failure]]
 ==== Signaling Layer server failure
 
-Signaling Layer servers communicate with telco components (MSS, HLR),
-CDF and Execution Layer servers. These directions worth observing
-individually in terms of redundancy.
+Signaling Layer servers communicate with telco components (MSS, HLR) and 
+Execution Layer servers. These directions worth observing individually in terms 
+of redundancy.
 
 *GT resolving and geo-redundancy*
 
@@ -429,15 +386,6 @@ with the primary point code if it’s available, and to the secondary if
 it’s not. This way, if a signaling server dies, its secondary pair will
 handle the messages if it was the primary pointcode in an MSS. So there
 are two Signaling Layer servers for a global title.
-
-*CDF -> Signaling Layer server*
-
-The redundancy between CDF and a Signaling Layer server is twofold.
-Firstly, since they are connected through SCTP there is SCTP
-multi-homing technique mentioned above to rely on. Above that, CDF
-provides a failover mechanism towards a Signaling Layer server so it can
-detect if a server is down and will not send messages toward it until it
-is reachable again.
 
 *Execution Layer server -> Signaling Layer server*
 
@@ -681,24 +629,21 @@ assigned.
 * Local SCTP addresses
 * Local SCTP address – M3UA profile assignment
 * Point code
-* Diameter Gateway origin host
 
 [[_execution-layer-configuration]]
 === Execution Layer configuration
 
 Execution layer configurations does not involve the concept of profiles
 since Execution Layer servers are designed to be identical. The
-configuration specifies the SIP and HTTP application servers, how the
-calls should be routed to these endpoints, CAP, MAP and Diameter Gateway
+configuration specifies the SIP application servers, how the
+calls should be routed to these endpoints, CAP and MAP 
 modules.
 
 [[_application-server-configuration]]
 ==== Application Server configuration
 
-SIP and HTTP application servers can be defined in IM-SCF. SIP
-application servers handle calls arriving on CAMEL protocol from MSSs,
-HTTP application servers handle calls arriving on DIAMETER protocol from
-CDF.
+SIP application servers can be defined in IM-SCF. SIP
+application servers handle calls arriving on CAMEL protocol from MSSs.
 
 Both types of application servers are organized into groups (when
 defining a call routing, a destination is always a group, IM-SCF never
@@ -721,20 +666,6 @@ possibilities are:
 * load-balance (the target AS is chosen randomly from the available
 application servers)
 * failover (the first available AS in the list is requested)
-
-An HTTP application server is simply a host and a port configuration.
-The protocol is always HTTP, HTTPS is not supported. HTTP application
-server group defines transport layer properties on top the list of
-individual HTTP application servers. These transport layer properties
-are:
-
-* TCP connect timeout
-* TCP channel read timeout
-* Re-enable time – in case when the chosen HTTP AS fails to respond for
-the HTTP request sent by IM-SCF, it is banned for a short period of time
-for give it time to recover and make sure that for this time no HTTP
-requests will be sent to an unresponsive application server. Re-enable
-time is the time interval after which this ban is resolved
 
 [[_cap-configuration]]
 ==== CAP configuration
@@ -762,20 +693,6 @@ AnyTimeInterrogation MAP message
 * The amount of time to wait for the answer to AnyTimeInterrogation from
 HLR
 
-[[_diameter-gateway-configuration]]
-==== Diameter Gateway configuration
-
-Multiple diameter gateway modules can be defined as well. The diameter
-gateway module configuration consists mainly of physical parameters:
-timeout values, queue and thread pool sizes.
-
-Apart from the physical parameters the following are defined for a
-diameter gateway module:
-
-* product name
-* origin realm and application identifier
-* destination realm and application identifier
-
 [[_routing-configuration]]
 ==== Routing configuration
 
@@ -789,7 +706,6 @@ network-initiated call?
 (click-to-dial)?
 * Which MAP module should serve an incoming user status request or
 flexible numbering query from AS?
-* Which HTTP application server should serve an incoming call from CDF?
 
 The following routing decisions are made by the rules defined in the
 configuration.
@@ -824,13 +740,6 @@ The appropriate CAP module constructing the CAMEL InitiateCallAttempt
 from the incoming SIP INVITE from AS is chosen like the MAP module is
 chosen for handling a SUBSCRIBE request: a SIP request header pattern
 matching.
-
-*Routing incoming calls from CDF to HTTP application servers*
-
-Incoming messages over DIAMETER from CDF contain a special field called
-service context identifier. This identifier is used to route the
-incoming message to the adequate diameter gateway module and HTTP
-application server.
 
 [[_tools-components-and-libraries]]
 == Tools, components and libraries
@@ -915,12 +824,6 @@ Restcomm SCTP Library is providing the convenient API's over Java SCTP.
 **https://code.google.com/p/jasn/[_https://code.google.com/p/jasn/_] +
 Restcomm ASN Library has been designed as a simple library that enables
 the user to encode and decode streams according to ASN rules.
-
-**Restcomm JDiameter +
-**https://code.google.com/p/jdiameter/[_https://code.google.com/p/jdiameter/_] +
-Restcomm Diameter provides an Open Source Java implementation of the
-Diameter standard for Authentication, Authorization, and Accounting
-(AAA).
 
 **Netty +
 **http://netty.io/[_http://netty.io/_] +

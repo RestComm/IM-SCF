@@ -242,10 +242,6 @@ Connecting to 192.168.2.21:11111
 
 SCTP associations:
 
-RS-CDF1 - [STARTED][UP]
-
-RS-CDF2 - [STARTED][UP]
-
 RS-HLRFE0 - [STARTED][UP]
 
 RS-HLRFE1 - [STARTED][UP]
@@ -577,8 +573,7 @@ Done.
 ----
 Associations can be stopped and started with the switches --stop and
 --start respectively. Note that only M3UA associations can be started or
-stopped. Managing SCTP associations for Diameter connections is not
-supported.
+stopped.
 
 Note that when you stop an association which has generated an alert
 because it is down, the alert will be ceased when the association is
