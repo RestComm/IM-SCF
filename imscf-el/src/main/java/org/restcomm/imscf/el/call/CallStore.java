@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,8 +21,6 @@ package org.restcomm.imscf.el.call;
 import javax.servlet.sip.SipServletMessage;
 
 import org.restcomm.imscf.el.cap.call.CAPCall;
-import org.restcomm.imscf.el.diameter.call.DiameterCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
 import org.restcomm.imscf.el.map.call.MAPCall;
 import org.restcomm.imscf.el.sip.SIPCall;
 import org.restcomm.imscf.el.tcap.call.TCAPCall;
@@ -38,15 +36,17 @@ public interface CallStore {
 
     TCAPCall getCallByLocalTcapTrId(Long localTcapTrId);
 
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    TCAPCall getCallByLocalTcapTrIdUnlocked(Long localTcapTrId);
+
     CAPCall<?> getCapCall(Long localTcapTrId);
+
+    //This method is dedicated for onDialogTimeout handling. We do not want to perform locking in that case
+    public CAPCall<?> getCapCallUnlocked(Long localTcapTrId);
 
     MAPCall getMapCall(Long localTcapTrId);
 
     SIPCall getSipCall(SipServletMessage msg);
-
-    DiameterCall getCallByDiameterSessionId(String sessionId);
-
-    DiameterHttpCall getHttpCallByDiameterSessionId(String sessionId);
 
     void updateCall(IMSCFCall call);
 

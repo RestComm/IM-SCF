@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -67,7 +67,7 @@ public final class SipDisconnectLegScenario extends Scenario {
             throw new IllegalArgumentException("Invalid SIP session state: " + session.getState());
         }
         if (imscfReason != null) {
-            msgToSend.addHeader("x-asc-reason", imscfReason);
+            msgToSend.addHeader("x-imscf-reason", imscfReason);
         }
         if (reason != null) {
             reason.insertAsHeader(msgToSend);

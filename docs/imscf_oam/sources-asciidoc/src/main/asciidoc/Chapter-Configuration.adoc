@@ -32,7 +32,7 @@ or both (-b) configurations on the domain’s running instances.
 
 *Important note:* When specifying “–a” or “–b” to instruct the domain’s
 servers to reload their configuration, this configuration reload does
-not affect SIGTRAN and DIAMETER settings of the Signaling Layer servers.
+not affect SIGTRAN settings of the Signaling Layer servers.
 After changing these settings, the affected Signaling Layer servers must
 be restarted for the changes to take effect.
 
@@ -176,13 +176,6 @@ image:images/Configuration_SL_SCTP_M3UA.png[image,width=604,height=487]
 			<remoteIp2>10.133.192.2</remoteIp2>
 			<remotePort>2905</remotePort>
 		</sctpAssociationRemoteSide>
-		<sctpAssociationRemoteSide name="RS-CDF1">
-			<remoteSystemType>SG</remoteSystemType>
-			<associationType>diameter</associationType>
-			<remoteIp1>10.133.128.90</remoteIp1>
-			<remoteIp2>10.133.192.90</remoteIp2>
-			<remotePort>3868</remotePort>
-		</sctpAssociationRemoteSide>
 ----
 The configuration XML starts with defining _SCTP association remote
 sides_:
@@ -190,26 +183,11 @@ sides_:
 An _SCTP association remote side_ has a name, remote IP addresses (IP2 is
 optional) and a remote port. The element _remoteSystemType_ is always set
 to “SG”, the value of the element _associationType_ are can be set to
-“m3ua” or “diameter”.
+“m3ua”.
 
 An _SCTP association remote side_ can then be referenced by name in an
-_SCTP association remote side profile_ or in an _M3UA route_. SCTP
-association remote side profiles are used when the Signaling Layer
-server does not M3UA routes – that’s the case for Diameter servers.
+_SCTP association remote side profile_ or in an _M3UA route_. 
 
-Defining _SCTP association remote side profiles_:
-[source,xml]
-----
-<sctpAssociationRemoteSideProfiles>
-	<sctpAssociationRemoteSideProfile name="CDF_SCTP">
-		<sctpAssociationRemoteSideWrapper>
-			<sctpAssociationRemoteSide>RS-CDF1</sctpAssociationRemoteSide>
-		</sctpAssociationRemoteSideWrapper>
-		<sctpAssociationRemoteSideWrapper>
-			<sctpAssociationRemoteSide>RS-CDF2</sctpAssociationRemoteSide>
-		</sctpAssociationRemoteSideWrapper>
-	</sctpAssociationRemoteSideProfile>
-</sctpAssociationRemoteSideProfiles>
 ----
 Defining _M3UA profiles_ and _routes_:
 [source,xml]
@@ -467,77 +445,6 @@ The _mapGsmScfAddress_ specifies the GSM-SCF address to write to the
 outgoing anyTimeInterrogation MAP message. The “mapTimeoutSec” specifies
 the timeout in seconds to wait for the answer the outgoing MAP message.
 
-[[_diameter-gateway-configuration]]
-=== DIAMETER Gateway configuration
-
-Multiple _DIAMETER Gateway modules_ can be defined to handle DIAMETER
-traffic towards the _roamingsms service_. An example _DIAMETER Gateway
-module_ definition is shown below.
-[source,xml]
-----
-<diameterGatewayModules>
-	<diameterGatewayModule name="roamingSmsDiameterGwModule">
-		<acceptUndefinedPeer>true</acceptUndefinedPeer>
-		<duplicationProtection>true</duplicationProtection>
-		<duplicateTimer>240000</duplicateTimer>
-		<duplicateSize>5000</duplicateSize>
-		<queueSize>10000</queueSize>
-		<messageTimeoutMs>2000</messageTimeoutMs>
-		<stopTimeoutMs>10000</stopTimeoutMs>
-		<ceaTimeoutMs>2000</ceaTimeoutMs>
-		<iacTimeoutMs>120000</iacTimeoutMs>
-		<dwaTimeoutMs>2000</dwaTimeoutMs>
-		<dpaTimeoutMs>5000</dpaTimeoutMs>
-		<recTimeoutMs>10000</recTimeoutMs>
-		<sessionTimeoutSec>60</sessionTimeoutSec>
-		<threadPools>
-			<threadGroupSize>64</threadGroupSize>
-			<processingMessageTimerSize>1</processingMessageTimerSize>
-			<dplicationMessageTimerSize>1</dplicationMessageTimerSize>
-			<redirectMessageTimerSize>1</redirectMessageTimerSize>
-			<peerOverloadTimerSize>1</peerOverloadTimerSize>
-			<connectionTimerSize>1</connectionTimerSize>
-			<statisticTimerSize>1</statisticTimerSize>
-			<applicationSessionSize>10</applicationSessionSize>
-		</threadPools>
-		<productName>diametergw</productName>
-		<originRealm>tsdp.sometelecom.com</originRealm>
-		<originApplicationId>
-			<vendorId>42215</vendorId>
-			<authApplId>4</authApplId>
-			<acctApplId>4</acctApplId>
-		</originApplicationId>
-		<destinationRealm>cdf.sometelecom.com</destinationRealm>
-		<destinationApplicationId>
-			<vendorId>0</vendorId>
-			<authApplId>4</authApplId>
-			<acctApplId>0</acctApplId>
-		</destinationApplicationId>
-	<sctpAssociationRemoteSideProfile>CDF_SCTP</sctpAssociationRemoteSideProfile>
-	</diameterGatewayModule>
-</diameterGatewayModules>
-----
-The most important property is _sctpAssociationRemoteSideProfile_ which
-refers to an _SCTP association remote side profile_ shown in section SCTP
-and M3UA. The other properties configure timeouts, thread pool sizes and
-DIAMETER-related properties.
-
-Not strictly DIAMETER-related, but involved in DIAMETER Gateway
-functionality the list of HTTP application servers to where DIAMETER
-queries are routed to. HTTP AS can be defined at
-“httpApplicationServers” tag:
-[source,xml]
-----
-<httpApplicationServers>
-	<httpApplicationServerGroup name="tsdp5b_roamingsms_all">
-		<connectTimeoutMs>500</connectTimeoutMs>
-		<readTimeoutMs>5500</readTimeoutMs>
-		<reenableTimeMs>15000</reenableTimeMs>
-		<url>http://192.168.1.112:8811/roamingsms_all_20140731/</url>
-		<url>http://192.168.1.121:8212/roamingsms_all_20140731/</url>                   
-	</httpApplicationServerGroup>
-	( … )
-</httpApplicationServers>
 ----
 [[_sip-configuration]]
 === SIP configuration
@@ -601,7 +508,6 @@ The following routing can be defined for an IM-SCF domain
 * Route incoming calls (InitialDPs) by service key to SIP AS group
 * Route incoming TCAP BEGIN messages by application context to an
 appropriate module
-* Route incoming DIAMETER queries to HTTP AS
 
 [[_route-calls-to-sip-as-group]]
 ==== Route calls to SIP AS group
@@ -678,34 +584,16 @@ The application context can be: cap2, cap3, cap4 and map.
 The criteria can be a service key range as well: this way it is possible
 to route a call to different modules based on service key.
 
-[[_route-diameter-to-http-as]]
-==== Route DIAMETER to HTTP AS
-
-A DIAMETER routing entry is simply a three-way relationship between a
-service context ID, an HTTP AS group and a DIAMETER Gateway module (see
-DIAMETER Gateway configuration).
-[source,xml]
-----
-<diameterRouting>
-	<diameterRoutingEntry>
-		<serviceContextIds>ROAMINGSMS</serviceContextIds>
-		<httpApplicationServerGroup>tsdp5b_roamingsms_all</httpApplicationServerGroup>
-		<diameterGatewayModule>roamingSmsDiameterGwModule</diameterGatewayModule>
-	</diameterRoutingEntry>
-</diameterRouting>
-----
 [[_notification-configuration]]
 ==== Notification configuration
 
 MBean notifications can be configured at the element
 “notificationConfiguration”. Notifications can be defined for various
-counter changes: MAP operation count, CAP operation count, DIAMETER
-query count. The three types of notifications each is collected by some
-kind of service identifier. In case of CAP operation count, it is
-service key (serviceKeyCounterThresholdNotifications), in case of MAP
-(mapCounterThresholdNotifications) it is the remote system alias and in
-case of DIAMETER (diameterCounterThresholdNotfications) it is the
-service context ID.
+counter changes: MAP operation count, CAP operation count. The three 
+types of notifications each is collected by some kind of service identifier. 
+In case of CAP operation count, it is service key 
+(serviceKeyCounterThresholdNotifications), in case of MAP 
+(mapCounterThresholdNotifications) it is the remote system alias-
 [source,xml]
 ----
 <notificationConfiguration>
@@ -722,7 +610,6 @@ service context ID.
 		</serviceKeyCounterThresholdNotification>
 	</serviceKeyCounterThresholdNotifications>
 	<mapCounterThresholdNotifications/>
-	<diameterCounterThresholdNotifications/>
 </notificationConfiguration>
 ----
 For example the notification configuration above will send a
@@ -745,7 +632,7 @@ threshold has been crossed
 the threshold has been crossed from above or from below
 * thresholdValue – the configured threshold which has just been crossed
 * serviceIdentifier – the alias of the remote system (service), e.g.
-“HLRFE1” or “ROAMINGSMS” (only available for MAP or DIAMETER counter
+“HLRFE1” or “ROAMINGSMS” (only available for MAP counter
 notifications)
 
 The three types of notifications obviously can be configured to watch
@@ -806,13 +693,6 @@ The following MAP counters can be watched:
 * tcapContinueSentCount
 * tcapEndSentCount
 * tcapAbortSentCount
-
-In case of DIAMETER the following counters are available:
-
-* balanceQueryReceivedCount
-* balanceQueryAnsweredCount
-* debitQueryReceivedCount
-* debitQueryAnsweredCount
 
 [[_instance-configuration]]
 === Instance configuration
@@ -1335,172 +1215,6 @@ The command looks for exact <service_key_range> routing rule match and
 if there is one, then <group_names> will be set as new target SIP
 application server groups.
 
-[_[configuring-diameter]]
-=== Configuring DIAMETER
-
-Configuring Diameter with the imscfAdmin.sh script means managing HTTP
-application servers and routing incoming DIAMETER requests by service
-context ID to HTTP application servers and Diameter modules.
-
-HTTP application servers are organized into groups like the SIP
-application servers. Managing HTTP application server groups can be
-managed using the standard add-edit-remove commands under the switch
---diameterHandling.
-
-You can list the currently configured HTTP application servers with the
-HttpAs subcommand of the --configListing switch:
-----
-$ imscfAdmin.sh <domain> --configListing HttpAs +
-HTTP Application Server Groups
-
-Name:imscf5b_roamingsms_all, Index:0
-
-+--------------------+-----------------+---------------------+
-
-| Connect Timeout MS | Read Timeout MS | Reenable Timeout MS |
-
-+--------------------+-----------------+---------------------+
-
-| 500 | 5500 | 15000 |
-
-+--------------------+-----------------+---------------------+
-
-imscf5b_roamingsms_all - URLs
-
-+----------------------------------------------------+
-
-| URLs |
-
-+----------------------------------------------------+
-
-| http://192.168.1.112:8811/roamingsms_all_20140731/ |
-
-| http://192.168.1.121:8212/roamingsms_all_20140731/ |
-
-+----------------------------------------------------+
-----
-To add a new HTTP application server group, issue:
-----
-$ imscfAdmin.sh <domain> --diameterHandling addHttpAsGroup <group_name>
-<url_list>
-----
-Where
-
-* group_name – a unique name for the new group
-* url_list – a comma-separated list of the HTTP endpoints of the HTTP
-application servers inside the group
-
-To modify the HTTP application server endpoints in a HTTP application
-server group, use the “—diameterHandling editHttpAsGroup” command. Note
-that HTTP application servers cannot be added to or removed from a group
-individually.
-----
-$ imscfAdmin.sh <domain> --diameterHandling editHttpAsGroup <group_name>
-<url_list>
-----
-To remove a HTTP application server group, issue:
-----
-$ imscfAdmin.sh <domain> --diameterHandling removeHttpAsGroup
-<group_name>
-----
-To configure the routing that which DIAMETER service context ID is
-routed to which HTTP AS group and Diameter Module use the
---diameterHandling switch with the addDiameterRouting,
-editDiameterRouting and removeDiameterRouting subcommands.
-
-You can check the currently active rules with the “—configListing
-DiameterRoutings” command:
-----
-$ imscfAdmin.sh <domain> --configListing DiameterRoutings +
-Diameter Routings
-
-+-------+---------------------+-------------------------------+----------------------------+
-
-| INDEX | Service Context IDs | HTTP Application Server Group | Diameter
-Gateway Module |
-
-+-------+---------------------+-------------------------------+----------------------------+
-
-| 0 | ROAMINGSMS | imscf5b_roamingsms_all | roamingSmsDiameterGwModule |
-
-+-------+---------------------+-------------------------------+----------------------------+
-----
-To add a new DIAMETER routing rule:
-----
-$ imscfAdmin.sh <domain> --diameterHandling addDiameterRouting
-<context_id> <group_name> <diameter_module>
-----
-Where the parameters are the following:
-
-* context_id – a service context ID which defines a service. For example
-“ROAMINGSMS”
-* group_name – a name of an existing HTTP application server group
-* diameter_module – a name of an existing Diameter Module. Diameter
-Modules can be configured as seen in DIAMETER Gateway configuration and
-you can list the with the --configListing switch. For example
-“roamingSmsDiameterGwModule”
-
-You can list the available Diameter modules with the “—configListing
-DiameterModules” command:
-----
-$ imscfAdmin.sh <domain> --configListing DiameterModules
-DiameterModules
-
-Diameter Gateway Modules
-
-+----------------------------+--------------+ (…)
-
-| Name | Product Name | (…)
-
-+----------------------------+--------------+ (…)
-
-| roamingSmsDiameterGwModule | diametergw | (…)
-
-+----------------------------+--------------+ (…)
-
------------------+--------------------------------------------------+
-(…)
-
-Origin Realm | Origin Application ID | (…)
-
------------------+--------------------------------------------------+
-(…)
-
-imscf.restcomm.com | Vendor ID: 42215, Auth App ID: 4, Acct App ID: 4 |
-(…)
-
------------------+--------------------------------------------------+
-(…)
-
--------------------+----------------------------------------------+--------------------------------+
-
-Destination Realm | Destination Application ID | SCTP Assoc Remote Side
-Profile |
-
--------------------+----------------------------------------------+--------------------------------+
-
-gycdf.telekom.hu | Vendor ID: 0, Auth App ID: 4, Acct App ID: 0 |
-CDF_SCTP |
-
--------------------+----------------------------------------------+--------------------------------+
-----
-To edit an existing routing rule, use
-----
-$ imscfAdmin.sh <domain> --diameterHandling editDiameterRouting <index>
-<group_name>
-----
-This command changes the target HTTP application server group of an
-existing rule. The rule to modify is specified by its index (the index
-is zero-based and can be queried using one of the listing methods). The
-new HTTP application server group to route to is specified by the
-parameter <group_name>.
-
-To remove a routing entry, issue:
-----
-$ imscfAdmin.sh <domain> --diameterHandling removeDiameterRouting
-<index>
-----
-The command deletes the rule at the specified (zero-based) index.
 
 [[_other-commands]]
 === Other commands
@@ -1570,10 +1284,6 @@ Port |
 | RS-MSS6A | SG | m3ua | 10.133.135.2 | 10.133.199.2 | 2905 |
 
 | RS-MSS6B | SG | m3ua | 10.133.135.6 | 10.133.199.6 | 2905 |
-
-| RS-CDF1 | SG | diameter | 10.133.128.90 | 10.133.192.90 | 3868 |
-
-| RS-CDF2 | SG | diameter | 10.133.128.110 | 10.133.192.110 | 3868 |
 
 +-----------+--------------+-------------+----------------+----------------+-------------+
 ----
@@ -1755,12 +1465,10 @@ slessSL01a
 +--------------------------------+------------------------+-----+--------------------------------+
 
 | Internal Communication Address | Administration Address | PC |
-Diameter Gateway Origin Host |
 
 +--------------------------------+------------------------+-----+--------------------------------+
 
 | 192.168.2.21:11113 | 192.168.2.21:11111 | 393 |
-pilot-mobile03.imscf.restcomm.com |
 
 +--------------------------------+------------------------+-----+--------------------------------+
 
@@ -1768,14 +1476,11 @@ slessSL01a - SCTP Associations Local Side
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
-| Sigtran IP 1 | Sigtran IP 2 | Port | Side | M3ua Profile | SCTP
-Association Remote Side Profile |
+| Sigtran IP 1 | Sigtran IP 2 | Port | Side | M3ua Profile | SCTP |
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
 | 10.133.128.154 | 10.133.192.154 | 2905 | client | M3UA_ALL | |
-
-| 10.133.128.154 | 10.133.192.154 | 3868 | client | | CDF_SCTP |
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
@@ -1784,12 +1489,10 @@ slessSL02a
 +--------------------------------+------------------------+-----+--------------------------------+
 
 | Internal Communication Address | Administration Address | PC |
-Diameter Gateway Origin Host |
 
 +--------------------------------+------------------------+-----+--------------------------------+
 
 | 192.168.2.22:11213 | 192.168.2.22:11211 | 394 |
-pilot-mobile04.imscf.restcomm.com |
 
 +--------------------------------+------------------------+-----+--------------------------------+
 
@@ -1797,14 +1500,11 @@ slessSL02a - SCTP Associations Local Side
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
-| Sigtran IP 1 | Sigtran IP 2 | Port | Side | M3ua Profile | SCTP
-Association Remote Side Profile |
+| Sigtran IP 1 | Sigtran IP 2 | Port | Side | M3ua Profile | SCTP |
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
 | 10.133.128.158 | 10.133.192.158 | 2905 | client | M3UA_ALL | |
-
-| 10.133.128.158 | 10.133.192.158 | 3868 | client | | CDF_SCTP |
 
 +----------------+----------------+------+--------+--------------+--------------------------------------+
 
@@ -1834,86 +1534,6 @@ Address | SIP Listen Address | Transaction ID Range |
 192.168.1.22:31222 | 4999999-4999999 |
 
 +----------------+--------------------------------+------------------------+--------------------+----------------------+
-----
-*DiameterModules* – To list the Diameter Modules configured as described
-in section DIAMETER Gateway configuration. Example output:
-----
-Diameter Gateway Modules
-
-+----------------------------+--------------+-----------------+--------------------------------------------------+
-…
-
-| Name | Product Name | Origin Realm | Origin Application ID | …
-
-+----------------------------+--------------+-----------------+--------------------------------------------------+
-…
-
-| roamingSmsDiameterGwModule | diametergw | imscf.restcomm.com | Vendor
-ID: 42215, Auth App ID: 4, Acct App ID: 4 | …
-
-+----------------------------+--------------+-----------------+--------------------------------------------------+
-…
-
-(right part of the table)
-
--------------------+----------------------------------------------+--------------------------------+
-
-Destination Realm | Destination Application ID | SCTP Assoc Remote Side
-Profile |
-
--------------------+----------------------------------------------+--------------------------------+
-
-gycdf.telekom.hu | Vendor ID: 0, Auth App ID: 4, Acct App ID: 0 |
-CDF_SCTP |
-
--------------------+----------------------------------------------+--------------------------------+
-----
-*DiameterRoutings* – To list the Diameter routings configured either by
-script or by hand. Example output:
-----
-Diameter Routings
-
-+-------+---------------------+-------------------------------+----------------------------+
-
-| INDEX | Service Context IDs | HTTP Application Server Group | Diameter
-Gateway Module |
-
-+-------+---------------------+-------------------------------+----------------------------+
-
-| 0 | ROAMINGSMS | imscf5b_roamingsms_all | roamingSmsDiameterGwModule |
-
-+-------+---------------------+-------------------------------+----------------------------+
-----
-*HttpAs* – To list the configured HTTP application server groups and
-their HTTP application server endpoints. Example output:
-----
-HTTP Application Server Groups
-
-Name:imscf5b_roamingsms_all, Index:0
-
-+--------------------+-----------------+---------------------+
-
-| Connect Timeout MS | Read Timeout MS | Reenable Timeout MS |
-
-+--------------------+-----------------+---------------------+
-
-| 500 | 5500 | 15000 |
-
-+--------------------+-----------------+---------------------+
-
-imscf5b_roamingsms_all - URLs
-
-+----------------------------------------------------+
-
-| URLs |
-
-+----------------------------------------------------+
-
-| http://192.168.1.112:8811/roamingsms_all_20140731/ |
-
-| http://192.168.1.121:8212/roamingsms_all_20140731/ |
-
-+----------------------------------------------------+
 ----
 *SipAs* – To list the SIP application server groups. Example output:
 ----

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,10 +20,9 @@ package org.restcomm.imscf.el.call.history;
 
 import org.restcomm.imscf.el.call.IMSCFCall;
 import org.restcomm.imscf.el.call.CallStore;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
+import org.restcomm.imscf.el.cap.sip.SipSessionAttributes;
 import org.restcomm.imscf.el.sip.SIPCall;
 import org.restcomm.imscf.el.stack.CallContext;
-import org.restcomm.imscf.common.diameter.creditcontrol.DiameterSLELCreditControlRequest;
 
 import java.net.HttpURLConnection;
 import java.util.Objects;
@@ -54,11 +53,15 @@ public final class ElEventCreator {
     }
 
     public static String createOutgoingSipEvent(SipServletRequest req) {
-        return req.getMethod() + "->";
+        String legID = SipSessionAttributes.LEG_ID.get(req.getSession(), String.class);
+        String params = legID != null ? "(" + legID + ")->" : "->";
+        return req.getMethod() + params;
     }
 
     public static String createOutgoingSipEvent(SipServletResponse resp) {
-        return String.valueOf(resp.getStatus()) + "(" + resp.getMethod() + ")" + "->";
+        String legID = SipSessionAttributes.LEG_ID.get(resp.getSession(), String.class);
+        legID = legID != null ? ", " + legID : "";
+        return String.valueOf(resp.getStatus()) + "(" + resp.getMethod() + legID + ")->";
     }
 
     public static String createIncomingSipEvent(SipServletMessage msg) {
@@ -72,21 +75,15 @@ public final class ElEventCreator {
     }
 
     public static String createIncomingSipEvent(SipServletRequest req) {
-        return req.getMethod() + "<-";
+        String legID = SipSessionAttributes.LEG_ID.get(req.getSession(), String.class);
+        String params = legID != null ? "(" + legID + ")<-" : "<-";
+        return req.getMethod() + params;
     }
 
     public static String createIncomingSipEvent(SipServletResponse resp) {
-        return String.valueOf(resp.getStatus()) + "(" + resp.getMethod() + ")<-";
-    }
-
-    public static String createIncomingHttpEvent(DiameterSLELCreditControlRequest request, int responseCode) {
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            return "HTTP" + responseCode + " (" + request.getRequestTypeObject() + ")<-";
-        } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-            return "HTTP" + responseCode + " (" + request.getRequestTypeObject() + ")<-";
-        } else {
-            return "HTTP" + responseCode + " (" + request.getRequestTypeObject() + ")<-";
-        }
+        String legID = SipSessionAttributes.LEG_ID.get(resp.getSession(), String.class);
+        legID = legID != null ? ", " + legID : "";
+        return String.valueOf(resp.getStatus()) + "(" + resp.getMethod() + legID + ")<-";
     }
 
     public static void addIncomingSipEvent(String appSessionId, SipServletMessage msg) {
@@ -103,26 +100,6 @@ public final class ElEventCreator {
         CallStore cs = Objects.requireNonNull((CallStore) CallContext.get(CallContext.CALLSTORE),
                 "CallStore from context is null");
         try (SIPCall call = cs.getCallByAppSessionId(appSessionId)) {
-            if (call != null) {
-                call.getCallHistory().addEvent(event);
-            }
-        }
-    }
-
-    public static void addIncomingHttpEvent(DiameterSLELCreditControlRequest request, int responseCode) {
-        String event = createIncomingHttpEvent(request, responseCode);
-        addEventByDiameterSessionId(request.getSessionId(), event);
-    }
-
-    public static void addIncomingHttpTErrorEvent(DiameterSLELCreditControlRequest request) {
-        String event = "HTTP Technical Error (" + request.getRequestTypeObject() + ")<-";
-        addEventByDiameterSessionId(request.getSessionId(), event);
-    }
-
-    public static void addEventByDiameterSessionId(String diameterSessionId, String event) {
-        CallStore cs = Objects.requireNonNull((CallStore) CallContext.get(CallContext.CALLSTORE),
-                "CallStore from context is null");
-        try (DiameterHttpCall call = cs.getHttpCallByDiameterSessionId(diameterSessionId)) {
             if (call != null) {
                 call.getCallHistory().addEvent(event);
             }

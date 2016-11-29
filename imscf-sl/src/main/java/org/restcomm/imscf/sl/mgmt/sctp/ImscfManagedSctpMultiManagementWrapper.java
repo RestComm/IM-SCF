@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,12 +21,11 @@ package org.restcomm.imscf.sl.mgmt.sctp;
 
 import java.io.IOException;
 
-import org.mobicents.protocols.sctp.multiclient.MultiManagementImpl;
+import org.restcomm.imscf.sl.sctp.multiclient.MultiManagementImpl;
 
 /**
  * MultiManagamentImpl wrapper which implements the ImscfManagedSctpManagementWrapper abstract class.
  * Its main feature is to register the MultiManagementImpl object to the IMSCF LinkManager object in its constructor.
- * Useful when it is dynamically instantiated by 3rd party components like jdiameter stack.
  * NOTE: it could be as simple as a super class of MultiManagementImpl but wrapper pattern seemed to
  * be more future proof.
  *

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@ package org.restcomm.imscf.el.stack;
 import org.restcomm.imscf.common.config.ImscfConfigType;
 import org.restcomm.imscf.common.config.ImscfConfigType.Sccp;
 import org.restcomm.imscf.common.config.CapModuleType;
-import org.restcomm.imscf.common.config.DiameterGatewayModuleType;
 import org.restcomm.imscf.common.config.ExecutionLayerServerType;
 import org.restcomm.imscf.common.config.GtAddressType;
 import org.restcomm.imscf.common.config.MapModuleType;
@@ -32,12 +31,13 @@ import org.restcomm.imscf.el.call.CallStore;
 import org.restcomm.imscf.el.call.impl.ManagedScheduledTimerService;
 import org.restcomm.imscf.el.cap.CAPModule;
 import org.restcomm.imscf.el.cap.converter.CapSipConverterImpl;
+import org.restcomm.imscf.el.cap.CAPStackImplImscfWrapper;
+import org.restcomm.imscf.el.cap.CAPTimerDefault;
 import org.restcomm.imscf.el.config.ConfigBean;
 import org.restcomm.imscf.el.config.ConfigurationChangeListener;
-import org.restcomm.imscf.el.diameter.DiameterGWModuleBase;
-import org.restcomm.imscf.el.diameter.DiameterModule;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.MAPModuleImpl;
+import org.restcomm.imscf.el.map.MAPStackImplImscfWrapper;
 import org.restcomm.imscf.el.modules.Module;
 import org.restcomm.imscf.el.modules.ModuleInitializationException;
 import org.restcomm.imscf.el.modules.ModuleStore;
@@ -52,8 +52,6 @@ import org.restcomm.imscf.el.statistics.ElStatistics;
 import org.restcomm.imscf.el.statistics.TcapStatisticsListener;
 import org.restcomm.imscf.common.LwcTags;
 import org.restcomm.imscf.common.LwcommConfigurator;
-import org.restcomm.imscf.common.ss7.cap.CAPStackImplImscfWrapper;
-import org.restcomm.imscf.common.ss7.map.MAPStackImplImscfWrapper;
 import org.restcomm.imscf.common.ss7.tcap.TCAPStackImplImscfWrapper;
 import org.restcomm.imscf.util.MBeanHelper;
 import org.restcomm.imscf.common.util.ThreadLocalCleaner;
@@ -87,7 +85,6 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 
 import org.mobicents.protocols.ss7.cap.CAPStackImpl;
-import org.mobicents.protocols.ss7.cap.CAPTimerDefault;
 import org.mobicents.protocols.ss7.cap.api.CAPStack;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPServiceCircuitSwitchedCall;
 import org.mobicents.protocols.ss7.cap.api.service.sms.CAPServiceSms;
@@ -112,7 +109,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
     private static Logger logger = LoggerFactory.getLogger(ELStackRunner.class);
 
     private SUAImpl sua;
-    private DiameterImpl diam;
 
     // SSN -> TCAP+CAP+MAP
     private Map<Integer, StackTree> stacks = new HashMap<>();
@@ -193,16 +189,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
 
             } else {
                 logger.info("SIGTRAN not configured");
-            }
-
-            if (configBean.isDiameterStackNeeded()) {
-                logger.info("Initializing Diameter stack...");
-                initDiameter();
-                lwcommListener.addModuleListener("DiameterGW", diam);
-
-                ManagedScheduledTimerService.initialize();
-            } else {
-                logger.info("Diameter not configured");
             }
 
             logger.info("Stacks initialized.");
@@ -322,18 +308,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
             logger.info("SIGTRAN not configured");
         }
 
-        if (configBean.isDiameterStackNeeded()) {
-            logger.info("Initializing for Diameter");
-
-            logger.info("Initializing Diameter modules...");
-            initDiameterModules();
-
-            logger.info("Initializing Diameter HTTP AS router...");
-            diam.initializeDiameterAsRoutes();
-        } else {
-            logger.info("Diameter not configured");
-        }
-
         logger.info("Components initialized!");
 
         // TODO this is a workaround due to initialization order issues with EJB and SIP context ...
@@ -450,7 +424,7 @@ public class ELStackRunner implements ConfigurationChangeListener {
         tcapStack.getProvider().addTCListener(new EchoTCapListener(tcapStack.getName()));
         tcapStack.start();
         tcapStack.setStatisticsEnabled(true);
-        tcapStack.addTCAPCounterProviderImplListener(new TcapStatisticsListener());
+        tcapStack.setTCAPCounterEventsListener(new TcapStatisticsListener());
         StackTree s = new StackTree();
         s.tcap = tcapStack;
         stacks.put(subSystem.getSubSystemNumber(), s);
@@ -464,7 +438,7 @@ public class ELStackRunner implements ConfigurationChangeListener {
             StackTree s = entry.getValue();
             TCAPStack tcap = s.tcap;
             logger.debug("Initializing CAP stack for SSN {}...", ssn);
-            CAPStackImpl capStack = new CAPStackImplImscfWrapper(ssn, tcap.getProvider());
+            CAPStackImplImscfWrapper capStack = new CAPStackImplImscfWrapper(ssn, tcap.getProvider());
 
             // using the maximum allowed values in the specs (in ms): 10s, 60s, 30m, 20s, 10s
             capStack.setCAPTimerDefault(new CAPTimerDefault(10 * 1000, 60 * 1000, 30 * 60 * 1000, 20 * 1000, 20 * 1000));
@@ -531,15 +505,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
         }
     }
 
-    private void initDiameter() {
-        DiameterImpl diam = new DiameterImpl();
-
-        diam.setCallStore(callStoreBean);
-        diam.setCallFactoryBean(callFactoryBean);
-        diam.setConfigBean(configBean);
-        this.diam = diam;
-    }
-
     private void initSccpModules() {
         ModuleStore.getSccpModules().clear();
         Optional.ofNullable(configBean.getConfig().getSccp()).ifPresent(sccp -> {
@@ -577,15 +542,6 @@ public class ELStackRunner implements ConfigurationChangeListener {
             module.setMAPProvider(stacks.get(ssn).map.getMAPProvider());
             module.setSccpProvider(getSccpProvider());
             initModule(module, configBean.getConfig(), ModuleStore.getMapModules());
-        }
-    }
-
-    private void initDiameterModules() {
-        ModuleStore.getDiameterModules().clear();
-        for (DiameterGatewayModuleType diameterModuleConfig : configBean.getConfig().getDiameterGatewayModules()) {
-            DiameterModule module = new DiameterGWModuleBase();
-            module.setName(diameterModuleConfig.getName());
-            initModule(module, configBean.getConfig(), ModuleStore.getDiameterModules());
         }
     }
 

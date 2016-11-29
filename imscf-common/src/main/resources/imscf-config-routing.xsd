@@ -85,11 +85,4 @@
         </xs:restriction>
     </xs:simpleType>
     
-    <xs:complexType name="DiameterRoutingConfigType">
-        <xs:sequence>
-            <xs:element name="serviceContextIds" type="StringListType"/>
-            <xs:element name="httpApplicationServerGroup" type="xs:IDREF"/>
-            <xs:element name="diameterGatewayModule" type="xs:IDREF"/>
-        </xs:sequence>
-    </xs:complexType>
 </xs:schema>

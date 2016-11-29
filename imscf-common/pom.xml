@@ -13,6 +13,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-spec</artifactId>
+            <version>3.0.564</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-core-api</artifactId>
+            <version>3.0.564</version>
+        </dependency>
+        <dependency>
             <groupId>org.mobicents.protocols.asn</groupId>
             <artifactId>asn</artifactId>
             <version>2.0.2.FINAL</version>
@@ -30,77 +40,77 @@
         <dependency>
             <groupId>org.mobicents.protocols.ss7.congestion</groupId>
             <artifactId>congestion</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.statistics</groupId>
             <artifactId>statistics-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.statistics</groupId>
             <artifactId>statistics-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.sccp</groupId>
             <artifactId>sccp-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.sccp</groupId>
             <artifactId>sccp-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.tcap</groupId>
             <artifactId>tcap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.tcap</groupId>
             <artifactId>tcap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.map</groupId>
             <artifactId>map-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.map</groupId>
             <artifactId>map-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.inap</groupId>
             <artifactId>inap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.inap</groupId>
             <artifactId>inap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.isup</groupId>
             <artifactId>isup-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.isup</groupId>
             <artifactId>isup-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.cap</groupId>
             <artifactId>cap-api</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.ss7.cap</groupId>
             <artifactId>cap-impl</artifactId>
-            <version>2.1.0-appngin-1-FINAL</version>
+            <version>8.0.51</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -219,15 +229,6 @@
                                        <extensionArg>-Xxew</extensionArg>
                                        <extensionArg>-Xts</extensionArg>
                                    </extensionArgs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/imscf-config-diametergw.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/imscf-config-diametergw.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xxew</extensionArg>
-                                        <extensionArg>-Xts</extensionArg>
-                                    </extensionArgs>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/imscf-config-routing.xsd</xsd>

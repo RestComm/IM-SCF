@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ import org.restcomm.imscf.el.sip.SIPCall;
 import org.restcomm.imscf.el.sip.SIPReasonHeader;
 import org.restcomm.imscf.el.sip.Scenario;
 import org.restcomm.imscf.el.sip.failover.SipAsLoadBalancer;
+import org.restcomm.imscf.el.sip.routing.SipAsRouteAndInterface;
 import org.restcomm.imscf.el.sip.routing.SipAsRouter;
 import org.restcomm.imscf.el.sip.servlets.AppSessionHelper;
 import org.restcomm.imscf.el.sip.servlets.SipServletResources;
@@ -68,6 +69,7 @@ import org.mobicents.protocols.ss7.cap.api.service.sms.CAPDialogSms;
 import org.mobicents.protocols.ss7.cap.api.service.sms.InitialDPSMSRequest;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.MOSMSCause;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.RPCause;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CollectInformationRequest;
 import org.mobicents.protocols.ss7.isup.message.parameter.CauseIndicators;
 import org.mobicents.protocols.ss7.tcap.asn.comp.PAbortCauseType;
 import org.slf4j.Logger;
@@ -219,15 +221,15 @@ public class CapSipConverterImpl extends CAPModuleBase implements CapSipConverte
         }
     }
 
-    private void startIdpScenarios(CapSipCsCall call, SipURI asRoute) {
+    private void startIdpScenarios(CapSipCsCall call, SipAsRouteAndInterface asRoute) {
         InitialDPRequest idp = call.getIdp();
         SipServletRequest invite = null;
         try {
-            invite = SipScenarioInitialDp.start(call, (SipURI) asRoute.clone());
+            invite = SipScenarioInitialDp.start(call, asRoute);
 
             SipSession ss = invite.getSession();
             SipSessionAttributes.SIP_AS_GROUP.set(ss, call.getAppChain().get(0).getName());
-            SipSessionAttributes.SIP_AS_NAME.set(ss, asRoute.getUser());
+            SipSessionAttributes.SIP_AS_NAME.set(ss, asRoute.getAsRoute().getUser());
 
         } catch (CAPException | IOException | ServletException | MessagingException e) {
             LOG.warn("Error sending initial invite, performing default handling for {}", call, e);
@@ -405,6 +407,9 @@ public class CapSipConverterImpl extends CAPModuleBase implements CapSipConverte
 
     public void releaseSip(SIPCall call, String imscfReleaseReason, ReasonHeader reason) {
         LOG.trace("Releasing SIP side...");
+        // disable further initial requests to ensure that no new dialogs are created
+        call.disableSipDialogCreation();
+        // and release the existing dialogs
         SipApplicationSession sas = SipServletResources.getSipSessionsUtil().getApplicationSessionById(
                 call.getAppSessionId());
         if (sas != null && sas.isValid()) {
@@ -435,8 +440,13 @@ public class CapSipConverterImpl extends CAPModuleBase implements CapSipConverte
         handleUnroutableCSCall((CapSipCsCall) call);
     }
 
+    @Override
+    public void onCollectInformationRequest(CollectInformationRequest ind) {
+        LOG.debug("Called onCollectInformationRequest {}", ind);
+	}
+
     private void routeToNextAs(CapSipCsCall call) {
-        SipURI next = selectNextAppServer(call);
+        SipAsRouteAndInterface next = selectNextAppServer(call);
         if (next == null) {
             handleUnroutableCSCall(call);
             return;
@@ -458,19 +468,20 @@ public class CapSipConverterImpl extends CAPModuleBase implements CapSipConverte
         call.setFailoverContext(SipAsLoadBalancer.getInstance().newContext(appChain.get(0).getName()));
     }
 
-    private SipURI selectNextAppServer(SIPCall call) {
+    private SipAsRouteAndInterface selectNextAppServer(SIPCall call) {
         if (call.getAppChain().isEmpty()) {
             LOG.debug("No current target application present");
             return null;
         }
         // select an available AS for the current app
         String groupName = call.getAppChain().get(0).getName();
-        SipURI ret = SipAsLoadBalancer.getInstance().getNextAvailableAsURI(groupName, call.getFailoverContext());
+        SipAsRouteAndInterface ret = SipAsLoadBalancer.getInstance().getNextAvailableAsRouteAndInterface(groupName,
+                call.getFailoverContext());
         if (ret == null) {
             LOG.debug("No more available AS endpoints for current application '{}'", groupName);
             return null;
         }
-        LOG.debug("Selected next application server: {}", ret);
+        LOG.debug("Selected next application server: {}", ret.getAsRoute());
         return ret;
     }
 

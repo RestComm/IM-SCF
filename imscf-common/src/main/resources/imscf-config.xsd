@@ -6,7 +6,6 @@
 	<xs:include schemaLocation="imscf-config-as.xsd"/>
 	<xs:include schemaLocation="imscf-config-cap.xsd"/>
 	<xs:include schemaLocation="imscf-config-routing.xsd"/>
-	<xs:include schemaLocation="imscf-config-diametergw.xsd"/>
 	<xs:element name="imscfConfig" type="ImscfConfigType">
 		<xs:key name="m3uaProfileKey">
 			<xs:selector xpath="m3uaProfiles/m3uaProfile"/>
@@ -23,12 +22,7 @@
 		<xs:keyref refer="sctpAssociationRemoteSideProfileKey" name="sctpAssociationRemoteSideProfileKeyRef">
 			<xs:selector xpath="servers/signalingLayerServers/signalingLayerServer/sctpAssociationLocalSides/sctpAssociationLocalSide"></xs:selector>
 			<xs:field xpath="sctpAssociationRemoteSideProfile"></xs:field>
-		</xs:keyref>
-		<xs:keyref refer="sctpAssociationRemoteSideProfileKey" name="sctpAssociationRemoteSideProfileKeyDiameterGatewayModuleRef">
-			<xs:selector xpath="diameterGatewayModules/diameterGatewayModule"></xs:selector>
-			<xs:field xpath="sctpAssociationRemoteSideProfile"></xs:field>
-		</xs:keyref>
-		
+		</xs:keyref>		
 		<xs:key name="sctpAssociationRemoteSideKey">
 			<xs:selector xpath="sctpAssociationRemoteSides/sctpAssociationRemoteSide"/>
 			<xs:field xpath="@name"/>
@@ -109,22 +103,10 @@
 			<xs:selector xpath="moduleRouting/moduleRoutingEntry"/>
 			<xs:field xpath="mapModule"/>
 		</xs:keyref>
-		<xs:key name="diameterGatewayModuleKey">
-			<xs:selector xpath="diameterGatewayModules/diameterGatewayModule"/>
-			<xs:field xpath="@name"/>
-		</xs:key>
-		<xs:keyref name="diameterGatewayModuleDiameterRoutingKeyRef" refer="diameterGatewayModuleKey">
-			<xs:selector xpath="diameterRouting/diameterRoutingEntry"/>
-			<xs:field xpath="diameterGatewayModule"/>
-		</xs:keyref>
 		<xs:key name="httpApplicationServerGroupKey">
 			<xs:selector xpath="httpApplicationServers/httpApplicationServerGroup"/>
 			<xs:field xpath="@name"/>
 		</xs:key>
-		<xs:keyref name="httpApplicationServerGroupDiameterRoutingKeyRef" refer="httpApplicationServerGroupKey">
-			<xs:selector xpath="diameterRouting/diameterRoute"/>
-			<xs:field xpath="httpApplicationServerGroup"/>
-		</xs:keyref>
 		<xs:key name="poolConfigKey">
 			<xs:selector xpath="lwCommParameters/poolConfigurations/poolConfiguration"></xs:selector>
 			<xs:field xpath="@name"></xs:field>
@@ -223,20 +205,6 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="moduleRoutingEntry" type="ModuleRoutingConfigType" minOccurs="0" maxOccurs="unbounded"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="diameterGatewayModules">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="diameterGatewayModule" type="DiameterGatewayModuleType" minOccurs="0" maxOccurs="unbounded"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="diameterRouting">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="diameterRoutingEntry" type="DiameterRoutingConfigType" minOccurs="0" maxOccurs="unbounded"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -360,7 +328,6 @@
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="pointCode" type="xs:int" minOccurs="0"/>
-					<xs:element name="diameterGwOriginHost" type="xs:string" minOccurs="0"/>
 					<xs:element name="mtpDeliveryTransferMessageThreadCount" type="xs:int" minOccurs="0"/>
 					<xs:element name="sctpWorkerThreadCount" type="xs:int"/>
 				</xs:sequence>				
@@ -397,7 +364,13 @@
 		<xs:complexContent>
 			<xs:extension base="ServerConnectivityType">
 				<xs:sequence>
-					<xs:element name="sipListenAddress" type="ListenAddressType" minOccurs="0"/>
+					<xs:element name="sipListenAddresses">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="sipListenAddress" type="ListenAddressType" minOccurs="0"  maxOccurs="unbounded"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -449,13 +422,6 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="diameterCounterThresholdNotifications">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="diameterCounterThresholdNotification" type="DiameterCounterThresholdNotificationType" minOccurs="0" maxOccurs="unbounded"/>							
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -469,7 +435,7 @@
 				&lt;li&gt;${thresholdValue} - The threshold value which is just crossed&lt;/li&gt;
 				&lt;li&gt;${aboveBelow} - Either the string "above" or "below" depending on that the threshold has been crossed from above or from below&lt;/li&gt;
 				&lt;li&gt;${highLow} - Either the string "high" or "below" depending on that the high or low threshold has been crossed&lt;/li&gt;
-				&lt;li&gt;${serviceIdentifier} - CAP serviceKey, MAP remote system alias or diameter serviceContextId&lt;/li&gt;
+				&lt;li&gt;${serviceIdentifier} - CAP serviceKey, MAP remote system alias&lt;/li&gt;
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
@@ -503,16 +469,6 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="DiameterCounterThresholdNotificationType">
-		<xs:complexContent>
-			<xs:extension base="CounterThresholdNotificationType">
-				<xs:sequence>
-					<xs:element name="counterName" type="DiameterCounterNameType"/>
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-	
 	<xs:simpleType name="ServiceKeyCounterNameType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="activityTestRequestCount"/>
@@ -574,12 +530,4 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:simpleType name="DiameterCounterNameType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="balanceQueryReceivedCount"/>
-			<xs:enumeration value="balanceQueryAnsweredCount"/>
-			<xs:enumeration value="debitQueryReceivedCount"/>
-			<xs:enumeration value="debitQueryAnsweredCount"/>
-		</xs:restriction>
-	</xs:simpleType>
 </xs:schema>

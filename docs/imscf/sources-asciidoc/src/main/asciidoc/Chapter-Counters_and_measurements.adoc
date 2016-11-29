@@ -286,20 +286,3 @@ The counters all show the number of messages in the last X seconds, a
 sliding window is used. The size of the window in seconds can be defined
 in the configuration.
 
-MBeans with type __“DiameterStatistics”__ have message counters for each
-service context ID the diameter modules have dealt with. A new MBean is
-defined for each service context id with the following attributes:
-
-[cols=",",frame="all",options="header",]
-|===================================================================
-|Attribute |Description
-|moduleName |The diameter module name which services this context ID
-|balanceQueryReceivedCount |The number of incoming balance queries
-|balanceQueryAnsweredCount |The number of answered balance queries
-|debitQueryReceivedCount |The number of incoming debit queries
-|debitQueryAnsweredCount |The number of answered debit queries
-|===================================================================
-
-The counters all show the number of messages in the last X seconds, a
-sliding window is used. The size of the window in seconds can be defined
-in the configuration.

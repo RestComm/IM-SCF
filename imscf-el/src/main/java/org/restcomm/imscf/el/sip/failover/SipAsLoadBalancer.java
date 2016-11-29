@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,15 +20,25 @@ package org.restcomm.imscf.el.sip.failover;
 
 import static org.restcomm.imscf.el.sip.SipApplicationSessionAttributes.TIMER_KEEPS_APPSESSION_ALIVE;
 import org.restcomm.imscf.common.config.ImscfConfigType;
+import org.restcomm.imscf.common.config.ExecutionLayerServerType;
 import org.restcomm.imscf.common.config.HeartbeatConfigType;
+import org.restcomm.imscf.common.config.ListenAddressType;
 import org.restcomm.imscf.common.config.SipApplicationServerGroupType;
 import org.restcomm.imscf.common.config.SipApplicationServerType;
 import org.restcomm.imscf.common.config.ImscfConfigType.SipApplicationServers;
 import org.restcomm.imscf.el.cap.sip.SipSessionAttributes;
+import org.restcomm.imscf.el.config.ConfigBean;
+import org.restcomm.imscf.el.sip.routing.SipAsRouteAndInterface;
 import org.restcomm.imscf.el.sip.servlets.SipServletResources;
+
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,6 +71,7 @@ public final class SipAsLoadBalancer {
     private final HeartbeatConfigType heartbeatConfig;
     // modified on start/stop heartbeats
     private String heartbeatAppSessionId;
+    private Map<String, ListenAddressType> outboundInterfaceMap;
 
     public static SipAsLoadBalancer getInstance() {
         if (instance == null) {
@@ -93,9 +104,17 @@ public final class SipAsLoadBalancer {
             return;
         }
 
+        initOutboundInterfaceMap(config);
+
         // SIP AS config present, but SIP AS list may still be empty.
-        groupAvailabilities = Collections.unmodifiableMap(sipAsConfig.getSipApplicationServerGroups().stream()
-                .collect(Collectors.toMap(SipApplicationServerGroupType::getName, AsGroupAvailability::new)));
+        // groupAvailabilities = Collections.unmodifiableMap(sipAsConfig.getSipApplicationServerGroups().stream()
+        //        .collect(Collectors.toMap(SipApplicationServerGroupType::getName, AsGroupAvailability::new)));
+        groupAvailabilities = Collections.unmodifiableMap(sipAsConfig
+                .getSipApplicationServerGroups()
+                .stream()
+                .collect(
+                        Collectors.toMap(SipApplicationServerGroupType::getName, sasg -> new AsGroupAvailability(sasg,
+                                this.outboundInterfaceMap))));
 
         allHeartbeatEnabledAsEndpoints = Collections.unmodifiableList(groupAvailabilities.values().stream()
                 .flatMap(g -> g.getAll().stream()).filter(a -> a.getServer().isHeartbeatEnabled())
@@ -180,8 +199,13 @@ public final class SipAsLoadBalancer {
         return groupAvailabilities.get(groupName).getNextAvailableServer(ctx);
     }
 
-    public SipURI getNextAvailableAsURI(String groupName, FailoverContext ctx) {
-        return groupAvailabilities.get(groupName).getNextAvailableServerURI(ctx);
+    /*
+     * public SipURI getNextAvailableAsURI(String groupName, FailoverContext ctx) { return
+     * groupAvailabilities.get(groupName).getNextAvailableServerURI(ctx); }
+     */
+
+    public SipAsRouteAndInterface getNextAvailableAsRouteAndInterface(String groupName, FailoverContext ctx) {
+        return groupAvailabilities.get(groupName).getNextAvailableAsRouteAndInterface(ctx);
     }
 
     public void setAsUnavailable(String groupName, String serverName) {
@@ -227,6 +251,68 @@ public final class SipAsLoadBalancer {
         AsAvailability ava = getAsAvailability(resp.getSession());
         LOG.trace("{}/{} HB response: {}", ava.getAsGroupName(), ava.getServer().getName(), resp.getStatus());
         ava.setAvailable(SipServletResponse.SC_OK == resp.getStatus());
+    }
+
+    private void initOutboundInterfaceMap(ImscfConfigType config) {
+        LOG.debug("Initializing the outbound interface map...");
+        this.outboundInterfaceMap = new HashMap<String, ListenAddressType>();
+        SipApplicationServers sipAsConfig = config.getSipApplicationServers();
+        if (sipAsConfig != null) {
+            for (SipApplicationServerGroupType sasg : sipAsConfig.getSipApplicationServerGroups()) {
+                for (SipApplicationServerType sas : sasg.getSipApplicationServer()) {
+                    if (!outboundInterfaceMap.containsKey(sas.getHost())) {
+                        // so far, there is no outbound interface for this address, so... now it has one
+
+                        // this should match one of the EL listenAddresses
+                        String interfaceAddressForDestination = getInterfaceAddressForDestination(sas.getHost());
+                        LOG.debug("Found potential interface for host {} : {}", sas.getHost(),
+                                interfaceAddressForDestination);
+
+                        ListenAddressType listenAddressTypeForAddress = getListenAddressTypeForAddress(config,
+                                interfaceAddressForDestination);
+
+                        if (listenAddressTypeForAddress == null) {
+                            throw new IllegalStateException(
+                                    "Could not find a configured outbound interface for the following destination: "
+                                            + sas.getHost());
+                        }
+                        outboundInterfaceMap.put(sas.getHost(), listenAddressTypeForAddress);
+                        LOG.debug("Added to the Outbound Interface Map: key={}, value={}", sas.getHost(),
+                                listenAddressTypeForAddress);
+                    }
+                }
+            }
+        }
+    }
+
+    private ListenAddressType getListenAddressTypeForAddress(ImscfConfigType config, String address) {
+        for (ExecutionLayerServerType el : config.getServers().getExecutionLayerServers()) {
+            if (el.getName().equals(ConfigBean.SERVER_NAME)) {
+                for (ListenAddressType sla : el.getConnectivity().getSipListenAddresses()) {
+                    if (sla.getHost().equals(address)) {
+                        return sla;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getInterfaceAddressForDestination(String address) {
+        String retVal = null;
+        DatagramSocket ds = null;
+        try {
+            ds = new DatagramSocket();
+            ds.connect(InetAddress.getByName(address), 0);
+            retVal = ds.getLocalAddress().getHostAddress();
+        } catch (SocketException | UnknownHostException ex) {
+            throw new RuntimeException("Could not find outbound network for " + address); // NOPMD
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+        }
+        return retVal;
     }
 
     /** Opaque interface to hold failover state for a context, i.e. a call.*/

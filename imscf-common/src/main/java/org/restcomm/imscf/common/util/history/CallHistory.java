@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -76,9 +76,11 @@ public class CallHistory {
     private String createCallHistoryString() {
         String start = String.format("%s - %20s", formatStart(), imscfCallId);
         StringBuilder ret = new StringBuilder(start);
-        for (String event : events) {
-            ret.append(" ").append(SEPARATOR).append(" ").append(event);
-        }
+        synchronized (events) {
+            for (String event : events) {
+                ret.append(" ").append(SEPARATOR).append(" ").append(event);
+            }
+		}
         int firstToLast = (int) (lastEventMillis - startMillis);
         int firstToPrint = (int) (System.currentTimeMillis() - startMillis);
         ret.append(" ").append(SEPARATOR).append(" to-last:").append(firstToLast).append(", to-print:")

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@ package org.restcomm.imscf.el.call;
 
 import org.restcomm.imscf.el.call.history.ElEventCreator;
 import org.restcomm.imscf.el.call.impl.IMSCFCallBase;
-import org.restcomm.imscf.el.call.impl.AppSessionLockAction;
 import org.restcomm.imscf.el.call.impl.ImscfCallMaxAgeTimerListener;
 import org.restcomm.imscf.el.cap.CAPModule;
 import org.restcomm.imscf.el.cap.call.CAPCSCall;
@@ -30,9 +29,6 @@ import org.restcomm.imscf.el.cap.call.CapSipCsCallImpl;
 import org.restcomm.imscf.el.cap.call.CapSipSmsCallImpl;
 import org.restcomm.imscf.el.cap.call.CapSmsCall;
 import org.restcomm.imscf.el.cap.sip.SipSessionAttributes;
-import org.restcomm.imscf.el.diameter.DiameterModule;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCall;
-import org.restcomm.imscf.el.diameter.call.DiameterHttpCallImpl;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.call.MAPCall;
 import org.restcomm.imscf.el.map.call.MapSipCallImpl;
@@ -46,7 +42,6 @@ import org.restcomm.imscf.el.stack.SlElMappingData;
 import org.restcomm.imscf.el.tcap.call.TCAPCall;
 import org.restcomm.imscf.common.SccpDialogId;
 import org.restcomm.imscf.common.TcapDialogId;
-import org.restcomm.imscf.common.diameter.creditcontrol.DiameterSLELCreditControlRequest;
 import org.restcomm.imscf.common.messages.SccpManagementMessage;
 import org.restcomm.imscf.common.util.ImscfCallId;
 import org.restcomm.imscf.util.IteratorStream;
@@ -136,12 +131,15 @@ public class CallFactoryBean {
         call.setCsCapState(CAPCSCall.CAPState.IDP_ARRIVED);
         CAPDialogCircuitSwitchedCall dialog = idp.getCAPDialog();
         call.setCapDialog(dialog);
-        ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
-        // call.getEventQueue().add(idp);
         call.setLocalTcapTrId(idp.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idp.getCAPDialog().getRemoteDialogId());
-        call.getCallHistory().addEvent("->IDP");
+        // e.g. "->IDP2(LTID:0xacb123, cap2Module, SK_00016)
+        String eventStr = new StringBuilder("->IDP")
+                .append(idp.getCAPDialog().getApplicationContext().getVersion().getVersion()).append('(')
+                .append("LTID:0x").append(Long.toHexString(idp.getCAPDialog().getLocalDialogId())).append(", ")
+                .append(module.getName()).append(", ").append(call.getServiceIdentifier()).append(')').toString();
+        call.getCallHistory().addEvent(eventStr);
         ((IMSCFCallBase) call).populateMDC();
         LOG.debug("Created CS call {}", call);
         IMSCFCallBase.clearMDC();
@@ -208,7 +206,11 @@ public class CallFactoryBean {
             deleteCall(call);
             return null;
         }
-        ((CAPDialogImpl) capDialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
+
+        CapDialogCallData data = new CapDialogCallData();
+        data.setImscfCallId(call.getImscfCallId());
+        capDialog.setUserObject(data);
+
         capDialog.setIdleTaskTimeout(capModule.getTcapIdleTimeoutMillis());
         call.setCapDialog(capDialog);
 
@@ -237,35 +239,14 @@ public class CallFactoryBean {
         call.setSmsCapState(CapSmsCall.CAPState.IDPSMS_ARRIVED);
         CAPDialogSms dialog = idpSms.getCAPDialog();
         call.setCapDialog(dialog);
-        ((CAPDialogImpl) dialog).setDialogLockAction(new AppSessionLockAction(call.getAppSession()));
         dialog.setIdleTaskTimeout(module.getTcapIdleTimeoutMillis());
-        // call.getEventQueue().add(idp);
         call.setLocalTcapTrId(idpSms.getCAPDialog().getLocalDialogId());
         call.setRemoteTcapTrId(idpSms.getCAPDialog().getRemoteDialogId());
-        call.getCallHistory().addEvent("->IDPSMS");
+        call.getCallHistory().addEvent(
+			"->IDPSMS" + idpSms.getCAPDialog().getApplicationContext().getVersion().getVersion() + "("
+                        + module.getName() + ")");
         ((IMSCFCallBase) call).populateMDC();
         LOG.debug("Created SMS call {}", call);
-        IMSCFCallBase.clearMDC();
-        callStore.updateCall(call);
-        call.setImscfState(ImscfCallLifeCycleState.ACTIVE);
-        return call.getImscfCallId();
-    }
-
-    /**
-     * Create a new call. Returns the IMSCF call id of the new call, the instance itself can be retrieved through the CallStore.
-     * @return imscfCallId
-     */
-    public String newCall(DiameterSLELCreditControlRequest diameterRequest, String callId, String msgId,
-            DiameterModule module) {
-        DiameterHttpCall specificCall = new DiameterHttpCallImpl();
-        specificCall.setDiameterModule(module);
-        specificCall.setImscfCallId(callId);
-        DiameterHttpCall call = initCall(specificCall, module);
-        call.setDiameterSessionId(diameterRequest.getSessionId());
-        call.setServiceContextId(diameterRequest.getServiceContextId());
-        call.getCallHistory().addEvent("->LWC(" + diameterRequest.getRequestType() + ", " + msgId + ")");
-        ((IMSCFCallBase) call).populateMDC();
-        LOG.debug("Created Diameter call {}", call);
         IMSCFCallBase.clearMDC();
         callStore.updateCall(call);
         call.setImscfState(ImscfCallLifeCycleState.ACTIVE);
@@ -422,9 +403,6 @@ public class CallFactoryBean {
             MAPCall mc = (MAPCall) call;
             sccpDialogId = getSccpDialogId(mc.getMAPDialog());
             tcapDialogId = getTcapDialogId(mc);
-        } else if (call instanceof DiameterHttpCall) {
-            LOG.debug("SL mapping for DiameterHttpCall is automatically removed on the SL side, no cleanup necessary.");
-            return;
         } else {
             LOG.warn("call is {}, sending delete call message to SL is not implemented!", call);
             return;

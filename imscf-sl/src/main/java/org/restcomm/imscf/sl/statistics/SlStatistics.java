@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.mobicents.protocols.ss7.m3ua.RouteAs;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.AspFactory;
@@ -69,9 +70,9 @@ public final class SlStatistics {
         instance.m3uaAsNameMap = new HashMap<String, M3uaAs>();
         instance.m3uaAspMap = new HashMap<String, M3uaAsp>();
 
-        for (Entry<String, As[]> e : sigtranStack.getM3uaManagement().getRoute().entrySet()) {
+        for (Entry<String, RouteAs> e : sigtranStack.getM3uaManagement().getRoute().entrySet()) {
             int pointCode = extractPointCodeFromKey(e.getKey());
-            for (As as : e.getValue()) {
+            for (As as : e.getValue().getAsArray()) {
                 LOG.info("route: {}, point code: {}, M3UA AS: {}", e.getKey(), pointCode, as);
                 if (as == null)
                     continue;

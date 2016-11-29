@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,8 @@ import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.DefaultEncodingScheme;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0011Impl;
 
 /** Utility class for mapping IMSCF config types to SCCP types. */
 public final class SccpPrimitiveMapper {
@@ -42,45 +44,37 @@ public final class SccpPrimitiveMapper {
     }
 
     public static NumberingPlan getGtNumberingPlan(GtAddressType address) {
-        try {
-            return NumberingPlan.valueOf(address.getGtNumberingPlan());
-        } catch (IOException e) { // why throw at all?
-            return null;
-        }
+        return NumberingPlan.valueOf(address.getGtNumberingPlan());
     }
 
     public static NatureOfAddress getGtNatureOfAddress(GtAddressType address) {
-        try {
-            return NatureOfAddress.valueOf(address.getGtNoa());
-        } catch (IOException e) { // why throw at all?
-            return null;
-        }
+        return NatureOfAddress.valueOf(address.getGtNoa());
     }
 
     public static SccpAddress createSccpAddress(GtAddressType address, ParameterFactory factory) {
         // note: address.getGtIndicator() is ignored. AddressIndicator is calculated by the factory based on the
         // provided parameters
-        GlobalTitle gt = GlobalTitle.getInstance(address.getGtTranslationType(), getGtNumberingPlan(address),
-                getGtNatureOfAddress(address), address.getGlobalTitle());
-        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 0, gt,
+        GlobalTitle gt = new GlobalTitle0011Impl(address.getGlobalTitle(), address.getGtTranslationType(),
+                        new DefaultEncodingScheme(), getGtNumberingPlan(address));
+        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt, 0,
                 address.getSubSystemNumber());
     }
 
     public static SccpAddress createSccpAddress(RemoteGtAddressType address, ParameterFactory factory, boolean addPc) {
         // note: address.getGtIndicator() is ignored. AddressIndicator is calculated by the factory based on the
         // provided parameters
-        GlobalTitle gt = GlobalTitle.getInstance(address.getGtTranslationType(), getGtNumberingPlan(address),
-                getGtNatureOfAddress(address), address.getGlobalTitle());
+        GlobalTitle gt = new GlobalTitle0011Impl(address.getGlobalTitle(), address.getGtTranslationType(),
+                        new DefaultEncodingScheme(), getGtNumberingPlan(address));
         int pc = 0;
         if (addPc) {
             pc = address.getPointCode();
         }
-        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, pc, gt,
+        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt, pc,
                 address.getSubSystemNumber());
     }
 
     public static SccpAddress createSccpAddress(SubSystemType address, ParameterFactory factory) {
-        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, 0, null,
+        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, null, 0,
                 address.getSubSystemNumber());
     }
 
@@ -93,12 +87,12 @@ public final class SccpPrimitiveMapper {
      * @return A new SccpAddress instance
      */
     public static SccpAddress createSccpAddressPcFilledBySl(SubSystemType address, ParameterFactory factory) {
-        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, PC_FILLED_BY_SL, null,
+        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, null, PC_FILLED_BY_SL,
                 address.getSubSystemNumber());
     }
 
     public static SccpAddress createSccpAddress(RemoteSubSystemPointCodeType address, ParameterFactory factory) {
-        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, address.getPointCode(), null,
+        return factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, null, address.getPointCode(),
                 address.getSubSystemNumber());
     }
 }

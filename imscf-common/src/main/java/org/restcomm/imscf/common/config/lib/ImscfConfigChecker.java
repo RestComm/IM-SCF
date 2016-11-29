@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -41,16 +41,10 @@ public final class ImscfConfigChecker {
                 throw new IllegalStateException("SCCP local GT/SSN must be configured if CAP/MAP modules are used.");
         }
 
-        // Diameter config checks
-        // ...
-
     }
 
     public boolean isSigtranStackNeeded() {
         return !config.getCapModules().isEmpty() || !config.getMapModules().isEmpty();
     }
 
-    public boolean isDiameterStackNeeded() {
-        return !config.getDiameterGatewayModules().isEmpty();
-    }
 }

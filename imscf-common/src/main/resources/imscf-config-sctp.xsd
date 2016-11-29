@@ -61,11 +61,10 @@
                 </xs:simpleType>
             </xs:element>
             <xs:element name="associationType">
-                <xs:annotation><xs:documentation>Association type. Assign "m3ua" for ss7 associations and "diameter" for DIAMETER gateway connections</xs:documentation></xs:annotation>
+                <xs:annotation><xs:documentation>Association type. Assign "m3ua" for ss7 associations</xs:documentation></xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
                         <xs:enumeration value="m3ua"/>
-                        <xs:enumeration value="diameter"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.mobicents.protocols.ss7.sccp.RemoteSccpStatus;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.SignallingPointStatus;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.message.SccpMessage;
@@ -100,15 +101,13 @@ public class SLSccpListener implements SccpListener {
     }
 
     @Override
-    public void onCoordRequest(int arg0, int arg1, int arg2) {
+    public void onCoordResponse(int arg1, int arg2) {
         // TODO
-        logger.debug("onCoordRequest {} {} {}", arg0, arg1, arg2);
+        logger.debug("onCoordResponse {} {}", arg1, arg2);
     }
 
-    @Override
-    public void onCoordResponse(int arg0, int arg1, int arg2) {
-        // TODO
-        logger.debug("onCoordResponse {} {} {}", arg0, arg1, arg2);
+    public void onNetworkIdState(int networkId, NetworkIdState networkIdState) {
+        logger.debug("onNetworkIdState {} {}", networkId, networkIdState);
     }
 
     @Override
@@ -164,7 +163,7 @@ public class SLSccpListener implements SccpListener {
                 }
 
                 logger.debug("Missing EL node mapping entry for {} / {}, querying other SL.", sdid, tdid);
-                startELRouterQuery(info, msg);
+                startELRouterQuery(sdid, info, msg);
                 return;
             }
             callid = data.getImscfCallId();
@@ -179,7 +178,7 @@ public class SLSccpListener implements SccpListener {
         try {
             MDCParameters.toMDC(Parameter.IMSCF_CALLID, callid.toString());
             if (info.getMessageType() == MessageType.TC_BEGIN) {
-                callHistoryStore.registerEvent(callid, Event.fromTcap(info, true),
+                callHistoryStore.registerEvent(callid, Event.fromTcap(info, true), sdid.toString(),
                         "OTID: 0x" + Long.toHexString(info.getOtid()));
             } else {
                 callHistoryStore.registerEvent(callid, Event.fromTcap(info, true));
@@ -190,9 +189,9 @@ public class SLSccpListener implements SccpListener {
         }
     }
 
-    private void startELRouterQuery(TCAPMessageInfo info, SccpDataMessage msg) {
+    private void startELRouterQuery(SccpDialogId sdid, TCAPMessageInfo info, SccpDataMessage msg) {
         ImscfCallId queryId = ImscfCallId.generate();
-        callHistoryStore.registerEvent(queryId, Event.fromTcap(info, true),
+        callHistoryStore.registerEvent(queryId, Event.fromTcap(info, true), sdid.toString(),
                 "DTID: 0x" + Long.toHexString(info.getDtid()));
         callHistoryStore.registerEvent(queryId, Event.EL_ROUTER_QUERY_OUT);
         logger.debug("Sending EL router query with id {}", queryId.toString());
@@ -285,7 +284,7 @@ public class SLSccpListener implements SccpListener {
     }
 
     @Override
-    public void onPcState(int arg0, SignallingPointStatus arg1, int arg2, RemoteSccpStatus arg3) {
+    public void onPcState(int arg0, SignallingPointStatus arg1, Integer arg2, RemoteSccpStatus arg3) {
         // TODO Auto-generated method stub
         logger.debug("onPcState {} {} {} {}", arg0, arg1, arg2, arg3);
     }

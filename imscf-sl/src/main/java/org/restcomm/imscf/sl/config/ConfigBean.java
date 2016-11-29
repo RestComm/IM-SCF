@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -107,8 +107,4 @@ public class ConfigBean {
         return checker.isSigtranStackNeeded();
     }
 
-    @Lock(LockType.READ)
-    public boolean isDiameterStackNeeded() {
-        return checker.isDiameterStackNeeded();
-    }
 }

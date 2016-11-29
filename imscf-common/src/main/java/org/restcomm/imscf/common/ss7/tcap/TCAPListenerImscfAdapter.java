@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,13 @@ package org.restcomm.imscf.common.ss7.tcap;
 
 import org.restcomm.imscf.common.config.ApplicationContextType;
 import org.restcomm.imscf.common.util.overload.OverloadProtector;
+import org.restcomm.common.ss7.tcap.NamedTCListener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
-import org.mobicents.protocols.ss7.tcap.api.NamedTCListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPSendException;
 import org.mobicents.protocols.ss7.tcap.api.TCListener;
@@ -42,6 +42,7 @@ import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCUserAbortRequest;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.InvokeImpl;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,9 +165,8 @@ public class TCAPListenerImscfAdapter implements TCListener {
         if (localAddress.getGlobalTitle() != null
                 && localAddress.getAddressIndicator().getRoutingIndicator() != RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE) {
 
-            SccpAddress newLocalAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
-                    localAddress.getSignalingPointCode(), localAddress.getGlobalTitle(),
-                    localAddress.getSubsystemNumber());
+            SccpAddress newLocalAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
+                    localAddress.getGlobalTitle(), localAddress.getSignalingPointCode(), localAddress.getSubsystemNumber());
             d.setLocalAddress(newLocalAddress);
             LOGGER.debug("rewriteCalledPartyIfGTPresent from={} to={}", localAddress, newLocalAddress);
         }

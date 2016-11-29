@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ package org.restcomm.imscf.el.map.sip;
 
 import org.restcomm.imscf.el.cap.sip.SipConstants;
 import org.restcomm.imscf.el.cap.sip.SipUtil;
+import org.restcomm.imscf.el.cap.call.CapDialogCallData;
 import org.restcomm.imscf.el.map.MAPModule;
 import org.restcomm.imscf.el.map.call.AtiRequest;
 import org.restcomm.imscf.el.map.call.MAPCall.MapMethod;
@@ -38,6 +39,7 @@ import javax.servlet.sip.SipURI;
 import javax.servlet.sip.URI;
 
 import org.mobicents.protocols.ss7.map.api.MAPException;
+import org.mobicents.protocols.ss7.map.MAPDialogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +93,9 @@ public class MAPServlet extends ScenarioBasedServlet {
                 call.setAtiRequest(atiRequest);
                 try {
                     call.getMapOutgoingRequestScenarios().add(MapAnyTimeInterrogationRequestScenario.start(call));
+                    CapDialogCallData data = new CapDialogCallData();
+					data.setImscfCallId(callId);
+					((MAPDialogImpl) call.getMAPDialog()).setUserObject(data);
                 } catch (MAPException ex) {
                     LOG.error("Exception while sending ATI message: ", ex);
                     resp = reqA.createResponse(500);

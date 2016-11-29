@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,7 @@ public class TCAPProviderImplImscfWrapper extends TCAPProviderImpl {
     protected TCAPProviderImplImscfWrapper(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn) {
         super(sccpProvider, stack, ssn);
         adapter = new TCAPListenerImscfAdapter(this);
-        tcListeners.add(adapter);
+        addTCListener(adapter);
     }
 
     @Override

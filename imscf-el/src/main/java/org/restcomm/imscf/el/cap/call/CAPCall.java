@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -51,10 +51,14 @@ public interface CAPCall<DialogType extends CAPDialog> extends TCAPCall {
     List<CapIncomingRequestScenario<?>> getCapIncomingRequestScenarios();
 
     default void add(CapOutgoingRequestScenario scenario) {
-        getCapOutgoingRequestScenarios().add(scenario);
+        if (scenario != null) {
+            getCapOutgoingRequestScenarios().add(scenario);
+	    }
     }
 
     default void add(CapIncomingRequestScenario<?> scenario) {
-        getCapIncomingRequestScenarios().add(scenario);
+        if (scenario != null) {
+            getCapIncomingRequestScenarios().add(scenario);
+	    }
     }
 }

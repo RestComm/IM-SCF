@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,9 @@ import org.mobicents.protocols.ss7.sccp.impl.parameter.ImportanceImpl;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ProtocolClass;
-import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0011Impl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.BCDEvenEncodingScheme;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -89,10 +91,10 @@ public final class SccpSerializer {
     public static void main(String[] args) throws IOException {
 
         SccpDataMessage sdm = new MessageFactoryImpl(new SccpStackImpl("name")).createDataMessageClass1(
-                new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 280, GlobalTitle.getInstance(0,
-                        NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, "363012345678"), 123),
-                new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 321, GlobalTitle.getInstance(0,
-                        NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, "363015555585"), 44), new byte[] {
+                new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, new GlobalTitle0011Impl("363012345678", 0,
+                        BCDEvenEncodingScheme.INSTANCE, NumberingPlan.ISDN_TELEPHONY), 280, 123),
+                new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, new GlobalTitle0011Impl("363015555585", 0,
+                        BCDEvenEncodingScheme.INSTANCE, NumberingPlan.ISDN_TELEPHONY), 321, 44), new byte[] {
                         (byte) 12, (byte) 34 }, 1, 146, false, new HopCounterImpl(2), new ImportanceImpl((byte) 1));
 
         String sdmString = SccpSerializer.serialize(sdm);

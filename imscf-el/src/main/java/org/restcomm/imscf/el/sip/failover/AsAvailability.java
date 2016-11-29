@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ package org.restcomm.imscf.el.sip.failover;
 import org.restcomm.imscf.common.config.SipApplicationServerType;
 import org.restcomm.imscf.el.cap.sip.SipUtil;
 import org.restcomm.imscf.el.sip.ImmutableSipURI;
+import org.restcomm.imscf.el.sip.routing.SipAsRouteAndInterface;
 import org.restcomm.imscf.el.statistics.ElStatistics;
 
 import java.util.Objects;
@@ -38,16 +39,23 @@ class AsAvailability {
     private final SipApplicationServerType server;
     private final String asGroupName;
     private final SipURI uri;
+    private final SipAsRouteAndInterface sipAsRouteAndInterface;
 
     private boolean available; // maybe store last available timestamp instead, or both
 
-    AsAvailability(String asGroupName, SipApplicationServerType server) {
+    AsAvailability(String asGroupName, SipApplicationServerType server, String outboundInterfaceHost,
+            int outboundInterfacePort) {
         this.asGroupName = Objects.requireNonNull(asGroupName);
         this.server = Objects.requireNonNull(server);
         this.uri = new ImmutableSipURI(SipUtil.createAppServerRoutingAddress(server));
+        this.sipAsRouteAndInterface = new SipAsRouteAndInterface(uri, outboundInterfaceHost, outboundInterfacePort);
         // if heartbeat is enabled, the AS is considered unavailable until a successful heartbeat
         // otherwise, it is considered always available
         setAvailable(server.isHeartbeatEnabled() ? false : true);
+    }
+
+    public SipAsRouteAndInterface getSipAsRouteAndInterface() {
+        return sipAsRouteAndInterface;
     }
 
     SipApplicationServerType getServer() {

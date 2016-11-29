@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,6 +33,8 @@ import org.restcomm.imscf.el.stack.CallContext.ContextLayer;
 import org.restcomm.imscf.common.util.overload.OverloadProtector;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -118,16 +120,35 @@ public class ScenarioBasedServlet extends SipServlet {
                         SipUtil.createAndSetWarningHeader(unavailable, "Server is overloaded.");
                         unavailable.send();
                     } else {
+                        if (req instanceof SipServletRequest) {
+                            setAppropriateOutboundInterface((SipServletRequest) req);
+                        }
                         super.service(req, resp); // super gets the original unwrapped parameters
                     }
                     // The call is not yet created. In this case the event is added by CallFactoryBean
                     return;
+                }
+                if (req instanceof SipServletRequest) {
+                    setAppropriateOutboundInterface((SipServletRequest) req);
                 }
 
                 call.getCallHistory().addEvent(ElEventCreator.createIncomingSipEvent(msgA));
                 // if the call already exists, scenarios should handle the message
                 runScenarios(call, msgA);
             }
+        }
+    }
+
+    protected void setAppropriateOutboundInterface(SipServletRequest req) throws ServletException, IOException {
+        if (req.isInitial()) {
+            InetSocketAddress inetSocketAddressForRemoteHost = new InetSocketAddress(InetAddress.getByName(req
+                    .getLocalAddr()), req.getLocalPort());
+            req.getSession().setOutboundInterface(inetSocketAddressForRemoteHost);
+            LOG.debug(
+                    "Setting outbound interface for request - mehtod: {}, session id: {}, local address: {}, local port: {}, outbound interface: {}",
+                    req.getMethod(), req.getSession().getId(), req.getLocalAddr(), req.getLocalPort(),
+                    inetSocketAddressForRemoteHost);
+
         }
     }
 
@@ -152,6 +173,19 @@ public class ScenarioBasedServlet extends SipServlet {
         Objects.requireNonNull(call, "Call cannot be null!");
 
         LOG.trace("Message belongs to call: {}", call);
+
+        // If sip dialog creation is already disabled (i.e. the call is under release), reject initial requests
+        // right away instead of running scenarios.
+        if (msgA instanceof SipServletRequest && ((SipServletRequest) msgA).isInitial()
+                && call.isSipDialogCreationDisabled()) {
+            LOG.warn("Initial {} arrived in already released SIP side, rejecting it. {}", shortDescription(msgA), call);
+            SipUtil.sendOrWarn(SipUtil.createAndSetWarningHeader(
+                    ((SipServletRequest) msgA).createResponse(SipServletResponse.SC_FORBIDDEN),
+                    "SIP side already released for call " + call.getImscfCallId()),
+                    "Failed to send error response to reject initial request");
+            return;
+        }
+
         AppSessionHelper.renewAppSessionTimeout(call, msgA.getApplicationSession());
 
         boolean handledByAny = false;

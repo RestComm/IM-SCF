@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
 import org.mobicents.protocols.sctp.ManagementImpl;
-import org.mobicents.protocols.sctp.multiclient.MultiManagementImpl;
+import org.restcomm.imscf.sl.sctp.multiclient.MultiManagementImpl;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
 import org.mobicents.protocols.ss7.indicator.NumberingPlan;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -54,18 +54,21 @@ import org.mobicents.protocols.ss7.sccp.SccpStack;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0011Impl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.DefaultEncodingScheme;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Collection of common algorythms, constants which could be useful for building Ss7 stacks.
+ * Collection of common algorithms, constants which could be useful for building Ss7 stacks.
  *
  * @author Balogh GÃ¡bor
  *
  */
 @SuppressWarnings("PMD")
 public final class Ss7StackBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Ss7StackBuilder.class.toString());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Ss7StackBuilder.class);
     private static final AtomicInteger REMOTE_SPC_SEQ = new AtomicInteger();
     private static final AtomicInteger REMOTE_SSN_SEQ = new AtomicInteger();
     private static final AtomicInteger SCCP_ROUTER_RULE_SEQ = new AtomicInteger();
@@ -108,7 +111,7 @@ public final class Ss7StackBuilder {
 
     private static void initM3UA(ImscfSigtranStack stack) throws Exception {
         LOGGER.info("Initializing M3UA Stack for {}...", stack.getServerName());
-        M3UAManagementImpl m3Management = new M3UAManagementImpl(stack.getServerName());
+        M3UAManagementImpl m3Management = new M3UAManagementImpl(stack.getServerName(), "IM-SCF");
         stack.setM3uaManagement(m3Management);
         m3Management.setTransportManagement(stack.getSctpManagement());
         if (stack.getServer().getMtpDeliveryTransferMessageThreadCount() != null) {
@@ -161,9 +164,16 @@ public final class Ss7StackBuilder {
         String[] extraHostIps = associationLocalSide.getSigtranIp2() == null ? null
                 : new String[] { associationLocalSide.getSigtranIp2() };
         assocName = associationRemoteSide.getName();
-        sctpManagement.addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
-                associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
-                IpChannelType.SCTP, extraHostIps);
+        if (sctpManagement instanceof MultiManagementImpl && associationRemoteSide.getRemoteIp2() != null
+                && !associationRemoteSide.getRemoteIp2().isEmpty()) {
+            ((MultiManagementImpl) sctpManagement).addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
+                    associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
+                    IpChannelType.SCTP, extraHostIps, associationRemoteSide.getRemoteIp2());
+        } else {
+            sctpManagement.addAssociation(associationLocalSide.getSigtranIp1(), associationLocalSide.getPort(),
+                    associationRemoteSide.getRemoteIp1(), associationRemoteSide.getRemotePort(), assocName,
+                    IpChannelType.SCTP, extraHostIps);
+        }
         return assocName;
     }
 
@@ -174,8 +184,8 @@ public final class Ss7StackBuilder {
         sccp.getRouter().addMtp3ServiceAccessPoint(pointCode, // id
                 1, // mtp3Id
                 pointCode, // opc
-                localNetworkIndicator // ni
-                );
+                localNetworkIndicator, // ni
+                0); //networkId
         int destIndex = 0;
         HashSet<String> configuredDestination = new HashSet<String>();
         for (RemoteSubSystemPointCodeType rsys : remoteProfile.getRemoteSubSystemPointCodeAddresses()) {
@@ -304,15 +314,15 @@ public final class Ss7StackBuilder {
 
     private static void configureLocalOriginatedRuleForRemoteGt(RemoteGtAddressType remoteGt, ImscfSigtranStack stack)
             throws Exception {
-        GlobalTitle gtMatcher = GlobalTitle.getInstance(remoteGt.getGtTranslationType(), NumberingPlan.ISDN_TELEPHONY,
-                NatureOfAddress.INTERNATIONAL, remoteGt.getGlobalTitle());
-        SccpAddress sccpGTMatcherAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, -1,
-                gtMatcher, remoteGt.getSubSystemNumber());
-        GlobalTitle gtMask = GlobalTitle.getInstance(remoteGt.getGtTranslationType(), NumberingPlan.ISDN_TELEPHONY,
-                NatureOfAddress.INTERNATIONAL, remoteGt.getGlobalTitle());
+        GlobalTitle gtMatcher = new GlobalTitle0011Impl(remoteGt.getGlobalTitle(), remoteGt.getGtTranslationType(),
+                new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY);
+        SccpAddress sccpGTMatcherAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, gtMatcher, -1,
+                remoteGt.getSubSystemNumber());
+        GlobalTitle gtMask = new GlobalTitle0011Impl(remoteGt.getGlobalTitle(), remoteGt.getGtTranslationType(),
+                new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY);
         int translatedSSN = remoteGt.getSubSystemNumber();
-        SccpAddress sccpGttPrimaryRouteAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
-                remoteGt.getPointCode(), gtMask, translatedSSN);
+        SccpAddress sccpGttPrimaryRouteAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
+                gtMask, remoteGt.getPointCode(), translatedSSN);
 
         SccpStack sccpStack = stack.getSccpStack();
 
@@ -322,22 +332,22 @@ public final class Ss7StackBuilder {
 
         int nextRuleIndex = SCCP_ROUTER_RULE_SEQ.incrementAndGet();
         sccpStack.getRouter()
-                .addRule(nextRuleIndex, RuleType.Solitary, LoadSharingAlgorithm.Undefined,
-                        OriginationType.LocalOriginated, sccpGTMatcherAddress, "R", routingAddrIndex, -1,
-                        null);
+                .addRule(nextRuleIndex, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined,
+                        OriginationType.LOCAL, sccpGTMatcherAddress, "R", routingAddrIndex, -1,
+                        null, 0);
         LOGGER.debug("adding sccp routing rule: " + sccpStack.getRouter().getRule(nextRuleIndex));
     }
 
     private static void configureLocalOriginatedGttRule(GtRoutingType gtRouting, ImscfSigtranStack stack)
             throws Exception {
-        GlobalTitle gtMatcher = GlobalTitle.getInstance(Ss7StackParameters.TRANSLATION_TYPE_FOR_GTT,
-                NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, "*");
-        SccpAddress sccpGTMatcherAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, -1,
-                gtMatcher, Ss7StackParameters.CAP_SSN);
-        GlobalTitle gtMask = GlobalTitle.getInstance(Ss7StackParameters.TRANSLATION_TYPE_FOR_GTT,
-                NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, "-");
-        SccpAddress sccpGttPrimaryRouteAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
-                gtRouting.getPrimaryGttPointCode(), gtMask, Ss7StackParameters.CAP_SSN);
+        GlobalTitle gtMatcher = new GlobalTitle0011Impl("*", Ss7StackParameters.TRANSLATION_TYPE_FOR_GTT,
+                new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY);
+        SccpAddress sccpGTMatcherAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
+                gtMatcher, -1, Ss7StackParameters.CAP_SSN);
+        GlobalTitle gtMask = new GlobalTitle0011Impl("-", Ss7StackParameters.TRANSLATION_TYPE_FOR_GTT,
+                new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY);
+        SccpAddress sccpGttPrimaryRouteAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE,
+                gtMask, gtRouting.getPrimaryGttPointCode(), Ss7StackParameters.CAP_SSN);
 
         SccpStack sccpStack = stack.getSccpStack();
 
@@ -353,8 +363,8 @@ public final class Ss7StackBuilder {
                     // side effect: actually add the address
                     int idx = SCCP_ROUTER_ROUTING_ADDR_SEQ.incrementAndGet();
                     try {
-                        sccpStack.getRouter().addRoutingAddress(idx, new SccpAddress(
-                                RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, secondaryPC, gtMask,
+                        sccpStack.getRouter().addRoutingAddress(idx, new SccpAddressImpl(
+                                RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gtMask, secondaryPC,
                                 Ss7StackParameters.CAP_SSN));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -370,19 +380,19 @@ public final class Ss7StackBuilder {
         RuleType ruleType;
         if (routingAddrIndexSecondary == -1) {
             algo = LoadSharingAlgorithm.Undefined;
-            ruleType = RuleType.Solitary;
+            ruleType = RuleType.SOLITARY;
         } else if (gtRouting.getDistribution() == MessageDistributionType.LOADBALANCE) {
             algo = LoadSharingAlgorithm.Bit0;
-            ruleType = RuleType.Loadshared;
+            ruleType = RuleType.LOADSHARED;
         } else {
             //failover
             algo = LoadSharingAlgorithm.Undefined;
-            ruleType = RuleType.Dominant;
+            ruleType = RuleType.DOMINANT;
         }
 
         sccpStack.getRouter().addRule(nextRuleIndex, ruleType, algo,
-                OriginationType.LocalOriginated, sccpGTMatcherAddress, "K", routingAddrIndexPrimary, routingAddrIndexSecondary,
-                null);
+                OriginationType.LOCAL, sccpGTMatcherAddress, "K", routingAddrIndexPrimary, routingAddrIndexSecondary,
+                null, 0);
     }
 
     private static void configureRemoteOriginatedGttRules(int localPointCode, ImscfSigtranStack stack) throws Exception {
@@ -393,10 +403,9 @@ public final class Ss7StackBuilder {
 
     private static void configureRemoteOriginatedRuleForLocalGt(GtAddressType localGt, int localPointCode,
             ImscfSigtranStack stack) throws Exception {
-        GlobalTitle gtLocalMask = GlobalTitle.getInstance(0, NumberingPlan.ISDN_TELEPHONY,
-                NatureOfAddress.INTERNATIONAL, "-");
-        SccpAddress sccpGtLocalMask = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, localPointCode,
-                gtLocalMask, localGt.getSubSystemNumber());
+        GlobalTitle gtLocalMask = new GlobalTitle0011Impl("-", 0, new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY);
+        SccpAddress sccpGtLocalMask = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, gtLocalMask, localPointCode,
+                localGt.getSubSystemNumber());
 
         int nextRoutingAddressIndex = SCCP_ROUTER_ROUTING_ADDR_SEQ.incrementAndGet();
         stack.getSccpStack().getRouter().addRoutingAddress(nextRoutingAddressIndex, sccpGtLocalMask);
@@ -405,13 +414,13 @@ public final class Ss7StackBuilder {
                 .getRouter()
                 .addRule(
                         SCCP_ROUTER_RULE_SEQ.incrementAndGet(),
-                        RuleType.Solitary,
+                        RuleType.SOLITARY,
                         LoadSharingAlgorithm.Undefined,
-                        OriginationType.RemoteOriginated,
-                        new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, localPointCode, GlobalTitle
-                                .getInstance(0, NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL,
-                                        localGt.getGlobalTitle()), localGt.getSubSystemNumber()), "K",
-                        nextRoutingAddressIndex, -1, null);
+                        OriginationType.REMOTE,
+                        new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, new GlobalTitle0011Impl(
+							localGt.getGlobalTitle(), 0, new DefaultEncodingScheme(), NumberingPlan.ISDN_TELEPHONY), localPointCode,
+							localGt.getSubSystemNumber()), "K",
+                        	nextRoutingAddressIndex, -1, null, 0);
     }
 
 }

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.mobicents.protocols.ss7.cap.api.CAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextName;
-import org.mobicents.protocols.ss7.tcap.api.NamedTCListener;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCBeginIndication;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCContinueIndication;
@@ -36,6 +35,8 @@ import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.restcomm.common.ss7.tcap.NamedTCListener;
 
 /**
  * Class for logging/debugging callbacks for TCAP dialogs.

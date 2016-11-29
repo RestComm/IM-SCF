@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -489,6 +489,10 @@ public abstract class CAPModuleBase implements CAPModule {
         return getCallStore().getCapCall(dialog.getLocalDialogId());
     }
 
+    protected CAPCall<?> getCapCallUnlocked(CAPDialog dialog) {
+        return getCallStore().getCapCallUnlocked(dialog.getLocalDialogId());
+    }
+
     protected CallFactoryBean getCallFactory() {
         return (CallFactoryBean) CallContext.get(CallContext.CALLFACTORY);
     }
@@ -714,7 +718,7 @@ public abstract class CAPModuleBase implements CAPModule {
 
     @Override
     public void onDialogTimeout(CAPDialog arg0) {
-        try (CAPCall<?> call = getCapCall(arg0)) {
+        try(CAPCall<?> call = getCapCallUnlocked(arg0)) {
             if (getModuleConfiguration().getGeneralProperties().getActivityTestIntervalSec() > 0) {
                 // if activityTest interval > 0, this callback will be fired accordingly and we should send AT.
                 LOG.debug("Dialog timeout for {}", call);
@@ -723,7 +727,7 @@ public abstract class CAPModuleBase implements CAPModule {
                 // If it is <= 0, the callback should never have fired
                 LOG.warn("Dialog timeout with activityTest turned off for {}", call);
             }
-        }
+		}
     }
 
     // @Override

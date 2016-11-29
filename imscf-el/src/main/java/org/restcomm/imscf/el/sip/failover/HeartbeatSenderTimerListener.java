@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,6 +26,8 @@ import org.restcomm.imscf.util.IteratorStream;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import javax.servlet.ServletException;
 import javax.servlet.sip.SipApplicationSession;
@@ -73,6 +75,10 @@ class HeartbeatSenderTimerListener implements TimerListener {
                         SipServletRequest req = SipAsLoadBalancer.getInstance().createHeartbeatMessage(ava);
                         req.getSession().setAttribute(HB_TYPE_ATTRIBUTE,
                                 active ? TimeoutType.ACTIVE_TIMEOUT : TimeoutType.INACTIVE_TIMEOUT);
+                        InetSocketAddress outboundInterface = new InetSocketAddress(InetAddress.getByName(ava
+                                .getSipAsRouteAndInterface().getOutboundInterfaceHost()), ava
+                                .getSipAsRouteAndInterface().getOutboundInterfacePort());
+                        req.getSession().setOutboundInterface(outboundInterface);
                         req.send();
                     } catch (ServletException e) {
                         LOG.warn("Failed to create OPTIONS heartbeat message to {}/{}!", ava.getAsGroupName(), ava

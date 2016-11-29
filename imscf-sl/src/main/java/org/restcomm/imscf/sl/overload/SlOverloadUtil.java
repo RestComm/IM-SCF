@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -74,8 +74,8 @@ public final class SlOverloadUtil {
         if (calling.getGlobalTitle() != null
                 && calling.getAddressIndicator().getRoutingIndicator() != RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE) {
             calling = sccpProvider.getParameterFactory().createSccpAddress(
-                    RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, calling.getSignalingPointCode(),
-                    calling.getGlobalTitle(), calling.getSubsystemNumber());
+                    RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, calling.getGlobalTitle(),
+                    calling.getSignalingPointCode(), calling.getSubsystemNumber());
         }
         SccpDataMessage uabort = sccpProvider.getMessageFactory().createDataMessageClass1(called, calling, data, 0,
                 calling.getSubsystemNumber(), false, null, null);

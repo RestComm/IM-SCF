@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -69,5 +69,15 @@ interface DelegatingSIPCall extends DelegatingIMSCFCall, SIPCall {
     @Override
     default void setFailoverContext(FailoverContext ctx) {
         getDelegate().setFailoverContext(ctx);
+    }
+
+    @Override
+    default void disableSipDialogCreation() {
+        getDelegate().disableSipDialogCreation();
+    }
+
+    @Override
+    default boolean isSipDialogCreationDisabled() {
+        return getDelegate().isSipDialogCreationDisabled();
     }
 }

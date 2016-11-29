@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -57,6 +57,17 @@ public interface SIPCall extends IMSCFCall {
     default void removeIf(Predicate<Scenario> p) {
         getSipScenarios().removeIf(p);
     }
+
+    /**
+     * After a call to this method, {@link #isSipDialogCreationDisabled()} should always return true.
+     */
+    void disableSipDialogCreation();
+
+    /**
+     * If this method returns true when an initial (dialog-establishing) SIP request arrives for this call, it will be rejected.
+     */
+    boolean isSipDialogCreationDisabled();
+
 
     /**
      * Enqueues a request for sending in its SipSession. The message will be sent when

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,9 +25,13 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPMessage;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.NoteSubscriberPresentRequest;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * SS7 stack listener for MAP SMS operations, used only for SendRoutingInfoForSM.
@@ -67,5 +71,20 @@ public class MAPSmsListener extends ImscfStackListener implements MapSmsListener
             call.getMapModule().onSendRoutingInfoForSMResponse(arg0);
         }
     }
+
+    @Override
+    public void onReadyForSMRequest(ReadyForSMRequest request) {
+        LOG.warn("Unexpected onReadyForSMRequest: {}", request);
+	}
+
+    @Override
+    public void onReadyForSMResponse(ReadyForSMResponse response) {
+        LOG.warn("Unexpected onReadyForSMResponse: {}", response);
+	}
+
+    @Override
+    public void onNoteSubscriberPresentRequest(NoteSubscriberPresentRequest request) {
+        LOG.warn("Unexpected onNoteSubscriberPresentRequest: {}", request);
+	}
 
 }

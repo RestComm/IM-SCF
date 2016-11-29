@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -70,7 +70,7 @@ public class NodeCatalog {
 
     protected void heartbeatFromNode(Node n) {
         NodeInfo ni = nodeInfoMap.get(n);
-        if (!ni.invalidator.isDone() && !ni.invalidator.isCancelled()) {
+        if (ni.invalidator != null && !ni.invalidator.isDone() && !ni.invalidator.isCancelled()) {
             ni.invalidator.cancel(true);
         }
         ni.invalidator = executor.schedule(new InvalidatorTask(n), heartbeatTimeoutMs, TimeUnit.MILLISECONDS);

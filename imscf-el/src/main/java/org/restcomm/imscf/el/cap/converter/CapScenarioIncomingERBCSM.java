@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,6 @@ import org.restcomm.imscf.el.stack.CallContext;
 import org.restcomm.imscf.util.Jss7ToXml;
 import org.restcomm.imscf.util.MultipartBuilder;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
@@ -99,9 +98,11 @@ public class CapScenarioIncomingERBCSM implements CapScenarioEventReportBCSM {
 
                 SipSession sipMrf = SipUtil.findMrfSessionForCallSegment(call, cs.getId());
                 boolean mrfInCS = sipMrf != null;
-                LOG.debug("MRF in callSegment {} : {}", cs.getId(), mrfInCS ? "Yes" : "No");
-
-                if (cs.getLegCount() == 1 && !mrfInCS) {
+                int legCount = cs.getLegCount();
+                int capVersion = call.getCapDialog().getApplicationContext().getVersion().getVersion();
+                LOG.debug("MRF in callSegment {} : {}, leg count: {}, CAP version: {}", cs.getId(), mrfInCS ? "Yes"
+                        : "No", legCount, capVersion);
+                if (legCount == 1 && !mrfInCS && capVersion >= 4) { // leg/cs CWA only available on CAP4 and later
                     LOG.debug("Sending automatic CWA for standalone leg in {} in {}", cs, call);
                     try {
                         call.add(CapScenarioContinueWithArgument.start(call,
@@ -240,19 +241,26 @@ public class CapScenarioIncomingERBCSM implements CapScenarioEventReportBCSM {
                 call.setPendingReleaseCause(cause);
             });
 
+            String xml = Jss7ToXml.encode(erbcsm, "eventReportBCSM");
+            if (xml == null) { // serialization error
+                xml = "";
+            }
+            // try to insert content even if empty, the status code and SDP may still be relevant to the AS
             try {
-                setContent(msg, Jss7ToXml.encode(erbcsm, "eventReportBCSM"), insertSdp);
-
-                if (msg instanceof SipServletRequest) {
-                    call.queueMessage((SipServletRequest) msg);
-                } else {
-                    msg.send();
-                }
-            } catch (IOException | MessagingException e) {
-                LOG.warn("Couldn't construct/send message to AS", e);
+                setContent(msg, xml, insertSdp);
+            } catch (UnsupportedEncodingException | MessagingException e) {
+                LOG.warn("Couldn't create body for ERBCSM message to AS, sending without content", e);
             }
 
-            if (!cwaSent) {
+            boolean sipMsgSentOrQueued;
+            if (msg instanceof SipServletRequest) {
+                call.queueMessage((SipServletRequest) msg);
+                sipMsgSentOrQueued = true;
+            } else {
+                sipMsgSentOrQueued = SipUtil.sendOrWarn(msg, "Couldn't send ERBCSM response to AS");
+            }
+
+            if (!cwaSent && sipMsgSentOrQueued) {
                 // only send continue for requests, but still check if we need to send TCAP end for notifications
                 call.getSipScenarios()
                         .add(SipScenarioContinueForERBCSM.start(msg, closeOnContinue, erbcsm, cs.getId()));

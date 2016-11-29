@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011­2016, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -52,6 +52,7 @@ public abstract class TCAPSIPCallBase extends TCAPCallBase implements TcapSipCal
     protected final Map<String, Queue<SipServletRequest>> pendingOutgoingRequests = new HashMap<>();
     protected FailoverContext failoverContext;
     protected final List<SipApplicationServerGroupType> appChain = new ArrayList<SipApplicationServerGroupType>();
+    private boolean sipDialogCreationDisabled = false;
 
     @Override
     public String getAppSessionId() {
@@ -81,6 +82,16 @@ public abstract class TCAPSIPCallBase extends TCAPCallBase implements TcapSipCal
     @Override
     public List<SipApplicationServerGroupType> getAppChain() {
         return appChain;
+    }
+
+    @Override
+    public void disableSipDialogCreation() {
+        this.sipDialogCreationDisabled = true;
+    }
+
+    @Override
+    public boolean isSipDialogCreationDisabled() {
+        return sipDialogCreationDisabled;
     }
 
     @Override
