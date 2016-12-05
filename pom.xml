@@ -34,11 +34,17 @@
 		<module>imscf-common</module>
     		<module>imscf-el</module>
 		<module>imscf-sl</module>
-		<module>docs/imscf/sources-asciidoc</module>
-		<module>docs/imscf_oam/sources-asciidoc</module>
+		
   	</modules>
 
 	<profiles>
+		<profile>
+			<id>docs</id>
+		 	<modules>
+				<module>docs/imscf/sources-asciidoc</module>
+				<module>docs/imscf_oam/sources-asciidoc</module>
+		 	</modules>
+		</profile>
 		<profile>
                         <id>set-git-hash</id>
                         <build>
