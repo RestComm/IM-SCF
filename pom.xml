@@ -16,6 +16,22 @@
 	<description>Restcomm IM-SCF Parent</description>
 	<url>https://github.com/RestComm/IM-SCF</url>
 
+	<developers>
+		<developer>
+			<id>gabor</id>
+			<name>Gabor Darmai</name>
+			<organization>Alerant</organization>
+			<organizationUrl>http://www.alerant.com/</organizationUrl>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>GNU_Affero_General_Public_License</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<packaging>pom</packaging>
 
 	<scm>
