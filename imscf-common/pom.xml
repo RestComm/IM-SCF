@@ -31,12 +31,12 @@
             <groupId>org.mobicents.commons</groupId>
             <artifactId>commons</artifactId>
             <version>1.0.0.CR1</version>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>org.mobicents.protocols.stream</groupId>
             <artifactId>stream</artifactId>
             <version>1.0.0.CR1</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.mobicents.protocols.ss7.congestion</groupId>
             <artifactId>congestion</artifactId>
